@@ -1,7 +1,9 @@
 package main.java.fr.univlyon1.actorcritic;
 
+import main.java.fr.univlyon1.Configuration;
 import main.java.fr.univlyon1.actorcritic.policy.Egreedy;
 import main.java.fr.univlyon1.actorcritic.policy.EgreedyDecrement;
+import main.java.fr.univlyon1.actorcritic.policy.Greedy;
 import main.java.fr.univlyon1.actorcritic.policy.Policy;
 import main.java.fr.univlyon1.agents.DqnAgent;
 import main.java.fr.univlyon1.environment.ActionSpace;
@@ -12,7 +14,8 @@ import main.java.fr.univlyon1.networks.Approximator;
 import main.java.fr.univlyon1.networks.Mlp;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-public class DQNActorCritic<A> implements Learning<A> {
+public class DQNActor<A> implements Learning<A> {
+    private static Configuration conf = new Configuration();
     private Approximator mlp ;
     private ActionSpace<A> actionSpace ;
     private TDBatch<A> td ;
@@ -21,16 +24,16 @@ public class DQNActorCritic<A> implements Learning<A> {
     private int epoch ;
     private int countStep ;
 
-    public DQNActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, long seed){
-        this.mlp =new Mlp(observationSpace.getShape()[0],actionSpace.getSize(),seed,false) ;
+    public DQNActor(ObservationSpace observationSpace, ActionSpace<A> actionSpace, long seed){
+        this.mlp =new Mlp(observationSpace.getShape()[0],actionSpace.getSize(),seed,false,this) ;
         this.actionSpace = actionSpace ;
-        int batchSize = 16 ;
-        int iterations = 10 ;
-        this.epoch = 50 ; // nombre d'itérations avant pour chaque clônage de réseau.
+        int batchSize = conf.getBatchSize();
+        int iterations = conf.getIterations() ;
+        this.epoch = conf.getEpochs() ; // nombre d'itérations avant pour chaque clônage de réseau.
         this.countStep=0;
-        this.td = new TDBatch<A>(0.9,this, new RandomExperienceReplay<A>(5000),batchSize,iterations) ;// experience can be null
+        this.td = new TDBatch<A>(conf.getGamma(),this, new RandomExperienceReplay<A>(conf.getSizeExperienceReplay()),batchSize,iterations) ;// experience can be null
         //this.policy = new Egreedy(0.2,seed);
-        this.policy = new EgreedyDecrement(0.05,100,seed);
+        this.policy = new EgreedyDecrement(conf.getMinEpsilon(),conf.getStepEpsilon(),seed);
     }
 
     @Override
@@ -46,6 +49,11 @@ public class DQNActorCritic<A> implements Learning<A> {
     @Override
     public ActionSpace<A> getActionSpace() {
         return this.actionSpace ;
+    }
+
+    @Override
+    public Configuration getConf() {
+        return conf ;
     }
 
     @Override

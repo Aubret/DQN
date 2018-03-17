@@ -2,11 +2,10 @@ package main.java.fr.univlyon1.agents;
 
 import main.java.fr.univlyon1.actorcritic.Learning;
 import main.java.fr.univlyon1.environment.ActionSpace;
-import main.java.fr.univlyon1.environment.Interaction;
 import main.java.fr.univlyon1.environment.Observation;
 import main.java.fr.univlyon1.environment.ObservationSpace;
-import main.java.fr.univlyon1.actorcritic.DQNActorCritic;
-import org.nd4j.linalg.dataset.api.preprocessor.Normalizer;
+import main.java.fr.univlyon1.actorcritic.DQNActor;
+
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
@@ -30,9 +29,9 @@ public class DqnAgent<A,O> implements AgentRL<A> {
         this.seed = seed ;
         this.actionSpace = actionSpace ;
         this.observationSpace = observationSpace ;
-        this.learning = new DQNActorCritic<A>(observationSpace,actionSpace,seed);
+        this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
         try {
-            FileWriter fw = new FileWriter("sim/arthur/rewards3.csv");
+            FileWriter fw = new FileWriter("sim/arthur/rewards2.csv");
             this.rewardResults = new PrintWriter(fw);
         }catch(Exception e){
             e.printStackTrace();
@@ -43,15 +42,14 @@ public class DqnAgent<A,O> implements AgentRL<A> {
     public Object control(Double reward,Observation observation) {
         count++ ;
         if(reward != null) {
-            if(count > 400)
+            if(count > 200)
                 this.waitTotalReward+=reward ;
             this.rewardResults.println(count+";"+reward);
             this.totalReward+=reward ;
             this.learning.putReward(reward);
         }
-
         A action = this.learning.getAction(observation.getData());
-        //System.out.println(this.actionSpace.mapNumberToAction(3));
+        //System.out.println(this.actionSpace.mapNumberToAction(0));
         //return this.actionSpace.mapNumberToAction(0);
         //System.out.println(action);
         return action ;

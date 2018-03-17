@@ -1,5 +1,7 @@
 package main.java.fr.univlyon1.networks;
 
+import main.java.fr.univlyon1.Configuration;
+import main.java.fr.univlyon1.actorcritic.Learning;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -33,31 +35,36 @@ public class Mlp implements Approximator{
         this.model = model ;
     }
 
-    public Mlp(int input, int output,long seed,boolean listener){
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+    public Mlp(int input, int output,long seed,boolean listener,Learning learning) {
+        Configuration conf = learning.getConf() ;
+        NeuralNetConfiguration.ListBuilder builder = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .learningRate(0.001)
-                //.miniBatch(false)
+                .learningRate(learning.getConf().getLearning_rate())
                 .biasInit(0.1)
                 .weightInit(WeightInit.XAVIER)
-                //.minimize(true)
-                //.optimizationAlgo(Op)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(Updater.ADAM)
+                .updater(Updater.RMSPROP)
                 //.regularization(true).l2(1e-4)
                 .list()
                 .layer(0, new DenseLayer.Builder()
                         .activation(Activation.RELU)
-                        .nIn(input).nOut(5)
-                        .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .nIn(5)
-                        .nOut(output)
-                        .activation(Activation.IDENTITY)
-                        .build())
-                .backprop(true).pretrain(false)
-                .build();
-        this.model = new MultiLayerNetwork(conf);
+                        .nIn(input).nOut(conf.getNumHiddenNodes())
+                        .build());
+        for (int i = 1; i <= learning.getConf().getNumLayers(); i++){
+            builder.layer(i, new DenseLayer.Builder()
+                    .activation(Activation.RELU)
+                    .nIn(conf.getNumHiddenNodes()).nOut(conf.getNumHiddenNodes())
+                    .build());
+        }
+        MultiLayerConfiguration multiLayerConfiguration = builder.layer(learning.getConf().getNumLayers()+1,
+                new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                    .nIn(conf.getNumHiddenNodes())
+                    .nOut(output)
+                    .activation(Activation.IDENTITY)
+                    .build())
+            .backprop(true).pretrain(false)
+            .build();
+        this.model = new MultiLayerNetwork(multiLayerConfiguration);
         if(listener)
             this.attachListener(this.model);
         this.model.init();
@@ -71,7 +78,7 @@ public class Mlp implements Approximator{
 
     @Override
     public void learn(INDArray input,INDArray labels,int number) {
-        //this.model.setInputMiniBatchSize(number);
+        this.model.setInputMiniBatchSize(number);
         //this.model.fit(input,labels);
         this.model.setInput(input);
         this.model.setLabels(labels);
@@ -106,6 +113,9 @@ public class Mlp implements Approximator{
 
     @Override
     public Approximator clone(boolean listener) {
+        /*if (listener)
+            this.attachListener(this.model);
+        return this ;*/
         MultiLayerNetwork mlp  = this.model.clone();
         mlp.setListeners();
         if(listener)

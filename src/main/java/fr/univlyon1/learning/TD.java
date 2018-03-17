@@ -1,19 +1,10 @@
 package main.java.fr.univlyon1.learning;
 
-import main.java.fr.univlyon1.App;
 import main.java.fr.univlyon1.actorcritic.policy.Greedy;
 import main.java.fr.univlyon1.actorcritic.Learning;
 import main.java.fr.univlyon1.environment.Interaction;
-import main.java.fr.univlyon1.environment.Observation;
-import main.java.fr.univlyon1.memory.ExperienceReplay;
 import main.java.fr.univlyon1.networks.Approximator;
-import org.apache.commons.math3.analysis.function.Sigmoid;
-import org.apache.commons.math3.analysis.function.Tan;
-import org.apache.commons.math3.analysis.function.Tanh;
-import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 public class TD<A> implements Algorithm<A> {
     protected Interaction<A> lastInteraction;

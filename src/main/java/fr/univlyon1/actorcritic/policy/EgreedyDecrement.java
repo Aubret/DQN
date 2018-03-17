@@ -29,8 +29,9 @@ public class EgreedyDecrement implements Policy {
         int indice ;
         if(this.random.nextDouble() < this.epsilon) {
             indice = random.nextInt(results.size(1));
-        }else
+        }else {
             indice = Nd4j.argMax(results).getInt(0);
+        }
         return indice ;
     }
 
