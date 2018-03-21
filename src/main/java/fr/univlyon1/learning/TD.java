@@ -1,9 +1,9 @@
-package main.java.fr.univlyon1.learning;
+package fr.univlyon1.learning;
 
-import main.java.fr.univlyon1.actorcritic.policy.Greedy;
-import main.java.fr.univlyon1.actorcritic.Learning;
-import main.java.fr.univlyon1.environment.Interaction;
-import main.java.fr.univlyon1.networks.Approximator;
+import fr.univlyon1.actorcritic.policy.Greedy;
+import fr.univlyon1.actorcritic.Learning;
+import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 public class TD<A> implements Algorithm<A> {
@@ -22,6 +22,7 @@ public class TD<A> implements Algorithm<A> {
 
     @Override
     public void step(INDArray observation, A action,INDArray results) {
+        //this.lastInteraction.setSecondAction(action);
         this.lastInteraction = new Interaction<A>(action,observation, results);
     }
 
@@ -34,10 +35,14 @@ public class TD<A> implements Algorithm<A> {
         }
     }
 
+    @Override
+    public void epoch() {
+
+    }
+
     protected void learn(){
-        Approximator approximator = this.learning.getApproximator();
-        INDArray res = this.labelize(this.lastInteraction,approximator);
-        approximator.learn(this.lastInteraction.getObservation(), res,1);
+        INDArray res = this.labelize(this.lastInteraction,this.approximator);
+        this.learning.getApproximator().learn(this.lastInteraction.getObservation(), res,1);
     }
 
     /**
@@ -46,15 +51,17 @@ public class TD<A> implements Algorithm<A> {
      */
     protected INDArray labelize(Interaction<A> interaction,Approximator approximator){
         INDArray results = approximator.getOneResult(interaction.getSecondObservation());// Trouve l'estimation de QValue
-        Integer indice = this.learning.getActionSpace().mapActionToNumber(interaction.getAction());
+        Integer indice =(int) this.learning.getActionSpace().mapActionToNumber(interaction.getAction());
 
-        INDArray res = approximator.getOneResult(interaction.getObservation())/*.dup()*/; // résultat précédent dans lequel on change une seule qvalue
+        INDArray res = this.learning.getApproximator().getOneResult(interaction.getObservation())/*.dup()*/; // résultat précédent dans lequel on change une seule qvalue
         //System.out.println(interaction.getReward() + this.gamma * results.getDouble(this.policy.getAction(results)));
         Double newValue = interaction.getReward() + this.gamma * results.getDouble(this.policy.getAction(results));
         //newValue = res.getDouble(indice)+ (new Tanh()).value(newValue - res.getDouble(indice));
         res.putScalar(indice,newValue );
         return res ;
     }
+
+
 
     public Approximator getApproximator(){
         return this.approximator ;

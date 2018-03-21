@@ -1,4 +1,4 @@
-package main.java.fr.univlyon1.environment;
+package fr.univlyon1.environment;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -8,6 +8,7 @@ public class Interaction <A> implements Cloneable{
     private INDArray secondObservation ;
     private INDArray results ;
     private A action ;
+    private A secondAction ;
     private double reward ;
     private int id ;
 
@@ -66,6 +67,14 @@ public class Interaction <A> implements Cloneable{
 
     public void setResults(INDArray results) {
         this.results = results;
+    }
+
+    public A getSecondAction() {
+        return secondAction;
+    }
+
+    public void setSecondAction(A secondAction) {
+        this.secondAction = secondAction;
     }
 
     public Interaction<A> clone(){

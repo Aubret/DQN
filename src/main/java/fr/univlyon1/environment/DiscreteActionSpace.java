@@ -1,12 +1,8 @@
-package main.java.fr.univlyon1.environment;
-
-import java.util.Random;
+package fr.univlyon1.environment;
 
 public class DiscreteActionSpace<A> extends ActionSpace<A> {
-    private Random random ;
     public DiscreteActionSpace(){
         super();
-        random = new Random();
     }
 
     public void addAction(A action){
@@ -18,16 +14,11 @@ public class DiscreteActionSpace<A> extends ActionSpace<A> {
     }
 
     @Override
-    public int mapActionToNumber(A action) {
+    public Object mapActionToNumber(A action) {
         for(int i = 0 ; i < this.actions.size(); i++){
             if(this.actions.get(i) == action)
                 return i ;
         }
         return -1 ;
     }
-
-    public A randomAction() {
-        return this.actions.get(random.nextInt(this.getSize()));
-    }
-
 }

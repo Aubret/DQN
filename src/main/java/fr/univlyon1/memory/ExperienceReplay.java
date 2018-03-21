@@ -1,6 +1,6 @@
-package main.java.fr.univlyon1.memory;
+package fr.univlyon1.memory;
 
-import main.java.fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.Interaction;
 
 import java.util.List;
 

@@ -1,13 +1,10 @@
-package main.java.fr.univlyon1.environment;
+package fr.univlyon1.environment;
 
-import java.util.Random;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
-public class ContinuousActionSpace<A> extends ActionSpace<A> {
-    private Random random;
-
+public class ContinuousActionSpace<A extends ContinuousAction> extends ActionSpace<A> {
     public ContinuousActionSpace() {
         super();
-        random = new Random();
     }
 
     public void addAction(A action) {
@@ -15,21 +12,13 @@ public class ContinuousActionSpace<A> extends ActionSpace<A> {
     }
 
     public A mapNumberToAction(Object number) {
-        return this.actions.get((int)number);
+        this.actions.get(0).constructAction((INDArray)number);
+        return this.actions.get(0);
     }
-
-    public A randomAction() {
-        return this.actions.get(random.nextInt(this.getSize()));
-    }
-
 
     @Override
-    public int mapActionToNumber(A action) {
-        for(int i = 0 ; i < this.actions.size(); i++){
-            if(this.actions.get(i) == action)
-                return i ;
-        }
-        return -1 ;
+    public Object mapActionToNumber(A action) {
+        return action.DeconstructAction();
     }
 
 }

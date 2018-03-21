@@ -1,4 +1,4 @@
-package main.java.fr.univlyon1.environment;
+package fr.univlyon1.environment;
 
 public interface ObservationSpace {
     int[] getShape();

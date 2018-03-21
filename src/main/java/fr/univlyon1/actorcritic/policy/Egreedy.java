@@ -1,6 +1,5 @@
-package main.java.fr.univlyon1.actorcritic.policy;
+package fr.univlyon1.actorcritic.policy;
 
-import main.java.fr.univlyon1.environment.ActionSpace;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
