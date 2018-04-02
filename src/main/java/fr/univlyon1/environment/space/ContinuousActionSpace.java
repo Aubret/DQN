@@ -1,6 +1,7 @@
-package fr.univlyon1.environment;
+package fr.univlyon1.environment.space;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 public class ContinuousActionSpace<A extends ContinuousAction> extends ActionSpace<A> {
     public ContinuousActionSpace() {
@@ -19,6 +20,12 @@ public class ContinuousActionSpace<A extends ContinuousAction> extends ActionSpa
     @Override
     public Object mapActionToNumber(A action) {
         return action.DeconstructAction();
+    }
+
+    @Override
+    public Object randomAction() {
+        return ( Nd4j.rand(1,this.getSize()).mul(2)).add(-1);
+        //return null ;
     }
 
 }

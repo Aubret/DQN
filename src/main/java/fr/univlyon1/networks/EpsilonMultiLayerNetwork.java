@@ -5,15 +5,22 @@ import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.api.layers.IOutputLayer;
 import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.gradient.Gradient;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.layers.FrozenLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
+import org.deeplearning4j.util.OneTimeLogger;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
+import org.nd4j.linalg.api.memory.enums.MirroringPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.INDArrayIndex;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.primitives.Pair;
 
 import java.util.Iterator;
@@ -73,8 +80,10 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
             this.backpropEpsilon(epsilon);
         }
 
-        if(this.getOutputLayer() instanceof IOutputLayer){
-            this.score = ((IOutputLayer)this.getOutputLayer()).computeScore(this.calcL1(true), this.calcL2(true), true);
+            if(this.getOutputLayer() instanceof IOutputLayer) {
+                this.score = ((IOutputLayer) this.getOutputLayer()).computeScore(this.calcL1(true), this.calcL2(true), true);
+            }else
+                this.score = epsilon.muli(epsilon).sumNumber().doubleValue();
             if(this.hasTrainingListener()) {
                 MemoryWorkspace workspace1 = Nd4j.getMemoryManager().scopeOutOfWorkspaces();
                 Throwable actSecondLastLayer2 = null;
@@ -105,7 +114,7 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
 
             }
 
-        }
+        //}
 
 
 
@@ -153,7 +162,6 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
 
         return false;
     }
-
 
 
 }

@@ -1,34 +1,21 @@
-package fr.univlyon1.networks;
+package fr.univlyon1.networks.lossFunctions;
 
-import org.deeplearning4j.exception.DL4JException;
-import org.deeplearning4j.nn.api.Layer;
-import org.deeplearning4j.nn.api.layers.IOutputLayer;
-import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.WorkspaceMode;
-import org.deeplearning4j.nn.gradient.DefaultGradient;
-import org.deeplearning4j.nn.gradient.Gradient;
-import org.deeplearning4j.nn.layers.FrozenLayer;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.activations.IActivation;
-import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.lossfunctions.LossUtil;
-import org.nd4j.linalg.memory.abstracts.DummyWorkspace;
 import org.nd4j.linalg.primitives.Pair;
 
-public class LossIdentity implements ILossFunction {
+public class LossError implements ILossFunction {
+
 
     @Override
     public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
         if(labels.size(1) != preOutput.size(1))
             throw new IllegalArgumentException("Labels array numColumns (size(1) = " + labels.size(1) + ") does not match output layer number of outputs (nOut = " + preOutput.size(1) + ") ");
         INDArray res = computeScoreArray(labels, preOutput,activationFn,mask);
-        double val = res.sumNumber().doubleValue();
+        double val = res.muli(res).sumNumber().doubleValue();
         if(average){
             val /= res.size(0);
         }
@@ -39,10 +26,11 @@ public class LossIdentity implements ILossFunction {
     public INDArray computeScoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         if(labels.size(1) != preOutput.size(1))
             throw new IllegalArgumentException("Labels array numColumns (size(1) = " + labels.size(1) + ") does not match output layer number of outputs (nOut = " + preOutput.size(1) + ") ");
-        INDArray res = activationFn.getActivation(preOutput.dup(), true);
+        INDArray res = activationFn.getActivation(preOutput.dup(), true).muli(labels);
         if( mask != null){
             LossUtil.applyMask(res,mask);
         }
+        //System.out.println("Use of score");
         return res;
     }
 
@@ -50,14 +38,10 @@ public class LossIdentity implements ILossFunction {
     public INDArray computeGradient(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         if(labels.size(1) != preOutput.size(1))
             throw new IllegalArgumentException("Labels array numColumns (size(1) = " + labels.size(1) + ") does not match output layer number of outputs (nOut = " + preOutput.size(1) + ") ");
-
-        INDArray dLda = Nd4j.ones(preOutput.shape()) ;
-        if(mask != null && LossUtil.isPerOutputMasking(dLda,mask))
-            LossUtil.applyMask(dLda,mask);
-        INDArray grad = activationFn.backprop(preOutput,dLda).getFirst();
+        INDArray dLda = activationFn.backprop(preOutput.dup(), labels).getFirst();
         if(mask != null)
-            LossUtil.applyMask(grad,mask);
-        return grad ;
+            LossUtil.applyMask(dLda,mask);
+        return dLda ;
     }
 
     @Override
@@ -70,3 +54,4 @@ public class LossIdentity implements ILossFunction {
         return null;
     }
 }
+

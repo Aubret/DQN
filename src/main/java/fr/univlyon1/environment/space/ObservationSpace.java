@@ -1,4 +1,4 @@
-package fr.univlyon1.environment;
+package fr.univlyon1.environment.space;
 
 public interface ObservationSpace {
     int[] getShape();

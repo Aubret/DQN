@@ -1,10 +1,15 @@
 package fr.univlyon1.configurations;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+@Getter
+@Setter
 @XmlRootElement(name="configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Configuration {
@@ -24,6 +29,9 @@ public class Configuration {
     Double noisyGreedyStd = 0.2 ;
     @XmlElement(name="noisyGreedyMean")
     Double noisyGreedyMean = 0. ;
+    @XmlElement(name="initStdEpsilon")
+    int initStdEpsilon = 2 ;
+
 
     // actor network
     @XmlElement(name="numHiddenNodes")
@@ -49,125 +57,6 @@ public class Configuration {
     Double gamma = 0.9 ;
 
     public Configuration(){
-    }
-
-    public int getEpochs() {
-        return epochs;
-    }
-
-    public void setEpochs(int epochs) {
-        this.epochs = epochs;
-    }
-
-    public int getIterations() {
-        return iterations;
-    }
-
-    public void setIterations(int iterations) {
-        this.iterations = iterations;
-    }
-
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
-    }
-
-    public Double getMinEpsilon() {
-        return minEpsilon;
-    }
-
-    public void setMinEpsilon(Double minEpsilon) {
-        this.minEpsilon = minEpsilon;
-    }
-
-    public int getStepEpsilon() {
-        return stepEpsilon;
-    }
-
-    public void setStepEpsilon(int stepEpsilon) {
-        this.stepEpsilon = stepEpsilon;
-    }
-
-    public int getNumHiddenNodes() {
-        return numHiddenNodes;
-    }
-
-    public void setNumHiddenNodes(int numHiddenNodes) {
-        this.numHiddenNodes = numHiddenNodes;
-    }
-
-    public int getNumLayers() {
-        return numLayers;
-    }
-
-    public void setNumLayers(int numLayers) {
-        this.numLayers = numLayers;
-    }
-
-    public Double getLearning_rate() {
-        return learning_rate;
-    }
-
-    public void setLearning_rate(Double learning_rate) {
-        this.learning_rate = learning_rate;
-    }
-
-    public int getSizeExperienceReplay() {
-        return sizeExperienceReplay;
-    }
-
-    public void setSizeExperienceReplay(int sizeExperienceReplay) {
-        this.sizeExperienceReplay = sizeExperienceReplay;
-    }
-
-    public Double getGamma() {
-        return gamma;
-    }
-
-    public void setGamma(Double gamma) {
-        this.gamma = gamma;
-    }
-    public Double getNoisyGreedyStd() {
-        return noisyGreedyStd;
-    }
-
-    public void setNoisyGreedyStd(Double noisyGreedyStd) {
-        this.noisyGreedyStd = noisyGreedyStd;
-    }
-
-    public Double getNoisyGreedyMean() {
-        return noisyGreedyMean;
-    }
-
-    public void setNoisyGreedMean(Double noisyGreedyMean) {
-        this.noisyGreedyMean = noisyGreedyMean;
-    }
-
-    public int getNumCriticHiddenNodes() {
-        return numCriticHiddenNodes;
-    }
-
-    public void setNumCriticHiddenNodes(int numCriticHiddenNodes) {
-        this.numCriticHiddenNodes = numCriticHiddenNodes;
-    }
-
-    public int getNumCriticLayers() {
-        return numCriticLayers;
-    }
-
-    public void setNumCriticLayers(int numCriticLayers) {
-        this.numCriticLayers = numCriticLayers;
-    }
-
-    public Double getLearning_rateCritic() {
-        return learning_rateCritic;
-    }
-
-    public void setLearning_rateCritic(Double learning_rateCritic) {
-        this.learning_rateCritic = learning_rateCritic;
     }
 
 }

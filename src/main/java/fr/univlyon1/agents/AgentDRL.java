@@ -3,15 +3,21 @@ package fr.univlyon1.agents;
 import fr.univlyon1.actorcritic.ContinuousActorCritic;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.environment.ActionSpace;
-import fr.univlyon1.environment.ObservationSpace;
-import fr.univlyon1.environment.Observation;
+import fr.univlyon1.environment.space.ActionSpace;
+import fr.univlyon1.environment.space.ContinuousAction;
+import fr.univlyon1.environment.space.ObservationSpace;
+import fr.univlyon1.environment.space.Observation;
+import fr.univlyon1.learning.TD;
+import fr.univlyon1.learning.TDActorCritic;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Classe principale de l'agent
@@ -19,6 +25,7 @@ import java.io.PrintWriter;
  */
 public class AgentDRL<A> implements AgentRL<A> {
     private static int count = 0 ;
+    private A action ;
 
     private ActionSpace<A> actionSpace ;
     private ObservationSpace observationSpace;
@@ -27,12 +34,16 @@ public class AgentDRL<A> implements AgentRL<A> {
     private PrintWriter rewardResults ;
     private double totalReward = 0 ;
     private double waitTotalReward =0 ;
-    private boolean print = false ;
+    private boolean print = true ;
     private Configuration configuration ;
 
+    private long time ;
+
     public AgentDRL(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
+        this.time = System.currentTimeMillis();
         this.seed = seed ;
         this.actionSpace = actionSpace ;
+        Nd4j.getRandom().setSeed(seed);
         this.observationSpace = observationSpace ;
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
@@ -63,23 +74,32 @@ public class AgentDRL<A> implements AgentRL<A> {
     public Object control(Double reward,Observation observation) {
         count++ ;
         if(reward != null) {
-            if(count > 200)
-                this.waitTotalReward+=reward ;
-            if(this.print)
-                this.rewardResults.println(count+";"+reward);
-            this.totalReward+=reward ;
             this.learning.putReward(reward);
         }
 
         A action = this.learning.getAction(observation.getData());
-        System.out.println(action);
-        /*double[] values = new double[]{-0.2, -0.7, 0., 0.,1.} ;
-        INDArray vals = Nd4j.create(values);*/
-        //A action = this.actionSpace.mapNumberToAction(vals);
-        //System.out.println(action);
-        //System.out.println(this.actionSpace.mapNumberToAction(0));
-        //return this.actionSpace.mapNumberToAction(0);
-        //System.out.println(action);
+        //A action = this.actionSpace.mapNumberToAction(0);
+        this.action = action ;
+        if(reward != null ){
+            if(count > 200)
+                this.waitTotalReward+=reward ;
+            if(this.print) {
+                this.totalReward += reward;
+                if(action instanceof ContinuousAction) {
+                    INDArray res = ((INDArray) this.actionSpace.mapActionToNumber(action));
+                    //TD td = ((TD)(((ContinuousActorCritic)this.learning).getTd()));
+                    //Double qvalue = td.getQvalue();
+                    this.rewardResults.println(count + ";" + reward + ";" + res.getDouble(1) + ";" + res.getDouble(0));
+                }else
+                    this.rewardResults.println(count + ";" + reward) ;
+            }
+        }
+
+
+        if(action instanceof ContinuousAction)
+            ((ContinuousAction) action).unNormalize();
+        if(count % 50 == 0)
+            System.out.println(action);
         return action ;
     }
 
@@ -89,6 +109,9 @@ public class AgentDRL<A> implements AgentRL<A> {
         System.out.println("Nombre de décisions : "+count);
         System.out.println("Total reward : "+this.totalReward);
         System.out.println("Attend Total reward : "+this.waitTotalReward);
+        System.out.println("Last action : "+this.action);
+        TimeUnit t = TimeUnit.SECONDS ;
+        System.out.println("Time : "+t.convert(System.currentTimeMillis() - time,TimeUnit.SECONDS));
         if(this.print)
             this.rewardResults.close();
     }

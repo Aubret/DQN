@@ -9,9 +9,9 @@ import java.util.Random;
 public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
 
     private Random random ;
-    public RandomExperienceReplay(int maxSize){
+    public RandomExperienceReplay(int maxSize,long seed){
         super(maxSize);
-        this.random = new Random();
+        this.random = new Random(seed);
         this.resetMemory();
     }
 
@@ -19,7 +19,7 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     public void addInteraction(Interaction<A> interaction) {
         LinkedList<Interaction<A>> memory = (LinkedList<Interaction<A>>)this.memory ;
         if(memory.size() == this.maxSize)
-            memory.pop();
+            memory.removeLast();
         memory.addFirst(interaction);
     }
 
@@ -27,7 +27,8 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
 
     @Override
     public Interaction<A> chooseInteraction() {
-        return this.memory.get(random.nextInt(this.memory.size()));
+        Interaction<A> i = this.memory.get(random.nextInt(this.memory.size()));
+        return i;
     }
 
     @Override
@@ -38,5 +39,10 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     @Override
     public void resetMemory() {
         this.memory = new LinkedList<Interaction<A>>();
+    }
+
+    @Override
+    public int getSize() {
+        return this.memory.size();
     }
 }

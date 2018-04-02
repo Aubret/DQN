@@ -1,7 +1,7 @@
 package fr.univlyon1.actorcritic;
 
 import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.environment.ActionSpace;
+import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;

@@ -1,11 +1,11 @@
 package fr.univlyon1.actorcritic.policy;
 
+import fr.univlyon1.environment.space.ActionSpace;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Random;
 
-public class EgreedyDecrement implements Policy {
+public class EgreedyDecrement<A> extends Egreedy<A> {
     private double minEpsilon;
     private Random random ;
     private int numberStep ;
@@ -14,25 +14,19 @@ public class EgreedyDecrement implements Policy {
 
     private int stepEpsilons;
 
-    public EgreedyDecrement(double minEpsilon, int schedule,long seed) {
-        this.minEpsilon = epsilon;
-        this.random = new Random(seed);
-        this.numberStep = 0 ;
-        this.stepEpsilons = 1 ;
+    public EgreedyDecrement(double minEpsilon, int schedule,long seed,ActionSpace<A> actionSpace, Policy greedypolicy, int stepEpsilons) {
+        super(1,seed,actionSpace,greedypolicy);
+        this.minEpsilon = minEpsilon;
+        this.numberStep = 1 ;
+        this.stepEpsilons = stepEpsilons;
+        this.epsilon = Math.min(1f, Math.max(this.minEpsilon, 1. / (double)this.stepEpsilons)) ;
         this.schedule = schedule ;
-        this.epsilon =1 ;
     }
 
     @Override
-    public Integer getAction(INDArray results) {
+    public Object getAction(INDArray results) {
         this.modifyEpsilon();
-        int indice ;
-        if(this.random.nextDouble() < this.epsilon) {
-            indice = random.nextInt(results.size(1));
-        }else {
-            indice = Nd4j.argMax(results).getInt(0);
-        }
-        return indice ;
+        return super.getAction(results);
     }
 
     private void modifyEpsilon(){
@@ -41,6 +35,7 @@ public class EgreedyDecrement implements Policy {
             this.numberStep = 0 ;
             this.stepEpsilons++ ; // Augmente de 1 tous les schedule iterations
             this.epsilon = Math.min(1f, Math.max(this.minEpsilon, 1. / this.stepEpsilons )) ;
+            System.out.println("new Epsilon "+this.epsilon);
         }
     }
 }

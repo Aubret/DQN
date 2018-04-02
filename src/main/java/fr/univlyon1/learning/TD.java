@@ -1,6 +1,6 @@
 package fr.univlyon1.learning;
 
-import fr.univlyon1.actorcritic.policy.Greedy;
+import fr.univlyon1.actorcritic.policy.GreedyDiscrete;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.networks.Approximator;
@@ -9,21 +9,21 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 public class TD<A> implements Algorithm<A> {
     protected Interaction<A> lastInteraction;
     protected double gamma ;
-    protected Greedy policy;
+    protected GreedyDiscrete policy;
     protected Learning<A> learning ;
     protected Approximator approximator ;
 
     public TD(double gamma,Learning<A> learning){
         this.gamma = gamma ;
-        this.policy = new Greedy();
+        this.policy = new GreedyDiscrete();
         this.learning = learning;
         this.approximator = this.learning.getApproximator() ;
     }
 
     @Override
-    public void step(INDArray observation, A action,INDArray results) {
+    public void step(INDArray observation, A action) {
         //this.lastInteraction.setSecondAction(action);
-        this.lastInteraction = new Interaction<A>(action,observation, results);
+        this.lastInteraction = new Interaction<A>(action,observation);
     }
 
     @Override
@@ -61,9 +61,8 @@ public class TD<A> implements Algorithm<A> {
         return res ;
     }
 
-
-
     public Approximator getApproximator(){
         return this.approximator ;
     }
+
 }

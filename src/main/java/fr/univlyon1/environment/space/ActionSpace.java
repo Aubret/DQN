@@ -1,4 +1,4 @@
-package fr.univlyon1.environment;
+package fr.univlyon1.environment.space;
 
 import java.util.ArrayList;
 
@@ -14,6 +14,7 @@ public abstract class ActionSpace<A> {
     public abstract void addAction(A action);
     public abstract A mapNumberToAction(Object number);
     public abstract Object mapActionToNumber(A action);
+    public abstract Object randomAction();
 
     public int getSize() {
         return this.size == null ? actions.size() : this.size ;
