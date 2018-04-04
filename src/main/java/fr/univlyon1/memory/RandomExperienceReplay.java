@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
-
+    protected List<Interaction<A>> memory ;
     private Random random ;
     public RandomExperienceReplay(int maxSize,long seed){
         super(maxSize);
@@ -31,7 +31,6 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
         return i;
     }
 
-    @Override
     public List<Interaction<A>> getMemory() {
         return this.memory ;
     }

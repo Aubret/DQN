@@ -37,7 +37,7 @@ public class TDBatch<A> extends TD<A> {
      */
     @Override
     protected void learn(){
-        int numRows = Math.min(this.experienceReplay.getMemory().size(),this.batchSize);
+        int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         if(numRows <1 )
             return ;
         int numColumns = this.lastInteraction.getObservation().size(1);

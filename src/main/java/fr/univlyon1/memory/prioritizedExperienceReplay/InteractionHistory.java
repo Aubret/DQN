@@ -11,18 +11,20 @@ public class InteractionHistory<A> {
     private Double errorValue ;
     private Double sumValues ;
     private double epsilon ;
-    private double alpha ;
 
 
     public InteractionHistory(Interaction<A> interaction, double error){
         this.interaction = interaction ;
         this.errorValue = error ;
-        this.sumValues = 0. ;
-        this.epsilon = 0.01 ;
-        this.alpha = 1.;
+        this.epsilon = 0.05 ;
+        this.sumValues=0. ;
     }
 
     public void computeError(double error){
-        error = error + epsilon ;
+        this.sumValues++ ;
+        double val = Math.min(sumValues/30.,1.);
+        this.errorValue = error*(1-val);//-0.05*sumValues;
     }
+
+
 }

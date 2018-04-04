@@ -33,7 +33,6 @@ public class AgentDRL<A> implements AgentRL<A> {
     private long seed ;
     private PrintWriter rewardResults ;
     private double totalReward = 0 ;
-    private double waitTotalReward =0 ;
     private boolean print = true ;
     private Configuration configuration ;
 
@@ -81,8 +80,6 @@ public class AgentDRL<A> implements AgentRL<A> {
         //A action = this.actionSpace.mapNumberToAction(0);
         this.action = action ;
         if(reward != null ){
-            if(count > 200)
-                this.waitTotalReward+=reward ;
             if(this.print) {
                 this.totalReward += reward;
                 if(action instanceof ContinuousAction) {
@@ -108,7 +105,6 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.learning.stop();
         System.out.println("Nombre de décisions : "+count);
         System.out.println("Total reward : "+this.totalReward);
-        System.out.println("Attend Total reward : "+this.waitTotalReward);
         System.out.println("Last action : "+this.action);
         TimeUnit t = TimeUnit.SECONDS ;
         System.out.println("Time : "+t.convert(System.currentTimeMillis() - time,TimeUnit.SECONDS));

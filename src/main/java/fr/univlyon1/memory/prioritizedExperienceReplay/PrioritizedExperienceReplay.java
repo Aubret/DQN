@@ -2,17 +2,18 @@ package fr.univlyon1.memory.prioritizedExperienceReplay;
 
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.memory.ExperienceReplay;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.*;
 
 /**
- * TODO
+ *
  * @param <A>
  */
 public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
     TreeSet<InteractionHistory<A>> history;
     HashMap<Interaction<A>,InteractionHistory<A>> interactions ;
-    ArrayList<InteractionHistory> tmp ;
+    ArrayList<InteractionHistory<A>> tmp ;
     //private
 
     public PrioritizedExperienceReplay(int maxSize) {
@@ -23,16 +24,31 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
     @Override
     public void addInteraction(Interaction<A> interaction) {
         if(this.interactions.size() == this.maxSize) {
-            history.pollFirst();
+            InteractionHistory ih = history.pollFirst();
+            this.interactions.remove(ih.getInteraction());
         }
-        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,1.);
+        double val = history.size() > 0 ? history.last().getErrorValue()+1. : 1. ;
+        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,val);
         this.history.add(newIh);
         this.interactions.put(interaction, newIh);
     }
 
-    public void setError(Interaction i, double error){
-        //this.tmp.remove(ih);
-        //this.history.get(interaction).computeError(error);
+    public void setError(INDArray errors){
+        for(int i = 0;i< this.tmp.size(); i++){
+            InteractionHistory<A> ih = this.tmp.get(i);
+            double error = errors.getDouble(i);
+            ih.computeError(error);
+            this.history.add(ih);
+        }
+        /*int i = 0 ;
+        System.out.println("printing");
+        for(InteractionHistory it : this.history){
+            System.out.println(it.getErrorValue());
+            if(i> 10)
+                break ;
+            i++;
+        }*/
+        this.tmp= new ArrayList<>();
     }
 
     @Override
@@ -41,14 +57,10 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
             InteractionHistory<A> ih = this.history.pollLast();
             Interaction<A> i = ih.getInteraction();
             this.tmp.add(ih);
+            //System.out.println("choose "+ih.getErrorValue());
             return i ;
         }
         return null;
-    }
-
-    @Override
-    public List<Interaction<A>> getMemory() {
-        return this.memory;
     }
 
     @Override
@@ -60,6 +72,12 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
 
     @Override
     public int getSize() {
-        return 0;
+        return this.history.size();
+    }
+
+    public void print(){
+        for(InteractionHistory ih : this.history){
+            System.out.println(ih.getErrorValue()+"  "+ih.getSumValues());
+        }
     }
 }
