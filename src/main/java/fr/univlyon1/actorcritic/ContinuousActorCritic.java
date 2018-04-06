@@ -51,18 +51,18 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 this.criticApproximator,
                 this.cloneMaximizeCriticApproximator
         );
-        /*Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
         this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
                 actionSpace,
                 mixtePolicy,
-                conf.getInitStdEpsilon());*/
+                conf.getInitStdEpsilon());
 
-        this.policy = new Egreedy<A>(conf.getMinEpsilon(),
+        /*this.policy = new Egreedy<A>(conf.getMinEpsilon(),
                 seed,
                 actionSpace,
-                this.getPolicyApproximator());
+                this.getPolicyApproximator());*/
         /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,

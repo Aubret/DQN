@@ -6,7 +6,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Random;
 
 public class Egreedy<A> implements Policy<A>{
-    private double epsilon;
+    protected double epsilon;
     private Random random ;
     private ActionSpace<A> actionSpace ;
     private Policy greedyPolicy ;
