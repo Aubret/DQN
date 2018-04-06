@@ -137,7 +137,7 @@ public class Mlp implements Approximator{
         );
         cursor++ ;
         if(this.batchNormalization) {
-            builder.layer(cursor, new BatchNormalization.Builder().build());
+            builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
             cursor++ ;
         }
         for (int i = 1; i < numLayers; i++){
@@ -148,13 +148,13 @@ public class Mlp implements Approximator{
             );
             cursor++ ;
             if(i != numLayers-1 && this.batchNormalization) {
-                builder.layer(cursor, new BatchNormalization.Builder().build());
+                builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
                 cursor++ ;
             }
         }
 
         if(this.finalBatchNormalization){
-            builder.layer(cursor, new BatchNormalization.Builder().build());
+            builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
             cursor++ ;
         }
         builder.layer(cursor,

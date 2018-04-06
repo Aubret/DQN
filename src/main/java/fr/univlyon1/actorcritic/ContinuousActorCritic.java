@@ -52,15 +52,17 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 this.cloneMaximizeCriticApproximator
         );
         /*Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
+                conf.getStepEpsilon(),
+                seed,
+                actionSpace,
+                mixtePolicy,
+                conf.getInitStdEpsilon());*/
+
         this.policy = new Egreedy<A>(conf.getMinEpsilon(),
                 seed,
                 actionSpace,
-                mixtePolicy);*/
-
-        /*this.policy = new Egreedy<A>(conf.getMinEpsilon(),
-                seed,
-                actionSpace,
-                this.getPolicyApproximator());*/
+                this.getPolicyApproximator());
         /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
@@ -76,7 +78,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 seed,
                 this.getPolicyApproximator()
         );*/
-        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        //this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
     }
 
     @Override
@@ -142,8 +144,8 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.policyApproximator.setUpdater(Updater.RMSPROP);
         this.policyApproximator.setLastActivation(Activation.TANH);
         this.policyApproximator.setHiddenActivation(Activation.RELU);
-        /*this.policyApproximator.setBatchNormalization(true);
-        this.policyApproximator.setFinalBatchNormalization(true);*/
+        //this.policyApproximator.setBatchNormalization(true);
+        //  this.policyApproximator.setFinalBatchNormalization(true);
         //this.policyApproximator.setLossFunction(new LossError());
         //this.policyApproximator.setListener(true);
 

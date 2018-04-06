@@ -59,7 +59,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         if(this.print) {
             try {
-                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards.csv");
+                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards3.csv");
                 this.rewardResults = new PrintWriter(fw);
             } catch (Exception e) {
                 e.printStackTrace();

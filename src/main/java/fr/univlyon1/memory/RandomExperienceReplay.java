@@ -1,6 +1,7 @@
 package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.Interaction;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -43,5 +44,10 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     @Override
     public int getSize() {
         return this.memory.size();
+    }
+
+    @Override
+    public void setError(INDArray errors) {
+
     }
 }

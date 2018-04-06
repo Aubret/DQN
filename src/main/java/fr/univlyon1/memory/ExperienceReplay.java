@@ -1,6 +1,7 @@
 package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.Interaction;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public abstract class ExperienceReplay<A> {
     public abstract Interaction<A> chooseInteraction();
     public abstract void resetMemory();
     public abstract int getSize();
+    public abstract void setError(INDArray errors);
 
     public int getMaxSize() {
         return maxSize;

@@ -7,7 +7,6 @@ import java.util.Random;
 
 public class EgreedyDecrement<A> extends Egreedy<A> {
     private double minEpsilon;
-    private Random random ;
     private int numberStep ;
     private int schedule ;
     private double epsilon ;
@@ -19,7 +18,7 @@ public class EgreedyDecrement<A> extends Egreedy<A> {
         this.minEpsilon = minEpsilon;
         this.numberStep = 1 ;
         this.stepEpsilons = stepEpsilons;
-        this.epsilon = Math.min(1f, Math.max(this.minEpsilon, 1. / (double)this.stepEpsilons)) ;
+        this.epsilon = Math.min(1f, Math.max(this.minEpsilon, 1. /(double)this.stepEpsilons)) ;
         this.schedule = schedule ;
     }
 
