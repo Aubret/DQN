@@ -43,8 +43,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         //int numRows = Math.min(this.experienceReplay.getSize() / 50,this.batchSize) ;
         //System.out.println(numRows);
-        if(AgentDRL.getCount() < 500)
-            numRows=1;
+        if(AgentDRL.getCount() < 1000)
+            numRows=3;
 
         if(numRows <1 )
             return ;

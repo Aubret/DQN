@@ -59,7 +59,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         if(this.print) {
             try {
-                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards3.csv");
+                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards2.csv");
                 this.rewardResults = new PrintWriter(fw);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -86,6 +86,10 @@ public class AgentDRL<A> implements AgentRL<A> {
                     INDArray res = ((INDArray) this.actionSpace.mapActionToNumber(action));
                     //TD td = ((TD)(((ContinuousActorCritic)this.learning).getTd()));
                     //Double qvalue = td.getQvalue();
+                    String str ="";
+                    for(int i = 0 ; i < res.size(1) ; i++){
+                        str+=";"+res.getDouble(i);
+                    }
                     this.rewardResults.println(count + ";" + reward + ";" + res.getDouble(1) + ";" + res.getDouble(0));
                 }else
                     this.rewardResults.println(count + ";" + reward) ;

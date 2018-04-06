@@ -91,7 +91,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
-        if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 500) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
             this.td.evaluate(input, this.reward); //Evaluation
             this.countStep++;
@@ -100,10 +100,12 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 this.td.epoch();
                 //System.out.println("An epoch : "+ AgentDRL.getCount());
             }
-            actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
-        }else{
+            if(AgentDRL.getCount() > 1000) {
+                actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
+            }else
+                actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
+        }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
-        }
         this.td.step(input,actionBehaviore); // step learning algorithm
         return actionBehaviore;
     }
