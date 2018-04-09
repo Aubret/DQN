@@ -23,8 +23,9 @@ public class TDActorCritic<A> extends TDBatch<A> {
     private Approximator cloneCriticApproximator ;
 
     private double cpt = 0 ;
-    private int time = 250;
+    private int time = 200;
     private int cpt_time = 0 ;
+    private boolean t = true ;
 
     public TDActorCritic(double gamma, Learning<A> learning, ExperienceReplay<A> experienceReplay, int batchSize, int iterations, Approximator criticApproximator,Approximator cloneCriticApproximator) {
         super(gamma, learning, experienceReplay, batchSize, iterations);
@@ -44,7 +45,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         //int numRows = Math.min(this.experienceReplay.getSize() / 50,this.batchSize) ;
         //System.out.println(numRows);
         if(AgentDRL.getCount() < 1000)
-            numRows=3;
+            numRows=1;
 
         if(numRows <1 )
             return ;
@@ -68,12 +69,12 @@ public class TDActorCritic<A> extends TDBatch<A> {
             }
             //System.out.println("----");
             //INDArray epsilonObsAct = (INDArray)this.criticApproximator.learn(inputs, labels, numRows); // Critic learning
-            INDArray scores = (INDArray)this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
-            if(this.experienceReplay instanceof PrioritizedExperienceReplay){
-                PrioritizedExperienceReplay ep = (PrioritizedExperienceReplay)this.experienceReplay;
+            INDArray scores = (INDArray) this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
+            if (this.experienceReplay instanceof PrioritizedExperienceReplay) {
+                PrioritizedExperienceReplay ep = (PrioritizedExperienceReplay) this.experienceReplay;
                 ep.setError(scores);
-                /*if(AgentDRL.getCount() == 1000)
-                    ep.print();*/
+            /*if(AgentDRL.getCount() == 1000)
+                ep.print();*/
             }
 
             this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
@@ -82,23 +83,23 @@ public class TDActorCritic<A> extends TDBatch<A> {
             INDArray epsilonObsAct = this.cloneCriticApproximator.error(inputAction, Nd4j.create(new double[]{0}), numRows); // erreur
             INDArray epsilonAction = epsilonObsAct.get(NDArrayIndex.all(), NDArrayIndex.interval(sizeObservation, numColumns));
 
-            /*INDArray old =null;
+            INDArray old =null;
             if(this.cpt_time%this.time == 0) {
                 System.out.println("-------------");
                 old = this.cloneCriticApproximator.getOneResult(inputAction);
-            }*/
+            }
 
             this.learning.getApproximator().learn(observations, epsilonAction, numRows); //Policy learning
 
 
-            /*if(this.cpt_time%this.time == 0 ) {
+            if(this.cpt_time%this.time == 0 ) {
                 action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
                 inputAction = Nd4j.concat(1, observations, action);
                 INDArray intermediaire = this.cloneCriticApproximator.getOneResult(inputAction).subi(old);//must be positive
                 Number mean = intermediaire.meanNumber();
                 cpt += mean.doubleValue();
                 System.out.println(mean + " -- " + cpt + "---" +((Mlp)this.criticApproximator).getScore());
-            }*/
+            }
             this.cpt_time++ ;
 
         }
@@ -121,7 +122,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     }
 
     public void epoch(){
-        /*double alpha = 0.0001 ;
+        /*double alpha = 0.001 ;
         targetActorApproximator.getParams().muli(1.-alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
         targetCriticApproximator.getParams().muli(1.-alpha).addi(this.criticApproximator.getParams().mul(alpha));*/
 
