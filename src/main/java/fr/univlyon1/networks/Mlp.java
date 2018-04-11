@@ -28,6 +28,8 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+
 @Getter
 @Setter
 public class Mlp implements Approximator{
@@ -44,6 +46,7 @@ public class Mlp implements Approximator{
     protected boolean listener ;
     protected Double learning_rate;
     protected int numLayers;
+    protected ArrayList<Integer> numNodesPerLayer ;
     protected int numNodes ;
     protected Activation hiddenActivation ;
     protected Activation lastActivation ;
@@ -73,6 +76,7 @@ public class Mlp implements Approximator{
         this.iterations = mlp.getIterations() ;
         this.batchNormalization = mlp.isBatchNormalization();
         this.finalBatchNormalization = mlp.isFinalBatchNormalization();
+        this.numNodesPerLayer = mlp.getNumNodesPerLayer() ;
         if(listener)
             this.attachListener(this.model);
     }
@@ -98,9 +102,9 @@ public class Mlp implements Approximator{
         this.lossFunction = new LossMseSaveScore() ;
         this.batchNormalization = false ;
         this.finalBatchNormalization = false ;
-
         this.minimize = true ;
         this.epsilon = false ;
+        this.numNodesPerLayer = new ArrayList<>();
     }
 
 
@@ -130,9 +134,10 @@ public class Mlp implements Approximator{
             builder.layer(cursor, l);
             cursor++ ;
         }*/
+        int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
         builder.layer(cursor, new DenseLayer.Builder()
                 .activation(this.hiddenActivation)
-                .nIn(input).nOut(numNodes)
+                .nIn(input).nOut(node)
                 .build()
         );
         cursor++ ;
@@ -141,9 +146,11 @@ public class Mlp implements Approximator{
             cursor++ ;
         }
         for (int i = 1; i < numLayers; i++){
+            int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
+            node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
             builder.layer(cursor, new DenseLayer.Builder()
                     .activation(this.hiddenActivation)
-                    .nIn(numNodes).nOut(numNodes)
+                    .nIn(previousNode).nOut(node)
                     .build()
             );
             cursor++ ;
@@ -157,9 +164,10 @@ public class Mlp implements Approximator{
             builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
             cursor++ ;
         }
+        node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         builder.layer(cursor,
                 new DenseLayer.Builder()
-                    .nIn(numNodes)
+                    .nIn(node)
                     .nOut(output)
                     .activation(this.lastActivation)
                     .build());

@@ -100,7 +100,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 this.td.epoch();
                 //System.out.println("An epoch : "+ AgentDRL.getCount());
             }
-            if(AgentDRL.getCount() > 1000) {
+            if(AgentDRL.getCount() > 1500) {
                 actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             }else
                 actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
@@ -145,7 +145,8 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.policyApproximator.setListener(true);
         this.policyApproximator.setUpdater(Updater.RMSPROP);
         this.policyApproximator.setLastActivation(Activation.TANH);
-        this.policyApproximator.setHiddenActivation(Activation.TANH);
+        this.policyApproximator.setHiddenActivation(Activation.RELU);
+        this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
         //this.policyApproximator.setBatchNormalization(true);
         //this.policyApproximator.setFinalBatchNormalization(true);
         //this.policyApproximator.setLossFunction(new LossError());
@@ -162,8 +163,9 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.criticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());
         this.criticApproximator.setNumLayers(conf.getNumCriticLayers());
         this.criticApproximator.setEpsilon(false);
-        this.criticApproximator.setHiddenActivation(Activation.TANH);
+        this.criticApproximator.setHiddenActivation(Activation.RELU);
         this.criticApproximator.setUpdater(Updater.RMSPROP);
+        this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
@@ -175,8 +177,10 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.cloneMaximizeCriticApproximator.setNumLayers(conf.getNumCriticLayers());
         this.cloneMaximizeCriticApproximator.setMinimize(false);
         this.cloneMaximizeCriticApproximator.setEpsilon(false);
+        this.cloneMaximizeCriticApproximator.setHiddenActivation(Activation.RELU);
         this.cloneMaximizeCriticApproximator.setLossFunction(new LossIdentity());
         this.cloneMaximizeCriticApproximator.setUpdater(Updater.RMSPROP);
+        this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //this.cloneMaximizeCriticApproximator.setBatchNormalization(true);
         //this.cloneMaximizeCriticApproximator.setFinalBatchNormalization(true);
         this.cloneMaximizeCriticApproximator.init();

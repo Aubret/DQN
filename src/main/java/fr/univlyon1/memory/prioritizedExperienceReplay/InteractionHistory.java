@@ -23,7 +23,7 @@ public class InteractionHistory<A> {
     public void computeError(double error){
         this.sumValues++ ;
         double val = Math.min(sumValues/30.,1.);
-        this.errorValue = error*(1-val);//-0.05*sumValues;
+        this.errorValue = error;//*(1-val);//-0.05*sumValues;
     }
 
 

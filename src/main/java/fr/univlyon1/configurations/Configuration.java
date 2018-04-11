@@ -3,10 +3,8 @@ package fr.univlyon1.configurations;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
 
 @Getter
 @Setter
@@ -41,6 +39,10 @@ public class Configuration {
     @XmlElement(name="learning_rate")
     Double learning_rate = 0.001; // Pas d'apprentissage
 
+    @XmlElement(name="layersHiddenNodes")
+    @XmlList
+    ArrayList<Integer> layersHiddenNodes;
+
     //critic network
     @XmlElement(name="numCriticHiddenNodes")
     int numCriticHiddenNodes = 10; // Nombre de couches cachées
@@ -48,6 +50,10 @@ public class Configuration {
     int numCriticLayers = 1; // Nombre de couches
     @XmlElement(name="learning_rateCritic")
     Double learning_rateCritic = 0.001; // Pas d'apprentissage
+
+    @XmlElement(name="criticHiddenNodes")
+    @XmlList
+    ArrayList<Integer> layersCriticHiddenNodes;
 
     //expererience replay
     @XmlElement(name="sizeExperienceReplay")
