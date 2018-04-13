@@ -40,6 +40,11 @@ public class TD<A> implements Algorithm<A> {
 
     }
 
+    @Override
+    public Double getScore() {
+        return null;
+    }
+
     protected void learn(){
         INDArray res = this.labelize(this.lastInteraction,this.approximator);
         this.learning.getApproximator().learn(this.lastInteraction.getObservation(), res,1);

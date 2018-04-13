@@ -6,5 +6,6 @@ public interface Algorithm<A> {
     void step(INDArray input, A action);
     void evaluate(INDArray input, Double reward);
     void epoch();
+    Double getScore();
 
 }

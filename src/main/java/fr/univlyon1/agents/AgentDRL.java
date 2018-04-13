@@ -90,6 +90,8 @@ public class AgentDRL<A> implements AgentRL<A> {
                     for(int i = 0 ; i < res.size(1) ; i++){
                         str+=";"+res.getDouble(i);
                     }
+                    Double score =((ContinuousActorCritic)this.learning).getScore() ;
+                    str+=";"+ (score == null ? 0 : score) ;
                     this.rewardResults.println(count +";"+reward+str);
                 }else
                     this.rewardResults.println(count + ";" + reward) ;

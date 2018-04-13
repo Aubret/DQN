@@ -27,6 +27,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
     private int cpt_time = 0 ;
     private boolean t = true ;
 
+    private Double scoreI ;
+
     public TDActorCritic(double gamma, Learning<A> learning, ExperienceReplay<A> experienceReplay, int batchSize, int iterations, Approximator criticApproximator,Approximator cloneCriticApproximator) {
         super(gamma, learning, experienceReplay, batchSize, iterations);
         this.targetActorApproximator = this.learning.getApproximator().clone(false);
@@ -42,10 +44,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
     @Override
     protected void learn(){
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
-        //int numRows = Math.min(this.experienceReplay.getSize() / 50,this.batchSize) ;
-        //System.out.println(numRows);
-        if(AgentDRL.getCount() < 1000)
-            numRows=1;
+        INDArray inputAction1 = Nd4j.concat(1,this.lastInteraction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
+        this.scoreI = Math.pow(this.criticApproximator.getOneResult(inputAction1).getDouble(0)-this.labelize(this.lastInteraction,this.approximator).getDouble(0),2);
 
         if(numRows <1 )
             return ;
@@ -119,6 +119,10 @@ public class TDActorCritic<A> extends TDBatch<A> {
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
         res = res.muli(this.gamma).addi(interaction.getReward()) ;
         return res ;
+    }
+
+    public Double getScore(){
+        return this.scoreI ;
     }
 
     public void epoch(){

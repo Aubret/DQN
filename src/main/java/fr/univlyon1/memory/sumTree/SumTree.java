@@ -10,6 +10,10 @@ public class SumTree<A> {
         //this.root =  new Node(0.);
     }
 
+    public InteractionHistory<A> removeFirst(){
+        return this.root.removeFirst();
+    }
+
     public void insert(InteractionHistory<A> ih){
         this.root.insert(ih);
     }
