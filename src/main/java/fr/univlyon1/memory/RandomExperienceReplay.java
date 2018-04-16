@@ -10,8 +10,8 @@ import java.util.Random;
 public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     protected List<Interaction<A>> memory ;
     private Random random ;
-    public RandomExperienceReplay(int maxSize,long seed){
-        super(maxSize);
+    public RandomExperienceReplay(int maxSize,long seed,String file){
+        super(maxSize,file);
         this.random = new Random(seed);
         this.resetMemory();
     }

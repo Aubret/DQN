@@ -18,7 +18,8 @@ public class TDBatch<A> extends TD<A> {
         this.experienceReplay = experienceReplay;
         this.batchSize= batchSize ;
         this.nbrIterations = iterations ;
-        this.approximator = learning.getApproximator().clone(true);
+        if(learning.getApproximator() != null)
+            this.approximator = learning.getApproximator().clone(true);
     }
 
     @Override
@@ -27,7 +28,6 @@ public class TDBatch<A> extends TD<A> {
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
             this.experienceReplay.addInteraction(this.lastInteraction.clone());
-            System.out.println(this.experienceReplay.getSize());
         }
     }
 

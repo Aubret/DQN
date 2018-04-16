@@ -43,6 +43,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
      */
     @Override
     public void learn(){
+        if(this.lastInteraction == null)
+            return ;
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         INDArray inputAction1 = Nd4j.concat(1,this.lastInteraction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
         this.scoreI = Math.pow(this.criticApproximator.getOneResult(inputAction1).getDouble(0)-this.labelize(this.lastInteraction,this.approximator).getDouble(0),2);

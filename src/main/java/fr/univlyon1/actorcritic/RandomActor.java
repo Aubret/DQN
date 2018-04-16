@@ -32,7 +32,7 @@ public class RandomActor<A> implements Learning<A> {
     public RandomActor(ObservationSpace os, ActionSpace<A> as, Configuration conf,long seed){
         this.seed = seed ;
         this.actionSpace = as ;
-        this.ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed);
+        this.ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,null);
         this.td = new TDBatch<A>(conf.getGamma(),this,this.ep,conf.getBatchSize(),conf.getIterations());
     }
     @Override
@@ -74,7 +74,7 @@ public class RandomActor<A> implements Learning<A> {
         }
 
         try {
-            JAXBContext context = JAXBContext.newInstance(ArrayList.class);
+            JAXBContext context = JAXBContext.newInstance(ListPojo.class);
             Marshaller m = context.createMarshaller();
             m.marshal(point,new File("resources/memory/random.xml"));
         } catch (JAXBException e) {

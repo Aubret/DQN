@@ -44,7 +44,8 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.initCritic(seed);
         //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed);
         //ExperienceReplay<A> ep = new PrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay());
-        ExperienceReplay<A> ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed);
+        ExperienceReplay<A> ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
+        ep.load(actionSpace);
         this.td = new TDActorCritic<A>(conf.getGamma(),
                 this,
                 ep,
@@ -94,7 +95,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 0) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
             this.td.learn();
             this.countStep++;

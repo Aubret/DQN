@@ -62,6 +62,9 @@ public class Configuration {
     @XmlElement(name="gamma")
     Double gamma = 0.9 ;
 
+    @XmlElement(name="file")//Fichier de stockage mémoire experience replay
+    String file  = null ;
+
     public Configuration(){
     }
 
