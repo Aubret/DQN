@@ -27,7 +27,7 @@ public class TDBatch<A> extends TD<A> {
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
             this.experienceReplay.addInteraction(this.lastInteraction.clone());
-            this.learn();
+            System.out.println(this.experienceReplay.getSize());
         }
     }
 
@@ -36,7 +36,7 @@ public class TDBatch<A> extends TD<A> {
      * Extract mini batch
      */
     @Override
-    protected void learn(){
+    public void learn(){
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         if(numRows <1 )
             return ;

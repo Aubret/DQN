@@ -5,6 +5,8 @@ import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import javax.xml.bind.JAXBException;
+
 public interface Learning<A> {
     Configuration getConf();
     A getAction(INDArray input);

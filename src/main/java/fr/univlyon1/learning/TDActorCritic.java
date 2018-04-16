@@ -42,7 +42,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
      * Extract mini batch
      */
     @Override
-    protected void learn(){
+    public void learn(){
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         INDArray inputAction1 = Nd4j.concat(1,this.lastInteraction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
         this.scoreI = Math.pow(this.criticApproximator.getOneResult(inputAction1).getDouble(0)-this.labelize(this.lastInteraction,this.approximator).getDouble(0),2);
@@ -70,12 +70,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
             //System.out.println("----");
             //INDArray epsilonObsAct = (INDArray)this.criticApproximator.learn(inputs, labels, numRows); // Critic learning
             INDArray scores = (INDArray) this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
-            if (this.experienceReplay instanceof PrioritizedExperienceReplay) {
-                PrioritizedExperienceReplay ep = (PrioritizedExperienceReplay) this.experienceReplay;
-                ep.setError(scores);
-            /*if(AgentDRL.getCount() == 1000)
-                ep.print();*/
-            }
+            this.experienceReplay.setError(scores);
 
             this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
             INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network

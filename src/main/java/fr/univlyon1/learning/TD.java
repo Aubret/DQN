@@ -31,7 +31,6 @@ public class TD<A> implements Algorithm<A> {
         if(this.lastInteraction != null) { // Avoir des interactions complètes
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
-            this.learn();
         }
     }
 
@@ -45,7 +44,7 @@ public class TD<A> implements Algorithm<A> {
         return null;
     }
 
-    protected void learn(){
+    public void learn(){
         INDArray res = this.labelize(this.lastInteraction,this.approximator);
         this.learning.getApproximator().learn(this.lastInteraction.getObservation(), res,1);
     }

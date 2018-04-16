@@ -46,10 +46,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.observationSpace = observationSpace ;
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
-
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            //unmarshaller.setProperty("jaxb.encoding", "UTF-8");
-            //unmarshaller.setProperty("jaxb.formatted.output", true);
             this.configuration = (Configuration)unmarshaller.unmarshal( new File("resources/learning/ddpg.xml"));
         }catch(Exception e){
             e.printStackTrace();
@@ -59,7 +56,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         if(this.print) {
             try {
-                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards.csv");
+                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards2.csv");
                 this.rewardResults = new PrintWriter(fw);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -48,6 +48,5 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
 
     @Override
     public void setError(INDArray errors) {
-
     }
 }
