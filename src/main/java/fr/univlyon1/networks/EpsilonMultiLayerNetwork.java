@@ -39,10 +39,6 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
         super(conf, params);
     }
 
-    public void calcBackPropagation(INDArray epsilon) {
-        //this.calcBackpropGradients()
-    }
-
     public void backpropEpsilon(INDArray epsilon){
         Pair pair = this.calcBackpropGradients(epsilon, false);
         this.gradient = pair == null?null:(Gradient)pair.getFirst();

@@ -23,7 +23,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     private Approximator cloneCriticApproximator ;
 
     private double cpt = 0 ;
-    private int time = 200;
+    private int time = 100;
     private int cpt_time = 0 ;
     private boolean t = true ;
 

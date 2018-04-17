@@ -57,6 +57,7 @@ public class Mlp implements Approximator{
     protected boolean batchNormalization;
     protected boolean finalBatchNormalization ;
 
+    protected boolean dropout ;
     protected Double score ;
 
     public Mlp(Mlp mlp,boolean listener){// MultiLayerNetwork model,int output){
@@ -77,6 +78,7 @@ public class Mlp implements Approximator{
         this.batchNormalization = mlp.isBatchNormalization();
         this.finalBatchNormalization = mlp.isFinalBatchNormalization();
         this.numNodesPerLayer = mlp.getNumNodesPerLayer() ;
+        this.dropout = mlp.isDropout() ;
         if(listener)
             this.attachListener(this.model);
     }
@@ -105,12 +107,13 @@ public class Mlp implements Approximator{
         this.minimize = true ;
         this.epsilon = false ;
         this.numNodesPerLayer = new ArrayList<>();
+        this.dropout = false ;
     }
 
 
     public void init() {
         int cursor = 0 ;
-        NeuralNetConfiguration.ListBuilder builder = new NeuralNetConfiguration.Builder()
+        NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(seed+1)
                 .learningRate(learning_rate)
                 .biasInit(0.1)
@@ -118,9 +121,15 @@ public class Mlp implements Approximator{
                 .weightInit(WeightInit.XAVIER)
                 //.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(this.updater)
-                .minimize(minimize)
+                .minimize(minimize);
                 //.regularization(true).l2(1e-4)
-                .list();
+        if(this.dropout)
+            b.setDropOut(0.5);
+        NeuralNetConfiguration.ListBuilder builder = b.list() ;
+
+
+        //
+                //.list();
 
         /*
         Layer layerActiv = new ActivationLayer.Builder()
