@@ -29,15 +29,18 @@ public class RandomActor<A> implements Learning<A> {
     private double reward ;
     private RandomExperienceReplay<A> ep ;
 
+    private Configuration conf ;
+
     public RandomActor(ObservationSpace os, ActionSpace<A> as, Configuration conf,long seed){
         this.seed = seed ;
         this.actionSpace = as ;
         this.ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,null);
         this.td = new TDBatch<A>(conf.getGamma(),this,this.ep,conf.getBatchSize(),conf.getIterations());
+        this.conf = conf ;
     }
     @Override
     public Configuration getConf() {
-        return null;
+        return this.conf;
     }
 
     @Override
@@ -47,6 +50,11 @@ public class RandomActor<A> implements Learning<A> {
         A a = this.actionSpace.mapNumberToAction(o);
         this.td.step(input,this.actionSpace.mapNumberToAction(o));
         return a ;
+    }
+
+    @Override
+    public ObservationSpace getObservationSpace() {
+        return null;
     }
 
     @Override
@@ -76,7 +84,7 @@ public class RandomActor<A> implements Learning<A> {
         try {
             JAXBContext context = JAXBContext.newInstance(ListPojo.class);
             Marshaller m = context.createMarshaller();
-            m.marshal(point,new File("resources/memory/random.xml"));
+            m.marshal(point,new File(getConf().getFile()));
         } catch (JAXBException e) {
             e.printStackTrace();
         }

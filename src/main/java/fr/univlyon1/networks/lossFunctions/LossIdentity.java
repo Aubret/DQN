@@ -77,4 +77,10 @@ public class LossIdentity implements ILossFunction,SaveScore{
     public INDArray getLastScoreArray(){
         return this.lastScoreArray;
     }
+
+    @Override
+    @JsonIgnore
+    public INDArray getValues() {
+        return this.lastScoreArray ;
+    }
 }

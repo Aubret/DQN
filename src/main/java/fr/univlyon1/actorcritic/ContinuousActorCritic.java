@@ -22,17 +22,17 @@ import org.nd4j.linalg.api.ops.impl.transforms.Exp;
 @Getter
 @Setter
 public class ContinuousActorCritic<A> implements Learning<A> {
-    private Configuration conf ;
-    private Mlp policyApproximator ;
-    private Mlp criticApproximator ;
-    private Mlp cloneMaximizeCriticApproximator ;
-    private ActionSpace<A> actionSpace ;
-    private TDActorCritic<A> td ;
-    private Policy policy ;
-    private Double reward ;
-    private int epoch ;
-    private int countStep ;
-    private ObservationSpace observationSpace;
+    protected Configuration conf ;
+    protected Mlp policyApproximator ;
+    protected Mlp criticApproximator ;
+    protected Mlp cloneMaximizeCriticApproximator ;
+    protected ActionSpace<A> actionSpace ;
+    protected TDActorCritic<A> td ;
+    protected Policy policy ;
+    protected Double reward ;
+    protected int epoch ;
+    protected int countStep ;
+    protected ObservationSpace observationSpace;
 
     public ContinuousActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed){
         this.conf = conf ;
@@ -42,7 +42,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.epoch = conf.getEpochs() ;
         this.initActor(seed);
         this.initCritic(seed);
-        //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed);
+        //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
         //ExperienceReplay<A> ep = new PrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay());
         ExperienceReplay<A> ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
         ep.load(actionSpace);
@@ -152,7 +152,6 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //this.policyApproximator.setBatchNormalization(true);
         //this.policyApproximator.setFinalBatchNormalization(true);
         //this.policyApproximator.setLossFunction(new LossError());
-        //this.policyApproximator.setListener(true);
 
         this.policyApproximator.init() ; // A la fin
     }
@@ -201,5 +200,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     public Double getScore(){
         return this.td.getScore() ;
     }
+
+
 
 }

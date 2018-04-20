@@ -15,6 +15,7 @@ public class Configuration {
     int epochs = 50; // Nombre de time step avant la fusion des approximateurs
     @XmlElement(name="iterations")
     int iterations = 1; // Nombre d'itération d'apprentissage à chaque timestep
+
     @XmlElement(name="batchSize")
     int batchSize = 1; // Taille des batchs pour l'apprentissage
 

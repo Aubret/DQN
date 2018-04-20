@@ -12,12 +12,17 @@ public class Node<A>{
     private Double sum ;
     private InteractionHistory<A> ih ;
 
+    private Node<A> min ;
+    private Node<A> max ;
+
     private Node<A> parent;
     private int numberDescendant ;
 
     public Node(InteractionHistory<A> ih,Node<A> parent){
         this.left = null ;
         this.right = null ;
+        this.min = this ;
+        this.max = this ;
         if(ih != null) {
             this.ih = ih;
             this.sum = ih.getErrorValue();
@@ -150,6 +155,8 @@ public class Node<A>{
     public void majSum(){
         this.sum =( this.left!= null ? this.left.getSum() :0. )+ ( this.right!= null ? this.right.getSum():0. ) + this.ih.getErrorValue();
         this.numberDescendant = ( this.left!= null ?this.left.getNumberDescendant()+1 :0 )+ ( this.right!= null ? this.right.getNumberDescendant()+1:0 );
+        this.min = this.left != null  ? this.left : this ;
+        this.max = this.right != null ? this.right : this ;
     }
 
 }

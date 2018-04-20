@@ -79,6 +79,11 @@ public class DQNActor<A> implements Learning<A> {
     }
 
     @Override
+    public ObservationSpace getObservationSpace() {
+        return this.observationSpace;
+    }
+
+    @Override
     public void stop() {
         this.td.getApproximator().stop();
     }

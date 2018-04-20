@@ -78,8 +78,9 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
 
             if(this.getOutputLayer() instanceof IOutputLayer) {
                 this.score = ((IOutputLayer) this.getOutputLayer()).computeScore(this.calcL1(true), this.calcL2(true), true);
-            }else
-                this.score = epsilon.muli(epsilon).sumNumber().doubleValue();
+            }else {
+                this.score = epsilon.mul(epsilon).sumNumber().doubleValue()/(epsilon.shape()[0]);
+            }
             if(this.hasTrainingListener()) {
                 MemoryWorkspace workspace1 = Nd4j.getMemoryManager().scopeOutOfWorkspaces();
                 Throwable actSecondLastLayer2 = null;

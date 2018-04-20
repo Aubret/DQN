@@ -58,4 +58,12 @@ public class TDBatch<A> extends TD<A> {
     public void epoch(){
         this.approximator = this.learning.getApproximator().clone(false);
     }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
 }

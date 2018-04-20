@@ -3,6 +3,7 @@ package fr.univlyon1.agents;
 import fr.univlyon1.actorcritic.ContinuousActorCritic;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.actorcritic.RandomActor;
+import fr.univlyon1.actorcritic.SupervisedActorCritic;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ContinuousAction;
@@ -31,31 +32,32 @@ public class AgentDRL<A> implements AgentRL<A> {
     private ActionSpace<A> actionSpace ;
     private ObservationSpace observationSpace;
     private Learning<A> learning;
-    private long seed ;
     private PrintWriter rewardResults ;
     private double totalReward = 0 ;
-    private boolean print = true ;
+    private boolean print =true ;
     private Configuration configuration ;
 
     private long time ;
 
     public AgentDRL(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
         this.time = System.currentTimeMillis();
-        this.seed = seed ;
         this.actionSpace = actionSpace ;
         Nd4j.getRandom().setSeed(seed);
         this.observationSpace = observationSpace ;
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            this.configuration = (Configuration)unmarshaller.unmarshal( new File("resources/learning/ddpg.xml"));
+            String f = "resources/learning/ddpg.xml";
+            //String f = "resources/learning/justhour_ddpg.xml";
+            this.configuration = (Configuration)unmarshaller.unmarshal( new File(f));
         }catch(Exception e){
-            e.printStackTrace();
+            e.printStackTrace();;
         }
 
         //this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
-        this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         if(this.print) {
             try {
                 FileWriter fw = new FileWriter("sim/arthur/continuous_rewards.csv");
@@ -82,7 +84,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         if(reward != null ){
             if(this.print) {
                 this.totalReward += reward;
-                if(action instanceof ContinuousAction) {
+                if(action instanceof ContinuousAction && this.learning instanceof ContinuousActorCritic) {
                     INDArray res = ((INDArray) this.actionSpace.mapActionToNumber(action));
                     //TD td = ((TD)(((ContinuousActorCritic)this.learning).getTd()));
                     //Double qvalue = td.getQvalue();

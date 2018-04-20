@@ -49,11 +49,13 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
 
     @Override
     public Interaction<A> chooseInteraction() {
-        if(this.toTake.size() != 0) {
-            InteractionHistory<A> ih = this.toTake.remove(toTake.size() - 1);
-            //System.out.println(toTake.size());
-            this.tmp.add(ih);
-            return ih.getInteraction() ;
+        if(this.random.nextBoolean() || this.history.size() == 0) {
+            if (this.toTake.size() != 0) {
+                InteractionHistory<A> ih = this.toTake.remove(toTake.size() - 1);
+                //System.out.println(toTake.size());
+                this.tmp.add(ih);
+                return ih.getInteraction();
+            }
         }
 
         if(this.history.size() > 0) {

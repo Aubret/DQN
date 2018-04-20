@@ -5,6 +5,7 @@ import fr.univlyon1.memory.prioritizedExperienceReplay.InteractionHistory;
 public class SumTree<A> extends Node<A> {
 
     private Node<A> root ;
+    private double min = Double.MIN_VALUE ;
 
     public SumTree(){
         super(null,null);
@@ -46,7 +47,13 @@ public class SumTree<A> extends Node<A> {
         return this.removeLast().getIh() ;
     }
 
+    public InteractionHistory<A> getMinimum(){ return this.root.getMin().getIh(); }
+
+    public InteractionHistory<A> getMaximum(){ return this.root.getMax().getIh();}
+
     public void insert(InteractionHistory<A> ih){
+        if(ih.getErrorValue() < this.min)
+            this.min = ih.getErrorValue();
         if(this.root != null) {
             this.root.insert(ih);
         }else{

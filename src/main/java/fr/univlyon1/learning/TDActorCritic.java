@@ -23,7 +23,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     private Approximator cloneCriticApproximator ;
 
     private double cpt = 0 ;
-    private int time = 100;
+    private int time = 20;
     private int cpt_time = 0 ;
     private boolean t = true ;
 
@@ -43,16 +43,19 @@ public class TDActorCritic<A> extends TDBatch<A> {
      */
     @Override
     public void learn(){
-        if(this.lastInteraction == null)
-            return ;
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
-        INDArray inputAction1 = Nd4j.concat(1,this.lastInteraction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
-        this.scoreI = Math.pow(this.criticApproximator.getOneResult(inputAction1).getDouble(0)-this.labelize(this.lastInteraction,this.approximator).getDouble(0),2);
+        int sizeObservation ;
+        if(this.lastInteraction != null) {
+            INDArray inputAction1 = Nd4j.concat(1, this.lastInteraction.getObservation(), (INDArray) this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
+            this.scoreI = this.criticApproximator.getOneResult(inputAction1).getDouble(0) - this.labelize(this.lastInteraction, this.approximator).getDouble(0);
+            sizeObservation = this.lastInteraction.getObservation().size(1);
+        }else{
+            sizeObservation = this.learning.getObservationSpace().getShape()[0];
+        }
 
         if(numRows <1 )
             return ;
         int sizeAction = this.learning.getActionSpace().getSize() ;
-        int sizeObservation = this.lastInteraction.getObservation().size(1);
         int numColumns =sizeObservation+sizeAction;
         int numColumnsLabels = this.targetCriticApproximator.numOutput();
         //this.learning.getActionSpace().getSize();
@@ -60,10 +63,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
             INDArray observations = Nd4j.zeros(numRows, sizeObservation);
             INDArray inputs = Nd4j.zeros(numRows, numColumns);
             INDArray labels = Nd4j.zeros(numRows, numColumnsLabels);
-            ArrayList<Interaction<A>> interactions = new ArrayList<>();
             for (int i = 0; i < numRows; i++) {
                 Interaction<A> interaction = experienceReplay.chooseInteraction();
-                interactions.add(interaction);
                 INDArray inputAction = Nd4j.concat(1,interaction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction()));
                 inputs.putRow(i, inputAction);
                 observations.putRow(i, interaction.getObservation());
@@ -79,7 +80,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
             INDArray inputAction = Nd4j.concat(1, observations, action);
             INDArray epsilonObsAct = this.cloneCriticApproximator.error(inputAction, Nd4j.create(new double[]{0}), numRows); // erreur
             INDArray epsilonAction = epsilonObsAct.get(NDArrayIndex.all(), NDArrayIndex.interval(sizeObservation, numColumns));
-
+//            System.out.println(epsilonAction.getRow(0));
             INDArray old =null;
             if(this.cpt_time%this.time == 0) {
                 System.out.println("-------------");
@@ -139,5 +140,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         //this.cpt_time =0 ;
         //this.targetActorApproximator = this.learning.getApproximator().clone(false);
     }
+
+
 
 }

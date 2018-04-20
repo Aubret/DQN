@@ -122,7 +122,7 @@ public class Mlp implements Approximator{
                 //.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(this.updater)
                 .minimize(minimize);
-                //.regularization(true).l2(1e-4)
+                //
         if(this.dropout)
             b.setDropOut(0.5);
         NeuralNetConfiguration.ListBuilder builder = b.list() ;
@@ -244,6 +244,7 @@ public class Mlp implements Approximator{
             ILossFunction lossFunction = l.layerConf().getLossFn();
             if(lossFunction instanceof LossMseSaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
+                //return lossfn.getValues();
                 return lossfn.getLastScoreArray();
             }
         }
@@ -279,7 +280,7 @@ public class Mlp implements Approximator{
 
     @Override
     public void setParams(INDArray params) {
-        if(params != this.model.params());
+        if(params != this.model.params())
             this.model.setParameters(params);
     }
 
