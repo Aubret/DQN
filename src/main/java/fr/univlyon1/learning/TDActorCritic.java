@@ -110,7 +110,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
                 INDArray intermediaire = this.cloneCriticApproximator.getOneResult(inputAction).subi(old);//must be positive
                 Number mean = intermediaire.meanNumber();
                 cpt += mean.doubleValue();
-                System.out.println(mean + " -- " + cpt + "---" +((Mlp)this.criticApproximator).getScore());
+                System.out.println(mean + " -- " + cpt /*+ "---" +((Mlp)this.criticApproximator).getScore()*/);
 
 
                 //System.out.println(this.criticApproximator);

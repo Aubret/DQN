@@ -84,7 +84,7 @@ public class RandomActor<A> implements Learning<A> {
         try {
             JAXBContext context = JAXBContext.newInstance(ListPojo.class);
             Marshaller m = context.createMarshaller();
-            m.marshal(point,new File(getConf().getFile()));
+            m.marshal(point,new File(getConf().getFile().get(0)));
         } catch (JAXBException e) {
             e.printStackTrace();
         }

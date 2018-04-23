@@ -3,6 +3,7 @@ package fr.univlyon1.memory;
 import fr.univlyon1.environment.Interaction;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -10,7 +11,7 @@ import java.util.Random;
 public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     protected List<Interaction<A>> memory ;
     private Random random ;
-    public RandomExperienceReplay(int maxSize,long seed,String file){
+    public RandomExperienceReplay(int maxSize,long seed,ArrayList<String> file){
         super(maxSize,file);
         this.random = new Random(seed);
         this.resetMemory();

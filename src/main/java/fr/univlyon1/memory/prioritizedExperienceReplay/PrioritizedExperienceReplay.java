@@ -16,7 +16,7 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
     ArrayList<InteractionHistory<A>> tmp ;
     //private
 
-    public PrioritizedExperienceReplay(int maxSize,String file) {
+    public PrioritizedExperienceReplay(int maxSize,ArrayList<String>     file) {
         super(maxSize,file);
         this.resetMemory();
     }

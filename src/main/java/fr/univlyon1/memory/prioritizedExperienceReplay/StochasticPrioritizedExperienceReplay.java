@@ -18,7 +18,7 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
     private Random random;
     ArrayList<InteractionHistory<A>> toTake ;
 
-    public StochasticPrioritizedExperienceReplay(int maxSize,long seed,String file) {
+    public StochasticPrioritizedExperienceReplay(int maxSize,long seed,ArrayList<String> file) {
         super(maxSize,file);
         this.resetMemory();
         this.random = new Random(seed);

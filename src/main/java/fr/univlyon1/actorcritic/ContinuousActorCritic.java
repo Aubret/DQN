@@ -168,6 +168,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(Updater.ADAM);
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
+        this.criticApproximator.setL2(0.01);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;

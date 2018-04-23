@@ -61,6 +61,8 @@ public class Mlp implements Approximator{
     protected Double score ;
     protected INDArray values ;
 
+    protected Double l2 ;
+
     public Mlp(Mlp mlp,boolean listener){// MultiLayerNetwork model,int output){
         this.model = mlp.getModel().clone();
         this.output = mlp.getOutput() ;
@@ -80,6 +82,7 @@ public class Mlp implements Approximator{
         this.finalBatchNormalization = mlp.isFinalBatchNormalization();
         this.numNodesPerLayer = mlp.getNumNodesPerLayer() ;
         this.dropout = mlp.isDropout() ;
+        this.l2 = mlp.getL2();
         if(listener)
             this.attachListener(this.model);
     }
@@ -109,6 +112,7 @@ public class Mlp implements Approximator{
         this.epsilon = false ;
         this.numNodesPerLayer = new ArrayList<>();
         this.dropout = false ;
+        this.l2 = null ;
     }
 
 
@@ -126,6 +130,9 @@ public class Mlp implements Approximator{
                 //
         if(this.dropout)
             b.setDropOut(0.5);
+        if(l2 != null)
+            b.regularization(true).l2(this.l2);
+
         NeuralNetConfiguration.ListBuilder builder = b.list() ;
 
 

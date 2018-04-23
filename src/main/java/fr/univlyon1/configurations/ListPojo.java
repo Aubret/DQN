@@ -23,4 +23,8 @@ public class ListPojo<A> {
     public void add(PojoInteraction<A> pojo){
         this.pojos.add(pojo);
     }
+
+    public int size(){
+        return this.pojos.size() ;
+    }
 }
