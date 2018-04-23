@@ -1,9 +1,6 @@
 package fr.univlyon1.agents;
 
-import fr.univlyon1.actorcritic.ContinuousActorCritic;
-import fr.univlyon1.actorcritic.Learning;
-import fr.univlyon1.actorcritic.RandomActor;
-import fr.univlyon1.actorcritic.SupervisedActorCritic;
+import fr.univlyon1.actorcritic.*;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ContinuousAction;
@@ -58,6 +55,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
         this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         if(this.print) {
             try {
                 FileWriter fw = new FileWriter("sim/arthur/continuous_rewards.csv");

@@ -23,6 +23,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
     private Approximator cloneCriticApproximator ;
 
     private double cpt = 0 ;
+    private double cumulScoreUp=0;
+
     private int time = 20;
     private int cpt_time = 0 ;
     private boolean t = true ;
@@ -45,7 +47,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     public void learn(){
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         int sizeObservation ;
-        if(this.lastInteraction != null) {
+        if(this.lastInteraction != null && this.lastInteraction.getSecondObservation() != null ) {
             INDArray inputAction1 = Nd4j.concat(1, this.lastInteraction.getObservation(), (INDArray) this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
             this.scoreI = this.criticApproximator.getOneResult(inputAction1).getDouble(0) - this.labelize(this.lastInteraction, this.approximator).getDouble(0);
             sizeObservation = this.lastInteraction.getObservation().size(1);
@@ -75,6 +77,19 @@ public class TDActorCritic<A> extends TDBatch<A> {
             INDArray scores = (INDArray) this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
             this.experienceReplay.setError(scores);
 
+            if(this.cpt_time%this.time == 0){
+                System.out.println("-------------");
+                INDArray firstval = ((Mlp) this.criticApproximator).getValues();
+                INDArray s1 = firstval.sub(labels);
+                Double val1 = s1.muli(s1).meanNumber().doubleValue();
+                INDArray newVal = this.criticApproximator.getOneResult(inputs);
+                INDArray s2 = newVal.sub(labels);
+                Double val2 =s2.muli(s2).meanNumber().doubleValue();
+                double meanScore = val1-val2 ;
+                cumulScoreUp+=meanScore ;
+                System.out.println(meanScore + " -- " +cumulScoreUp);
+            }
+
             this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
             INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
             INDArray inputAction = Nd4j.concat(1, observations, action);
@@ -83,7 +98,6 @@ public class TDActorCritic<A> extends TDBatch<A> {
 //            System.out.println(epsilonAction.getRow(0));
             INDArray old =null;
             if(this.cpt_time%this.time == 0) {
-                System.out.println("-------------");
                 old = this.cloneCriticApproximator.getOneResult(inputAction);
             }
 
@@ -97,6 +111,9 @@ public class TDActorCritic<A> extends TDBatch<A> {
                 Number mean = intermediaire.meanNumber();
                 cpt += mean.doubleValue();
                 System.out.println(mean + " -- " + cpt + "---" +((Mlp)this.criticApproximator).getScore());
+
+
+                //System.out.println(this.criticApproximator);
             }
             this.cpt_time++ ;
 

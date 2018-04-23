@@ -22,7 +22,6 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
         for(int i = 0;i < this.epoch; i++){
             this.td.learn();
         }
-        this.countStep++ ;
         //this.td.setBatchSize(0);
     }
 
@@ -33,12 +32,13 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         this.td.step(input,actionBehaviore); // step learning algorithm
-        if (this.countStep == 500) {
+        if (this.countStep == 200) {
             this.countStep = 0;
             this.learn();
             this.td.epoch();
             //System.out.println("An epoch : "+ AgentDRL.getCount());
         }
+        this.countStep++ ;
         return actionBehaviore;
     }
 

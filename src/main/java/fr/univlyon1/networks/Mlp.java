@@ -59,6 +59,7 @@ public class Mlp implements Approximator{
 
     protected boolean dropout ;
     protected Double score ;
+    protected INDArray values ;
 
     public Mlp(Mlp mlp,boolean listener){// MultiLayerNetwork model,int output){
         this.model = mlp.getModel().clone();
@@ -176,6 +177,8 @@ public class Mlp implements Approximator{
         node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         builder.layer(cursor,
                 new DenseLayer.Builder()
+                    .biasInit(0.01)
+                    .weightInit(WeightInit.UNIFORM)
                     .nIn(node)
                     .nOut(output)
                     .activation(this.lastActivation)
@@ -197,7 +200,7 @@ public class Mlp implements Approximator{
     }
 
     public INDArray getOneResult(INDArray data){
-        this.model.setInputMiniBatchSize(1);
+        this.model.setInputMiniBatchSize(data.shape()[0]);
         INDArray res = this.model.output(data) ;
         return res ;
     }
@@ -244,7 +247,7 @@ public class Mlp implements Approximator{
             ILossFunction lossFunction = l.layerConf().getLossFn();
             if(lossFunction instanceof LossMseSaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
-                //return lossfn.getValues();
+                this.values = lossfn.getValues();
                 return lossfn.getLastScoreArray();
             }
         }
@@ -332,5 +335,9 @@ public class Mlp implements Approximator{
     @Override
     public Object getAction(INDArray inputs) {
         return this.getOneResult(inputs);
+    }
+
+    public INDArray getValues(){
+        return this.values ;
     }
 }

@@ -33,6 +33,7 @@ public class SupervisedActorCritic<A> extends ContinuousActorCritic<A> {
     public A getAction(INDArray input) {
         A actionBehaviore;
         this.td.evaluate(input,this.reward);
+        this.td.learn();
         INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         this.td.step(input,actionBehaviore);
