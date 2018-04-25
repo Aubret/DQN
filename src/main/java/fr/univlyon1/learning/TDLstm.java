@@ -60,6 +60,7 @@ public class TDLstm<A> extends TDActorCritic<A> {
     protected INDArray labelize(Interaction<A> interaction){
         //INDArray entry = Nd4j.concat(1,interaction.getObservation(), (INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction())) ;
         // INDArray entryTarget = Nd4j.concat(1,interaction.getObservation(), (INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction())) ;
+        //INDArray state = this.observationApproximator.getOneTrainingResult();
         INDArray actionTarget = this.targetActorApproximator.getOneResult(interaction.getSecondObservation());
         //INDArray actionTarget = Nd4j.zeros(this.learning.getActionSpace().getSize()).add(0.1);
         INDArray entryCriticTarget = Nd4j.concat(1,interaction.getSecondObservation(), actionTarget) ;

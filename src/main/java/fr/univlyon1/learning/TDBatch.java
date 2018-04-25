@@ -49,7 +49,7 @@ public class TDBatch<A> extends TD<A> {
             for (int i = 0; i < numRows; i++) {
                 Interaction<A> interaction = experienceReplay.chooseInteraction();
                 inputs.putRow(i, interaction.getObservation());
-                labels.putRow(i, this.labelize(interaction, this.approximator));
+                labels.putRow(i, this.labelize(interaction));
             }
             this.learning.getApproximator().learn(inputs, labels, numRows);
         }

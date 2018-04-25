@@ -41,7 +41,7 @@ public class LSTM extends Mlp{
         for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
-            builder.layer(cursor, new DenseLayer.Builder()
+            builder.layer(cursor, new GravesLSTM.Builder()
                     .activation(this.hiddenActivation)
                     .nIn(previousNode).nOut(node)
                     .build()
@@ -115,4 +115,9 @@ public class LSTM extends Mlp{
         //return this.model.getOutputLayer().com ;
         return null ;
     }
+
+    public INDArray getState(){
+        return this.model.getLayer(0).params();
+    }
+
 }

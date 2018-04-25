@@ -13,6 +13,7 @@ public class Interaction <A> implements Cloneable{
 
     private INDArray state ;
     private INDArray secondState ;
+    private INDArray memory ;
 
     private A action ;
     private A secondAction ;
@@ -24,6 +25,12 @@ public class Interaction <A> implements Cloneable{
         this.observation = observation ;
         this.id = count ;
         count++;
+        this.state = null ;
+    }
+
+    public Interaction(A action, INDArray observation,INDArray state){
+        this(action, observation);
+        this.state = state ;
     }
 
     public Interaction<A> clone(){

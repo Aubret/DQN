@@ -23,9 +23,10 @@ public class TD<A> implements Algorithm<A> {
     @Override
     public void step(INDArray observation, A action) {
         //this.lastInteraction.setSecondAction(action);
-        INDArray state = this.lastInteraction.getSecondState() ;
-        this.lastInteraction = new Interaction<A>(action,observation);
-        this.lastInteraction.setState(state);
+        if(this.lastInteraction != null)
+            this.lastInteraction=new Interaction<A>(action,observation,this.lastInteraction.getSecondState()) ;
+        else
+            this.lastInteraction = new Interaction<A>(action,observation);
     }
 
     @Override

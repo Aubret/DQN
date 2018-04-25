@@ -64,6 +64,8 @@ public class Configuration {
     @XmlElement(name="LstmHiddenNodes")
     @XmlList
     ArrayList<Integer> layersLstmHiddenNodes = new ArrayList<>();
+    @XmlElement(name="numLstmOutputNodes")
+    int numLstmOutputNodes = 50 ;
 
 
     //expererience replay
