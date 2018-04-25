@@ -23,7 +23,9 @@ public class TD<A> implements Algorithm<A> {
     @Override
     public void step(INDArray observation, A action) {
         //this.lastInteraction.setSecondAction(action);
+        INDArray state = this.lastInteraction.getSecondState() ;
         this.lastInteraction = new Interaction<A>(action,observation);
+        this.lastInteraction.setState(state);
     }
 
     @Override
@@ -45,15 +47,14 @@ public class TD<A> implements Algorithm<A> {
     }
 
     public void learn(){
-        INDArray res = this.labelize(this.lastInteraction,this.approximator);
+        INDArray res = this.labelize(this.lastInteraction);
         this.learning.getApproximator().learn(this.lastInteraction.getObservation(), res,1);
     }
 
     /**
      * Renvoie les labels avec la formue r + lamba*maxQ
-     * @param approximator
      */
-    protected INDArray labelize(Interaction<A> interaction,Approximator approximator){
+    protected INDArray labelize(Interaction<A> interaction){
         INDArray results = approximator.getOneResult(interaction.getSecondObservation());// Trouve l'estimation de QValue
         Integer indice =(int) this.learning.getActionSpace().mapActionToNumber(interaction.getAction());
 

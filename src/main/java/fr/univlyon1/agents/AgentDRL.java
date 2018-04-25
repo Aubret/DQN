@@ -54,8 +54,9 @@ public class AgentDRL<A> implements AgentRL<A> {
         //this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
-        this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.learning.init();
         if(this.print) {
             try {
                 FileWriter fw = new FileWriter("sim/arthur/continuous_rewards.csv");

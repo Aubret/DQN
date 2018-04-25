@@ -35,9 +35,13 @@ public class RandomActor<A> implements Learning<A> {
         this.seed = seed ;
         this.actionSpace = as ;
         this.ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,null);
-        this.td = new TDBatch<A>(conf.getGamma(),this,this.ep,conf.getBatchSize(),conf.getIterations());
         this.conf = conf ;
     }
+
+    public void init(){
+        this.td = new TDBatch<A>(conf.getGamma(),this,this.ep,conf.getBatchSize(),conf.getIterations());
+    }
+
     @Override
     public Configuration getConf() {
         return this.conf;

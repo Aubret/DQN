@@ -11,6 +11,7 @@ import fr.univlyon1.memory.prioritizedExperienceReplay.StochasticPrioritizedExpe
 import fr.univlyon1.networks.*;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.learning.TDActorCritic;
+import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.networks.lossFunctions.LossIdentity;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,13 +34,18 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     protected int epoch ;
     protected int countStep ;
     protected ObservationSpace observationSpace;
+    protected long seed ;
 
     public ContinuousActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed){
         this.conf = conf ;
         this.actionSpace = actionSpace ;
         this.observationSpace = observationSpace ;
+        this.seed = seed ;
         //this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed);
         this.epoch = conf.getEpochs() ;
+    }
+
+    public void init(){
         this.initActor(seed);
         this.initCritic(seed);
         //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
@@ -139,15 +145,16 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.policyApproximator.setLearning_rate(conf.getLearning_rate());
         this.policyApproximator.setNumNodes(conf.getNumHiddenNodes());
         this.policyApproximator.setNumLayers(conf.getNumLayers());
-        this.policyApproximator.setEpsilon(true); // On retropropage le gradient avec epsilon et non une foncitno de perte
-        //this.policyApproximator.setLossFunction(new LossError());
-        //this.policyApproximator.setEpsilon(false);
+        //this.policyApproximator.setEpsilon(true); // On retropropage le gradient avec epsilon et non une foncitno de perte
+        this.policyApproximator.setLossFunction(new LossError());
+        this.policyApproximator.setEpsilon(false);
         this.policyApproximator.setMinimize(false); // On souhaite minimiser le gradient
         this.policyApproximator.setListener(true);
         this.policyApproximator.setUpdater(Updater.ADAM);
         this.policyApproximator.setLastActivation(Activation.TANH);
         this.policyApproximator.setHiddenActivation(Activation.RELU);
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
+        //this.policyApproximator.setL2(0.0002);
         //this.policyApproximator.setDropout(true);
         //this.policyApproximator.setBatchNormalization(true);
         //this.policyApproximator.setFinalBatchNormalization(true);
@@ -157,7 +164,6 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     private void initCritic(long seed){
-        //this.criticApproximator = new GradMlp(observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, seed);
         this.criticApproximator = new Mlp(observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, seed);
         this.criticApproximator.setLearning_rate(conf.getLearning_rateCritic());
         this.criticApproximator.setListener(true);
@@ -168,7 +174,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(Updater.ADAM);
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        this.criticApproximator.setL2(0.01);
+        this.criticApproximator.setL2(0.001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
@@ -184,6 +190,8 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.cloneMaximizeCriticApproximator.setLossFunction(new LossIdentity());
         this.cloneMaximizeCriticApproximator.setUpdater(Updater.ADAM);
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
+        //this.cloneMaximizeCriticApproximator.setL2(0.001);
+        //this.cloneMaximizeCriticApproximator.setListener(true);
         //this.cloneMaximizeCriticApproximator.setBatchNormalization(true);
         //this.cloneMaximizeCriticApproximator.setFinalBatchNormalization(true);
         this.cloneMaximizeCriticApproximator.init();

@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.BatchNormalization;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
+import org.deeplearning4j.nn.conf.layers.Layer;
 import org.deeplearning4j.nn.conf.layers.LossLayer;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -128,8 +129,6 @@ public class Mlp implements Approximator{
                 .updater(this.updater)
                 .minimize(minimize);
                 //
-        if(this.dropout)
-            b.setDropOut(0.5);
         if(l2 != null)
             b.regularization(true).l2(this.l2);
 
@@ -182,14 +181,17 @@ public class Mlp implements Approximator{
             cursor++ ;
         }
         node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
-        builder.layer(cursor,
-                new DenseLayer.Builder()
-                    .biasInit(0.01)
-                    .weightInit(WeightInit.UNIFORM)
-                    .nIn(node)
-                    .nOut(output)
-                    .activation(this.lastActivation)
-                    .build());
+        Layer.Builder l = new DenseLayer.Builder()
+                .biasInit(0.01)
+                .weightInit(WeightInit.UNIFORM)
+                .nIn(node)
+                .nOut(output)
+                .activation(this.lastActivation)
+                ;
+        if(this.dropout){
+            l.dropOut(0.5);
+        }
+        builder.layer(cursor, l.build());
         cursor++ ;
         if(!epsilon)
             builder.layer(cursor, new LossLayer.Builder(this.lossFunction)
@@ -208,7 +210,13 @@ public class Mlp implements Approximator{
 
     public INDArray getOneResult(INDArray data){
         this.model.setInputMiniBatchSize(data.shape()[0]);
-        INDArray res = this.model.output(data) ;
+        INDArray res = this.model.output(data, org.deeplearning4j.nn.api.Layer.TrainingMode.TEST) ;
+        return res ;
+    }
+
+    public INDArray getOneTrainingResult(INDArray data){
+        this.model.setInputMiniBatchSize(data.shape()[0]);
+        INDArray res = this.model.output(data, org.deeplearning4j.nn.api.Layer.TrainingMode.TRAIN) ;
         return res ;
     }
 

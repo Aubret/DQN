@@ -9,6 +9,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import javax.xml.bind.JAXBException;
 
 public interface Learning<A> {
+    void init();
     Configuration getConf();
     A getAction(INDArray input);
     ObservationSpace getObservationSpace();

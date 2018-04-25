@@ -23,16 +23,21 @@ public class DQNActor<A> implements Learning<A> {
     private int epoch ;
     private int countStep ;
     private ObservationSpace observationSpace ;
+    private long seed ;
 
     public DQNActor(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed){
         this.conf = conf ;
         this.observationSpace = observationSpace ;
         this.initMlp(seed);
         this.actionSpace = actionSpace ;
-        int batchSize = conf.getBatchSize();
-        int iterations = conf.getIterations() ;
         this.epoch = conf.getEpochs() ; // nombre d'itérations avant pour chaque clônage de réseau.
         this.countStep=0;
+        this.seed = seed ;
+    }
+
+    public void init(){
+        int batchSize = conf.getBatchSize();
+        int iterations = conf.getIterations() ;
         this.td = new TDBatch<A>(conf.getGamma(),this, new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile()),batchSize,iterations) ;// experience can be null
         //this.policy = new Egreedy(0.2,seed);
         this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),conf.getStepEpsilon(),seed,this.actionSpace,new GreedyDiscrete(),conf.getInitStdEpsilon());

@@ -42,7 +42,7 @@ public class Configuration {
 
     @XmlElement(name="layersHiddenNodes")
     @XmlList
-    ArrayList<Integer> layersHiddenNodes;
+    ArrayList<Integer> layersHiddenNodes = new ArrayList<>();
 
     //critic network
     @XmlElement(name="numCriticHiddenNodes")
@@ -51,10 +51,20 @@ public class Configuration {
     int numCriticLayers = 1; // Nombre de couches
     @XmlElement(name="learning_rateCritic")
     Double learning_rateCritic = 0.001; // Pas d'apprentissage
-
     @XmlElement(name="criticHiddenNodes")
     @XmlList
-    ArrayList<Integer> layersCriticHiddenNodes;
+    ArrayList<Integer> layersCriticHiddenNodes = new ArrayList<>();
+
+    @XmlElement(name="numLstmHiddenNodes")
+    int numLstmHiddenNodes = 10 ;
+    @XmlElement(name="numLstmLayers")
+    int numLstmlayers = 1;
+    @XmlElement(name="learning_rateLstm")
+    Double learning_rateLstm = 0.001 ;
+    @XmlElement(name="LstmHiddenNodes")
+    @XmlList
+    ArrayList<Integer> layersLstmHiddenNodes = new ArrayList<>();
+
 
     //expererience replay
     @XmlElement(name="sizeExperienceReplay")

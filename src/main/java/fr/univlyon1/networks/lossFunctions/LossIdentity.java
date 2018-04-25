@@ -18,13 +18,19 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.lossfunctions.LossUtil;
+import org.nd4j.linalg.lossfunctions.serde.RowVectorDeserializer;
+import org.nd4j.linalg.lossfunctions.serde.RowVectorSerializer;
 import org.nd4j.linalg.memory.abstracts.DummyWorkspace;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.shade.jackson.annotation.JsonIgnore;
+import org.nd4j.shade.jackson.databind.annotation.JsonDeserialize;
+import org.nd4j.shade.jackson.databind.annotation.JsonSerialize;
 
 public class LossIdentity implements ILossFunction,SaveScore{
     @JsonIgnore
     private INDArray lastScoreArray ;
+
+    public LossIdentity(){}
 
     @Override
     public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {

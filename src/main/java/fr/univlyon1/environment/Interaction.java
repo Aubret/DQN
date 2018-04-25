@@ -10,6 +10,10 @@ public class Interaction <A> implements Cloneable{
     private static int count = 0 ;
     private INDArray observation ;
     private INDArray secondObservation ;
+
+    private INDArray state ;
+    private INDArray secondState ;
+
     private A action ;
     private A secondAction ;
     private double reward ;

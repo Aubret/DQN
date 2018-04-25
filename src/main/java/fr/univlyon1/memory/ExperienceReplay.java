@@ -45,7 +45,6 @@ public abstract class ExperienceReplay<A> {
                     JAXBContext context = JAXBContext.newInstance(ListPojo.class);
                     Unmarshaller unmarshaller = context.createUnmarshaller();
                     ListPojo<A> lp = (ListPojo) unmarshaller.unmarshal(new File(f));
-                    System.out.println(lp.size());
                     for (PojoInteraction<A> pi : lp.getPojos()) {
                         Interaction<A> i = new Interaction<A>(as.mapNumberToAction(Nd4j.create(pi.getAction())), Nd4j.create(pi.getObservation()));
                         i.setReward(pi.getReward());

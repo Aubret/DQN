@@ -14,14 +14,23 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
         if(conf.getFile() == null){
             System.out.println("Il manque un fichier de chargement");
         }
-        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        //this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+    }
+
+    public void init(){
+        super.init();
+        this.policy = this.policyApproximator ;
         this.learn();
     }
 
     public void learn(){
+        this.td.setBatchSize(conf.getBatchSize());
         for(int i = 0;i < this.epoch; i++){
             this.td.learn();
+            this.td.epoch();
         }
+        this.td.setBatchSize(0);
+
         //this.td.setBatchSize(0);
     }
 
@@ -31,13 +40,13 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
         this.td.evaluate(input, this.reward); //Evaluation
         INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
-        this.td.step(input,actionBehaviore); // step learning algorithm
-        if (this.countStep == 200) {
+        if (this.countStep == 100) {
             this.countStep = 0;
             this.learn();
-            this.td.epoch();
             //System.out.println("An epoch : "+ AgentDRL.getCount());
         }
+        this.td.learn();
+        this.td.step(input,actionBehaviore); // step learning algorithm
         this.countStep++ ;
         return actionBehaviore;
     }

@@ -15,6 +15,12 @@ public class LossMseSaveScore extends LossMSE implements SaveScore,ILossFunction
     @JsonIgnore
     private INDArray values ;
 
+    public LossMseSaveScore(){}
+
+    public LossMseSaveScore(INDArray weights) {
+        super(weights);
+    }
+
     @Override
     protected INDArray scoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         INDArray res = super.scoreArray(labels,preOutput,activationFn,mask);
