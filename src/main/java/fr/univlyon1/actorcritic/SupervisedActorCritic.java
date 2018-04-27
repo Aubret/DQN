@@ -26,7 +26,6 @@ public class SupervisedActorCritic<A> extends ContinuousActorCritic<A> {
                 //System.out.println("An epoch : "+ AgentDRL.getCount());
             }
         }
-        this.td.setBatchSize(0);
     }
 
     @Override

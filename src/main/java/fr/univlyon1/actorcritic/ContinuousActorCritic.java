@@ -4,6 +4,7 @@ import fr.univlyon1.actorcritic.policy.*;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ObservationSpace;
+import fr.univlyon1.learning.Algorithm;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.memory.prioritizedExperienceReplay.PrioritizedExperienceReplay;
@@ -28,7 +29,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     protected Mlp criticApproximator ;
     protected Mlp cloneMaximizeCriticApproximator ;
     protected ActionSpace<A> actionSpace ;
-    protected TDActorCritic<A> td ;
+    protected Algorithm<A> td ;
     protected Policy policy ;
     protected Double reward ;
     protected int epoch ;

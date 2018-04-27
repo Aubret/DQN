@@ -1,5 +1,6 @@
 package fr.univlyon1.networks;
 
+import com.sun.xml.internal.bind.v2.runtime.output.SAXOutput;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +62,14 @@ public class Mlp implements Approximator{
     protected boolean dropout ;
     protected Double score ;
     protected INDArray values ;
+    protected INDArray scoreArray ;
 
     protected Double l2 ;
 
     public Mlp(Mlp mlp,boolean listener){// MultiLayerNetwork model,int output){
         this.model = mlp.getModel().clone();
         this.output = mlp.getOutput() ;
+        this.input = mlp.getInput();
         this.tmp = mlp.tmp ;
         this.minimize = mlp.isMinimize() ;
         this.epsilon = mlp.isEpsilon();
@@ -209,14 +212,8 @@ public class Mlp implements Approximator{
     }
 
     public INDArray getOneResult(INDArray data){
-        this.model.setInputMiniBatchSize(data.shape()[0]);
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
         INDArray res = this.model.output(data, org.deeplearning4j.nn.api.Layer.TrainingMode.TEST) ;
-        return res ;
-    }
-
-    public INDArray getOneTrainingResult(INDArray data){
-        this.model.setInputMiniBatchSize(data.shape()[0]);
-        INDArray res = this.model.output(data, org.deeplearning4j.nn.api.Layer.TrainingMode.TRAIN) ;
         return res ;
     }
 
@@ -227,7 +224,7 @@ public class Mlp implements Approximator{
 
     @Override
     public Object learn(INDArray input,INDArray labels,int number) {
-        this.model.setInputMiniBatchSize(number);
+        //this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         if(this.epsilon) {
             this.model.computeGradientFromEpsilon(labels);
@@ -263,17 +260,16 @@ public class Mlp implements Approximator{
             if(lossFunction instanceof LossMseSaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
-                return lossfn.getLastScoreArray();
+                this.scoreArray = lossfn.getLastScoreArray() ;
             }
         }
         //return this.model.getOutputLayer().com ;
-        return null ;
+        return this.model.epsilon() ;
     }
 
     @Override
     public INDArray error(INDArray input, INDArray labels, int number) {
         //System.out.println(this.gradPolicyMlp.params());
-        this.model.clear() ;
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         this.model.setLabels(labels);//Nd4j.create(new double[]{0}));
@@ -354,5 +350,9 @@ public class Mlp implements Approximator{
 
     public INDArray getValues(){
         return this.values ;
+    }
+
+    public INDArray getScoreArray(){
+        return this.scoreArray ;
     }
 }

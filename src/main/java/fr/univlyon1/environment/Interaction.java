@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.Map;
+
 @Setter
 @Getter
 public class Interaction <A> implements Cloneable{
@@ -13,7 +15,8 @@ public class Interaction <A> implements Cloneable{
 
     private INDArray state ;
     private INDArray secondState ;
-    private INDArray memory ;
+    private Object memoryBefore ;
+    private Object memoryAfter ;
 
     private A action ;
     private A secondAction ;
@@ -26,11 +29,6 @@ public class Interaction <A> implements Cloneable{
         this.id = count ;
         count++;
         this.state = null ;
-    }
-
-    public Interaction(A action, INDArray observation,INDArray state){
-        this(action, observation);
-        this.state = state ;
     }
 
     public Interaction<A> clone(){

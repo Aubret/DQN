@@ -81,7 +81,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
     protected void learn_critic(INDArray inputs, INDArray labels, int numRows){
         //System.out.println("----");
         //INDArray epsilonObsAct = (INDArray)this.criticApproximator.learn(inputs, labels, numRows); // Critic learning
-        INDArray scores = (INDArray) this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
+        this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
+        INDArray scores = this.criticApproximator.getScoreArray();
         this.experienceReplay.setError(scores);
 
         if(this.cpt_time%this.time == 0){

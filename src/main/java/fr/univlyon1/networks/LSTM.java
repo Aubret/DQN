@@ -1,5 +1,6 @@
 package fr.univlyon1.networks;
 
+import fr.univlyon1.environment.HiddenState;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
 import org.deeplearning4j.nn.conf.BackpropType;
@@ -15,7 +16,14 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 
-public class LSTM extends Mlp{
+import java.util.ArrayList;
+import java.util.Map;
+
+public class LSTM extends Mlp implements StateApproximator{
+
+    public LSTM(LSTM lstm,boolean listener) {// MultiLayerNetwork model,int output){
+        super(lstm,listener);
+    }
 
     public LSTM(int input, int output, long seed){
         super(input,output,seed);
@@ -61,6 +69,9 @@ public class LSTM extends Mlp{
                     .build());
 
         this.multiLayerConfiguration = builder
+                .backpropType(BackpropType.TruncatedBPTT)
+                .tBPTTForwardLength(1)
+                .tBPTTBackwardLength(1)
                 .backprop(true).pretrain(false)
                 .build();
 
@@ -72,52 +83,50 @@ public class LSTM extends Mlp{
     }
 
     @Override
-    public Object learn(INDArray input, INDArray labels, int number) {
-        this.model.setInputMiniBatchSize(number);
-        this.model.setInput(input);
-        if(this.epsilon) {
-            this.model.computeGradientFromEpsilon(labels);
-        }else {
-            this.model.setLabels(labels);
-            this.model.computeGradientAndScore();
+    public Object getMemory() {
+        ArrayList<Map<String,INDArray>> memories = new ArrayList<>();
+        for(int i=0; i < this.numLayers-1 ; i++){
+            memories.add(this.model.rnnGetPreviousState(i));
         }
-
-        //this.model.backpropGradient(Nd4j.create(new Double[]{this.model.getOutputLayer().activate()}))
-        //System.out.println(grad.gradientForVariable());
-        this.score = this.model.score() ;
-        //System.out.println(this.model.acti);
-        this.model.getUpdater().update(this.model, this.model.gradient(), iterations, number);
-        //if(this.model.getOutputLayer() instanceof IOutputLayer)
-        //   System.out.println(this.model.getOutputLayer().gradient().gradient() );
-        if(this.minimize)
-            this.model.params().subi(this.model.gradient().gradient());
-        else {
-            this.model.params().addi(this.model.gradient().gradient());
-        }
-
-        iterations++ ;
-        for(IterationListener it : this.model.getListeners()){
-            if(it instanceof TrainingListener){
-                ((TrainingListener)it).onGradientCalculation(this.model);
-            }
-            it.iterationDone(this.model, iterations );
-        }
-
-        if(this.model.getOutputLayer() instanceof org.deeplearning4j.nn.layers.LossLayer){
-            org.deeplearning4j.nn.layers.LossLayer l = (org.deeplearning4j.nn.layers.LossLayer)this.model.getOutputLayer() ;
-            ILossFunction lossFunction = l.layerConf().getLossFn();
-            if(lossFunction instanceof LossMseSaveScore){
-                SaveScore lossfn = (SaveScore)lossFunction ;
-                this.values = lossfn.getValues();
-                return lossfn.getLastScoreArray();
-            }
-        }
-        //return this.model.getOutputLayer().com ;
-        return null ;
+        return new HiddenState(memories);
     }
 
-    public INDArray getState(){
-        return this.model.getLayer(0).params();
+    @Override
+    public void setMemory(Object memory) {
+        if (memory instanceof HiddenState){
+            ArrayList<Map<String, INDArray>> mem = ((HiddenState) memory).getState();
+            for(int i = 0;i< mem.size();i++){
+                this.model.rnnSetPreviousState(i,mem.get(i));
+            }
+        }else{
+            System.out.println("erreur casting");
+        }
+    }
+
+    public INDArray getOneResult(INDArray data){
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
+        INDArray res ;
+        //System.out.println(this.model.params());
+        //Map<String, INDArray> hiddenState = this.model.rnnGetPreviousState(0);
+        res = this.model.rnnTimeStep(data);
+        //System.out.println(hiddenState);
+        //System.out.println(res);
+        //System.out.println(this.model.output(data, org.deeplearning4j.nn.api.Layer.TrainingMode.TEST));
+        //System.out.println(this.model.rnnActivateUsingStoredState(data,false,false));
+        res = res.reshape(res.shape()[0],res.shape()[1]);
+        return res;
+    }
+
+
+    @Override
+    public StateApproximator clone() {
+        return this.clone(false);
+    }
+
+    @Override
+    public StateApproximator clone(boolean listener) {
+        LSTM m = new LSTM(this,listener);
+        return m ;
     }
 
 }

@@ -1,9 +1,14 @@
 package fr.univlyon1.actorcritic;
 
+import fr.univlyon1.actorcritic.policy.EgreedyDecrement;
+import fr.univlyon1.actorcritic.policy.NoisyGreedy;
+import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
+import fr.univlyon1.learning.TDActorCritic;
+import fr.univlyon1.learning.TDLstm;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.Mlp;
@@ -22,6 +27,27 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initLstm();
     }
 
+    public void init(){
+        this.initActor(seed);
+        this.initCritic(seed);
+        this.td = new TDLstm<A>(conf.getGamma(),
+                this,
+                null,
+                conf.getIterations(),
+                this.criticApproximator,
+                this.cloneMaximizeCriticApproximator,
+                this.observationApproximator
+        );
+        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
+                conf.getStepEpsilon(),
+                seed,
+                actionSpace,
+                mixtePolicy,
+                conf.getInitStdEpsilon());*/
+
+    }
+
     @Override
     public A getAction(INDArray input) {
         //INDArray result = this.policyApproximator.getOneResult(input);
@@ -29,9 +55,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
         if(AgentDRL.getCount() > 0) { // Ne pas overfitter sur les premières données arrivées
-            INDArray params =this.observationApproximator.getState().dup();
-            INDArray state =this.observationApproximator.getOneResult(input;
-            INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
+            INDArray resultBehaviore = this.td.behave(input);
             this.td.learn();
             this.countStep++;
             if (this.countStep == this.epoch) {
@@ -98,7 +122,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
 
-        this.cloneMaximizeCriticApproximator = new Mlp(observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, seed);
+        this.cloneMaximizeCriticApproximator = new Mlp(conf.getNumLstmOutputNodes()+this.actionSpace.getSize(), 1, seed);
         this.cloneMaximizeCriticApproximator.setLearning_rate(conf.getLearning_rateCritic());
         this.cloneMaximizeCriticApproximator.setListener(false);
         this.cloneMaximizeCriticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());

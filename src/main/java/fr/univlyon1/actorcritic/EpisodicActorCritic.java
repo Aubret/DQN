@@ -24,14 +24,10 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     public void learn(){
-        this.td.setBatchSize(conf.getBatchSize());
         for(int i = 0;i < this.epoch; i++){
             this.td.learn();
             this.td.epoch();
         }
-        this.td.setBatchSize(0);
-
-        //this.td.setBatchSize(0);
     }
 
     @Override

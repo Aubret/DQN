@@ -21,12 +21,14 @@ public class TD<A> implements Algorithm<A> {
     }
 
     @Override
+    public INDArray behave(INDArray input) {
+        return this.learning.getApproximator().getOneResult(input);
+    }
+
+    @Override
     public void step(INDArray observation, A action) {
         //this.lastInteraction.setSecondAction(action);
-        if(this.lastInteraction != null)
-            this.lastInteraction=new Interaction<A>(action,observation,this.lastInteraction.getSecondState()) ;
-        else
-            this.lastInteraction = new Interaction<A>(action,observation);
+        this.lastInteraction = new Interaction<A>(action,observation);
     }
 
     @Override
@@ -69,6 +71,10 @@ public class TD<A> implements Algorithm<A> {
 
     public Approximator getApproximator(){
         return this.approximator ;
+    }
+
+    public Interaction<A> getLastInteraction(){
+        return this.lastInteraction;
     }
 
 }

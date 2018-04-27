@@ -75,7 +75,7 @@ public class DQNActor<A> implements Learning<A> {
                 this.td.epoch();
             }
         }
-        INDArray results  = this.mlp.getOneResult(input); // get action behavioure
+        INDArray results  = this.td.behave(input); // get action behavioure
         int indiceBehaviore = (Integer)this.policy.getAction(results);
         A actionBehaviore = this.actionSpace.mapNumberToAction(indiceBehaviore);
 
