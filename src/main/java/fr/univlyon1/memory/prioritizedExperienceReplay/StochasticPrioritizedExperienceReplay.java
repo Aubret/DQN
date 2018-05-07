@@ -18,27 +18,29 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
     private Random random;
     ArrayList<InteractionHistory<A>> toTake ;
 
+
     public StochasticPrioritizedExperienceReplay(int maxSize,long seed,ArrayList<String> file) {
         super(maxSize,file);
         this.resetMemory();
         this.random = new Random(seed);
     }
-    //private
-
     @Override
     public void addInteraction(Interaction<A> interaction) {
         if(this.history.size() == this.maxSize) {
             InteractionHistory ih = history.getFirst();
             this.interactions.remove(ih.getInteraction());
         }
-        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,1.);
+        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,this.random.nextDouble());
         toTake.add(newIh);
+        //System.out.println("----");
+        //this.history.insert(newIh);
         this.interactions.put(interaction, newIh);
     }
 
+
     @Override
     public void setError(INDArray errors) {
-        for(int i = 0;i< this.tmp.size(); i++){
+        for (int i = 0; i < this.tmp.size(); i++) {
             InteractionHistory<A> ih = this.tmp.get(i);
             double error = errors.getDouble(i);
             ih.computeError(error); // Important de le faire avant
@@ -47,16 +49,22 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
         this.tmp = new ArrayList<>();
     }
 
+    public boolean initChoose(){
+
+        return true ;
+    }
+
     @Override
     public Interaction<A> chooseInteraction() {
         if(this.random.nextBoolean() || this.history.size() == 0) {
             if (this.toTake.size() != 0) {
                 InteractionHistory<A> ih = this.toTake.remove(toTake.size() - 1);
-                //System.out.println(toTake.size());
                 this.tmp.add(ih);
                 return ih.getInteraction();
             }
         }
+
+
 
         if(this.history.size() > 0) {
             Double max = this.history.getTotalSum();

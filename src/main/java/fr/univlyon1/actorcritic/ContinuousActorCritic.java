@@ -19,6 +19,8 @@ import org.deeplearning4j.nn.conf.Updater;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.Exp;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.RmsProp;
 
 @Getter
 @Setter
@@ -150,11 +152,11 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.policyApproximator.setEpsilon(false);
         this.policyApproximator.setMinimize(false); // On souhaite minimiser le gradient
         this.policyApproximator.setListener(true);
-        this.policyApproximator.setUpdater(Updater.ADAM);
+        this.policyApproximator.setUpdater(new Adam(conf.getLearning_rate()));
         this.policyApproximator.setLastActivation(Activation.TANH);
         this.policyApproximator.setHiddenActivation(Activation.RELU);
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
-        //this.policyApproximator.setL2(0.0002);
+        //this.policyApproximator.setL2(0.0001);
         //this.policyApproximator.setDropout(true);
         //this.policyApproximator.setBatchNormalization(true);
         //this.policyApproximator.setFinalBatchNormalization(true);
@@ -172,9 +174,9 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.criticApproximator.setEpsilon(false);
         this.criticApproximator.setHiddenActivation(Activation.RELU);
         //this.criticApproximator.setDropout(true);
-        this.criticApproximator.setUpdater(Updater.ADAM);
+        //this.criticApproximator.setUpdater(new RmsProp(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        this.criticApproximator.setL2(0.001);
+        //this.criticApproximator.setL2(0.01);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
@@ -188,9 +190,9 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.cloneMaximizeCriticApproximator.setEpsilon(false);
         this.cloneMaximizeCriticApproximator.setHiddenActivation(Activation.RELU);
         this.cloneMaximizeCriticApproximator.setLossFunction(new LossIdentity());
-        this.cloneMaximizeCriticApproximator.setUpdater(Updater.ADAM);
+        this.cloneMaximizeCriticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //this.cloneMaximizeCriticApproximator.setL2(0.001);
+        //this.cloneMaximizeCriticApproximator.setL2(0.0001);
         //this.cloneMaximizeCriticApproximator.setListener(true);
         //this.cloneMaximizeCriticApproximator.setBatchNormalization(true);
         //this.cloneMaximizeCriticApproximator.setFinalBatchNormalization(true);

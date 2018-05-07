@@ -26,8 +26,8 @@ public class LSTM extends Mlp{
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(this.seed+1)
                 //.l2(0.001)
-                .weightInit(WeightInit.XAVIER)
-                .updater(this.updater);
+                .weightInit(WeightInit.XAVIER);
+                //.updater(this.updater);
         NeuralNetConfiguration.ListBuilder builder = b.list() ;
         //-------------------------------------- Initialisation des couches------------------
         int cursor = 0 ;
@@ -76,7 +76,7 @@ public class LSTM extends Mlp{
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         if(this.epsilon) {
-            this.model.computeGradientFromEpsilon(labels);
+            this.model.backpropGradient(labels);
         }else {
             this.model.setLabels(labels);
             this.model.computeGradientAndScore();
@@ -86,7 +86,7 @@ public class LSTM extends Mlp{
         //System.out.println(grad.gradientForVariable());
         this.score = this.model.score() ;
         //System.out.println(this.model.acti);
-        this.model.getUpdater().update(this.model, this.model.gradient(), iterations, number);
+        this.model.getUpdater().update(this.model, this.model.gradient(), iterations,0, number);
         //if(this.model.getOutputLayer() instanceof IOutputLayer)
         //   System.out.println(this.model.getOutputLayer().gradient().gradient() );
         if(this.minimize)
@@ -100,7 +100,7 @@ public class LSTM extends Mlp{
             if(it instanceof TrainingListener){
                 ((TrainingListener)it).onGradientCalculation(this.model);
             }
-            it.iterationDone(this.model, iterations );
+            it.iterationDone(this.model, iterations,0 );
         }
 
         if(this.model.getOutputLayer() instanceof org.deeplearning4j.nn.layers.LossLayer){

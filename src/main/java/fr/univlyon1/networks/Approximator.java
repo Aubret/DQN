@@ -10,6 +10,7 @@ public interface Approximator extends Policy{
     int numOutput(); // taille de l'INDArray résultant
     Object learn(INDArray input,INDArray labels,int number); // Apprentissage supervisé
     INDArray error(INDArray input,INDArray labels,int number); // retourne l'erreur sur l'entrée sans apprentissage
+    void epoch();
 
 
     INDArray getParams() ; // Permet de dupliquer les paramètres notamment

@@ -8,6 +8,7 @@ import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.Mlp;
 import org.deeplearning4j.nn.conf.Updater;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.learning.config.Adam;
 
 public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
@@ -23,7 +24,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setListener(true);
         this.observationApproximator.setNumNodesPerLayer(conf.getLayersLstmHiddenNodes());
         this.observationApproximator.setNumLayers(conf.getNumLstmlayers());
-        this.observationApproximator.setUpdater(Updater.ADAM);
+        this.observationApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.observationApproximator.setEpsilon(true);
 
         this.observationApproximator.init() ;

@@ -4,25 +4,23 @@ import org.deeplearning4j.exception.DL4JException;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.api.layers.IOutputLayer;
-import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.CacheMode;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.layers.FrozenLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
-import org.deeplearning4j.util.OneTimeLogger;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.memory.enums.MirroringPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.memory.abstracts.DummyWorkspace;
 import org.nd4j.linalg.primitives.Pair;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,7 +57,7 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
             }
             this.truncatedBPTTGradient();
         } else {
-            workspace = this.feedForwardToLayer(this.layers.length - 2, true);
+            workspace = this.feedForwardToLayer(this.layers.length - 1, true);
             for(IterationListener it : this.getListeners()){
                 if(it instanceof TrainingListener){
                     tl = (TrainingListener)it;
@@ -148,16 +146,6 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
             ret.setLayers(var5);
         }
         return ret;
-    }
-
-    private boolean hasAFrozenLayer() {
-        for(int i = 0; i < this.layers.length - 1; ++i) {
-            if(this.layers[i] instanceof FrozenLayer) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 

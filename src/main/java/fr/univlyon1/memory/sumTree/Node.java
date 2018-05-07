@@ -102,6 +102,7 @@ public class Node<A>{
                 this.left = new Node<A>(ih,this);
                 //System.out.println(this.getIh().getErrorValue()+" left :"+this.left.getIh().getErrorValue());
             }else{
+                //System.out.println(this);
                 this.left.insert(ih);
             }
         }else{

@@ -43,8 +43,8 @@
     </dependency>
   </dependencies>
   <properties>
-    <deeplearning4j.version>0.9.1</deeplearning4j.version>
-    <nd4j.version>0.9.1</nd4j.version>
+    <deeplearning4j.version>1.0.0-alpha</deeplearning4j.version>
+    <nd4j.version>1.0.0-alpha</nd4j.version>
   </properties>
 </project>
 

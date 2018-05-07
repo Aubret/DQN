@@ -24,18 +24,18 @@ public class GraphMlp extends Mlp{
         int cursor = 0 ;
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(seed+1)
-                .learningRate(learning_rate)
+                //.learningRate(learning_rate)
                 .biasInit(0.1)
                 //.gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .weightInit(WeightInit.XAVIER)
                 //.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(this.updater)
+                //.updater(this.updater)
                 .minimize(minimize);
 
                 //.graphBuilder();
         //
         if(l2 != null)
-            b.regularization(true).l2(this.l2);
+            b.l2(this.l2);
 
         ComputationGraphConfiguration.GraphBuilder graphBuilder = b.graphBuilder();
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
