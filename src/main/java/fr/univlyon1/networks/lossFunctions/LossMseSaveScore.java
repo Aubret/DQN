@@ -24,8 +24,8 @@ public class LossMseSaveScore extends LossMSE implements SaveScore,ILossFunction
     @Override
     protected INDArray scoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         INDArray res = super.scoreArray(labels,preOutput,activationFn,mask);
-        this.lastScoreArray = res;
-        this.values = activationFn.getActivation(preOutput.dup(),true);
+        this.lastScoreArray = res.dup().detach();
+        this.values = activationFn.getActivation(preOutput.dup(),true).detach();
         return res;
     }
 

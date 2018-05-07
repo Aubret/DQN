@@ -25,7 +25,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     protected double cpt = 0 ;
     protected double cumulScoreUp=0;
 
-    protected int time = 20;
+    protected int time = 200;
     protected int cpt_time = 0 ;
     protected boolean t = true ;
 
@@ -51,10 +51,11 @@ public class TDActorCritic<A> extends TDBatch<A> {
             sizeObservation = this.lastInteraction.getObservation().size(1);
         }else{
             sizeObservation = this.learning.getObservationSpace().getShape()[0];
+            //System.out.println(sizeObservation);
         }
-
-        if(numRows <1 )
-            return ;
+        if(numRows < 1 ) {
+            return;
+        }
         int sizeAction = this.learning.getActionSpace().getSize() ;
         int numColumns =sizeObservation+sizeAction;
         int numColumnsLabels = this.targetCriticApproximator.numOutput();
@@ -68,7 +69,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
                 INDArray inputAction = Nd4j.concat(1,interaction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction()));
                 inputs.putRow(i, inputAction);
                 observations.putRow(i, interaction.getObservation());
-                labels.putRow(i, this.labelize(interaction));
+                labels.putRow(i, /*Nd4j.create(new double[]{interaction.getReward()})*/this.labelize(interaction));
             }
             this.learn_critic(inputs,labels,numRows);
             this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
@@ -87,7 +88,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
 
         if(this.cpt_time%this.time == 0){
             System.out.println("-------------");
-            INDArray firstval = ((Mlp) this.criticApproximator).getValues();
+            INDArray firstval = ((Mlp) this.criticApproximator).getValues().detach();
             INDArray s1 = firstval.sub(labels);
             Double val1 = s1.muli(s1).meanNumber().doubleValue();
             INDArray newVal = this.criticApproximator.getOneResult(inputs);
@@ -108,7 +109,6 @@ public class TDActorCritic<A> extends TDBatch<A> {
         if(this.cpt_time%this.time == 0) {
             old = this.cloneCriticApproximator.getOneResult(inputAction);
         }
-
         this.learning.getApproximator().learn(observations, epsilonAction, numRows); //Policy learning
 
         if(this.cpt_time%this.time == 0 ) {
@@ -133,7 +133,14 @@ public class TDActorCritic<A> extends TDBatch<A> {
         //INDArray actionTarget = Nd4j.zeros(this.learning.getActionSpace().getSize()).add(0.1);
         INDArray entryCriticTarget = Nd4j.concat(1,interaction.getSecondObservation(), actionTarget) ;
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
-        res = res.muli(this.gamma).addi(interaction.getReward()) ;
+        /*System.out.println("---");
+        System.out.println(res);
+        System.out.println(interaction.getReward());
+        System.out.println(res.muli(this.gamma).getDouble(0));*/
+        /*INDArray res1 = res.dup().muli(this.gamma).addi(Nd4j.create(new double[]{interaction.getReward()}) );
+        System.out.println(res.addi(interaction.getReward()).getDouble(0));
+        System.out.println(res1.getDouble(0)); */
+        res.muli(this.gamma).addi(interaction.getReward());
         return res ;
     }
 
@@ -142,10 +149,10 @@ public class TDActorCritic<A> extends TDBatch<A> {
     }
 
     public void epoch(){
-        double alpha = 0.001 ;
+        /*double alpha = 0.001 ;
         targetActorApproximator.getParams().muli(1.-alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
         targetCriticApproximator.getParams().muli(1.-alpha).addi(this.criticApproximator.getParams().mul(alpha));
-
+        */
         /*System.out.println("here");
         System.out.println(targetCriticApproximator.getParams().mul(1-alpha));
         System.out.println(this.criticApproximator.getParams().mul(alpha));
@@ -153,14 +160,30 @@ public class TDActorCritic<A> extends TDBatch<A> {
         //this.targetCriticApproximator.setParams(p2);
         //this.targetActorApproximator.setParams(p);
         System.out.println(this.targetCriticApproximator.getParams());*/
-        /*
+        this.criticApproximator.epoch();
+        this.learning.getApproximator().epoch();
+
         this.targetCriticApproximator.setParams(this.criticApproximator.getParams());
         this.targetActorApproximator.setParams(this.learning.getApproximator().getParams());
-        */
+
         //this.cpt_time =0 ;
         //this.targetActorApproximator = this.learning.getApproximator().clone(false);
     }
 
 
+    public Approximator getTargetActorApproximator() {
+        return targetActorApproximator;
+    }
 
+    public void setTargetActorApproximator(Approximator targetActorApproximator) {
+        this.targetActorApproximator = targetActorApproximator;
+    }
+
+    public Approximator getTargetCriticApproximator() {
+        return targetCriticApproximator;
+    }
+
+    public void setTargetCriticApproximator(Approximator targetCriticApproximator) {
+        this.targetCriticApproximator = targetCriticApproximator;
+    }
 }

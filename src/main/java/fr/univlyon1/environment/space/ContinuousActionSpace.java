@@ -13,9 +13,9 @@ public class ContinuousActionSpace<A extends ContinuousAction> extends ActionSpa
     }
 
     public A mapNumberToAction(Object number) {
-        A action = (A)this.actions.get(0).copy() ;
+        ContinuousAction action = this.actions.get(0).copy();
         action.constructAction((INDArray)number);
-        return action;
+        return (A)action;
     }
 
     @Override

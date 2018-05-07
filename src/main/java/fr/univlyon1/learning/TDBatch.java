@@ -3,6 +3,7 @@ package fr.univlyon1.learning;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.memory.prioritizedExperienceReplay.StochasticPrioritizedExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -27,7 +28,8 @@ public class TDBatch<A> extends TD<A> {
         if(this.lastInteraction != null) { // Avoir des interactions complètes
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
-            this.experienceReplay.addInteraction(this.lastInteraction.clone());
+            //Interaction<A> i = this.lastInteraction.clone();
+            this.experienceReplay.addInteraction(this.lastInteraction);
         }
     }
 

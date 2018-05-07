@@ -34,8 +34,8 @@ public class LSTM extends Mlp implements StateApproximator{
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(this.seed+1)
                 //.l2(0.001)
-                .weightInit(WeightInit.XAVIER)
-                .updater(this.updater);
+                .weightInit(WeightInit.XAVIER);
+                //.updater(this.updater);
         NeuralNetConfiguration.ListBuilder builder = b.list() ;
         //-------------------------------------- Initialisation des couches------------------
         int cursor = 0 ;

@@ -38,6 +38,8 @@ public class AgentDRL<A> implements AgentRL<A> {
 
     public AgentDRL(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
         this.time = System.currentTimeMillis();
+        //Nd4j.getMemoryManager().setAutoGcWindow(5000);
+        //Nd4j.getMemoryManager().togglePeriodicGc(false);
         this.actionSpace = actionSpace ;
         Nd4j.getRandom().setSeed(seed);
         this.observationSpace = observationSpace ;
@@ -51,7 +53,6 @@ public class AgentDRL<A> implements AgentRL<A> {
         }catch(Exception e){
             e.printStackTrace();;
         }
-
         //this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);

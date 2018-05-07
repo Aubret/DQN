@@ -17,7 +17,11 @@ import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.networks.lossFunctions.LossIdentity;
 import org.deeplearning4j.nn.conf.Updater;
 import org.nd4j.linalg.activations.Activation;
+<<<<<<< HEAD
 import org.nd4j.linalg.api.ndarray.INDArray;
+=======
+import org.nd4j.linalg.learning.config.Adam;
+>>>>>>> master
 
 public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
@@ -77,11 +81,17 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setListener(true);
         this.observationApproximator.setNumNodesPerLayer(conf.getLayersLstmHiddenNodes());
         this.observationApproximator.setNumLayers(conf.getNumLstmlayers());
+<<<<<<< HEAD
         this.observationApproximator.setMinimize(true);
         this.observationApproximator.setUpdater(Updater.ADAM);
         this.observationApproximator.setLossFunction(new LossError());
         this.observationApproximator.setEpsilon(false);
         this.observationApproximator.setLastActivation(Activation.TANH);
+=======
+        this.observationApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
+        this.observationApproximator.setEpsilon(true);
+
+>>>>>>> master
         this.observationApproximator.init() ;
     }
 

@@ -38,7 +38,8 @@ public class LossError implements ILossFunction {
     public INDArray computeGradient(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         if(labels.size(1) != preOutput.size(1))
             throw new IllegalArgumentException("Labels array numColumns (size(1) = " + labels.size(1) + ") does not match output layer number of outputs (nOut = " + preOutput.size(1) + ") ");
-        INDArray dLda = activationFn.backprop(preOutput.dup(), labels).getFirst();
+        //INDArray dLda = activationFn.backprop(preOutput.dup(), labels).getFirst();
+        INDArray dLda = labels ;
         if(mask != null)
             LossUtil.applyMask(dLda,mask);
         return dLda ;
