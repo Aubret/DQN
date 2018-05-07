@@ -67,6 +67,11 @@ public class Configuration {
     @XmlElement(name="numLstmOutputNodes")
     int numLstmOutputNodes = 50 ;
 
+    @XmlElement(name="forwardTime")
+    int forwardTime = 10;
+    @XmlElement(name="backpropTime")
+    int backpropTime = 10 ;
+
 
     //expererience replay
     @XmlElement(name="sizeExperienceReplay")

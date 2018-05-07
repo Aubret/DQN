@@ -26,7 +26,7 @@ public class TD<A> implements Algorithm<A> {
     }
 
     @Override
-    public void step(INDArray observation, A action) {
+    public void step(INDArray observation, A action,Double time) {
         //this.lastInteraction.setSecondAction(action);
         this.lastInteraction = new Interaction<A>(action,observation);
     }

@@ -9,6 +9,7 @@ import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDActorCritic;
 import fr.univlyon1.learning.TDLstm;
+import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.Mlp;
@@ -32,7 +33,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initCritic(seed);
         this.td = new TDLstm<A>(conf.getGamma(),
                 this,
-                null,
+                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime()),
                 conf.getIterations(),
                 this.criticApproximator,
                 this.cloneMaximizeCriticApproximator,
@@ -49,7 +50,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input,Double time) {
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
@@ -66,7 +67,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
-        this.td.step(input,actionBehaviore); // step learning algorithm
+        this.td.step(input,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 
@@ -76,9 +77,11 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setListener(true);
         this.observationApproximator.setNumNodesPerLayer(conf.getLayersLstmHiddenNodes());
         this.observationApproximator.setNumLayers(conf.getNumLstmlayers());
+        this.observationApproximator.setMinimize(true);
         this.observationApproximator.setUpdater(Updater.ADAM);
-        this.observationApproximator.setEpsilon(true);
-
+        this.observationApproximator.setLossFunction(new LossError());
+        this.observationApproximator.setEpsilon(false);
+        this.observationApproximator.setLastActivation(Activation.TANH);
         this.observationApproximator.init() ;
     }
 

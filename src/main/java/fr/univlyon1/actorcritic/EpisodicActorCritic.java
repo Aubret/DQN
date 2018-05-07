@@ -31,7 +31,7 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input,Double time) {
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
         INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
@@ -42,7 +42,7 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
             //System.out.println("An epoch : "+ AgentDRL.getCount());
         }
         this.td.learn();
-        this.td.step(input,actionBehaviore); // step learning algorithm
+        this.td.step(input,actionBehaviore,time); // step learning algorithm
         this.countStep++ ;
         return actionBehaviore;
     }

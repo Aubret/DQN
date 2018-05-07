@@ -17,12 +17,12 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 public class TDLstm<A> extends TD<A> {
 
     protected StateApproximator observationApproximator ;
-    protected StateApproximator targetObservationApproximator ;
+    //protected StateApproximator targetObservationApproximator ;
     protected Approximator targetActorApproximator ;
     protected Approximator criticApproximator ;
     protected Approximator targetCriticApproximator ;
     protected Approximator cloneCriticApproximator ;
-    public boolean replay = false ;
+    public boolean replay = true ;
     protected Object memoryBefore;
     protected Object memoryAfter ;
     protected INDArray state ;
@@ -30,16 +30,20 @@ public class TDLstm<A> extends TD<A> {
     protected double cpt = 0 ;
     protected double cumulScoreUp=0;
 
-    protected int time = 20;
+    protected int time = 200;
     protected int cpt_time = 0 ;
     protected boolean t = true ;
 
     protected Double scoreI ;
+    protected ExperienceReplay<A> experienceReplay;
+    protected int iterations ;
 
     public TDLstm(double gamma, Learning<A> learning, ExperienceReplay<A> experienceReplay, int iterations, Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator) {
         super(gamma, learning);
+        this.iterations = iterations ;
+        this.experienceReplay = experienceReplay ;
         this.observationApproximator = observationApproximator ;
-        this.targetObservationApproximator = observationApproximator.clone(false);
+        //this.targetObservationApproximator = observationApproximator.clone(false);
         this.targetActorApproximator = this.learning.getApproximator().clone(false);
         this.criticApproximator = criticApproximator ;
         this.approximator = criticApproximator;
@@ -61,12 +65,13 @@ public class TDLstm<A> extends TD<A> {
     }
 
     @Override
-    public void step(INDArray observation, A action) {
+    public void step(INDArray observation, A action,Double time) {
         //this.lastInteraction.setSecondAction(action);
         this.lastInteraction = new Interaction<A>(action,observation);
         this.lastInteraction.setMemoryBefore(this.memoryBefore);
         this.lastInteraction.setMemoryAfter(this.memoryAfter);
         this.lastInteraction.setState(this.state);
+        this.lastInteraction.setTime(time);
     }
 
 
@@ -81,6 +86,18 @@ public class TDLstm<A> extends TD<A> {
             learn_online();
     }
 
+    protected void learn_replay(){
+        for(int i = 0;i < this.iterations ; i++){
+            if(this.experienceReplay.initChoose()) {
+                Interaction<A> interaction = this.experienceReplay.chooseInteraction();
+                while(interaction != null ){
+                    
+                }
+            }
+        }
+    }
+
+
     protected void learn_online(){
         if(this.lastInteraction == null)
             return ;
@@ -88,16 +105,24 @@ public class TDLstm<A> extends TD<A> {
         int numRows = 1;
         INDArray inputAction = Nd4j.concat(1,this.lastInteraction.getState(), (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction())); ;
         INDArray epsilon = this.learn_critic(inputAction, labels,numRows);
+        INDArray epsilonActor = this.learn_actor(this.lastInteraction.getState(),1);
+
+        int sizeObservation = this.observationApproximator.numOutput() ;
+        INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0,sizeObservation));
         this.observationApproximator.setMemory(this.memoryBefore);
-        this.observationApproximator.learn(this.lastInteraction.getObservation(),epsilon,numRows);
-        this.learn_actor(this.lastInteraction.getState(),1);
+        this.observationApproximator.learn(this.lastInteraction.getObservation(),epsilonObservation,numRows);
+        this.cpt_time++ ;
     }
 
     public void epoch() {
-        double alpha = 0.001;
+        /*double alpha = 0.001;
         targetActorApproximator.getParams().muli(1. - alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
         targetCriticApproximator.getParams().muli(1. - alpha).addi(this.criticApproximator.getParams().mul(alpha));
         this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
+        */
+        targetActorApproximator.setParams(this.learning.getApproximator().getParams());
+        targetCriticApproximator.setParams(this.criticApproximator.getParams());
+        //targetObservationApproximator.setParams(this.observationApproximator.getParams());
     }
 
 
@@ -150,8 +175,10 @@ public class TDLstm<A> extends TD<A> {
 
 
     protected INDArray labelize(Interaction<A> interaction){
-        this.targetObservationApproximator.setMemory(this.memoryAfter);
-        INDArray state = this.targetObservationApproximator.getOneResult(interaction.getSecondObservation());
+        //this.targetObservationApproximator.setMemory(this.memoryAfter);
+        this.observationApproximator.setMemory(this.memoryAfter);
+        //INDArray state = this.targetObservationApproximator.getOneResult(interaction.getSecondObservation());
+        INDArray state = this.observationApproximator.getOneResult(interaction.getSecondObservation());
         INDArray actionTarget = this.targetActorApproximator.getOneResult(state);
         //INDArray actionTarget = Nd4j.zeros(this.learning.getActionSpace().getSize()).add(0.1);
         INDArray entryCriticTarget = Nd4j.concat(1,state, actionTarget) ;
@@ -164,39 +191,4 @@ public class TDLstm<A> extends TD<A> {
 
 
 
-
-    protected void learn_replay(){
-        /*int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
-        int sizeObservation ;
-        if(this.lastInteraction != null && this.lastInteraction.getSecondObservation() != null ) {
-            INDArray inputAction1 = Nd4j.concat(1, this.lastInteraction.getObservation(), (INDArray) this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
-            this.scoreI = this.criticApproximator.getOneResult(inputAction1).getDouble(0) - this.labelize(this.lastInteraction).getDouble(0);
-            sizeObservation = this.lastInteraction.getObservation().size(1);
-        }else{
-            sizeObservation = this.learning.getObservationSpace().getShape()[0];
-        }
-        if(numRows <1 )
-            return ;
-        int sizeAction = this.learning.getActionSpace().getSize() ;
-        int numColumns =sizeObservation+sizeAction;
-        int numColumnsLabels = this.targetCriticApproximator.numOutput();
-        //this.learning.getActionSpace().getSize();
-        for(int j = 0;j<this.nbrIterations;j++) {
-            INDArray observations = Nd4j.zeros(numRows, sizeObservation);
-            INDArray inputs = Nd4j.zeros(numRows, numColumns);
-            INDArray labels = Nd4j.zeros(numRows, numColumnsLabels);
-            for (int i = 0; i < numRows; i++) {
-                Interaction<A> interaction = experienceReplay.chooseInteraction();
-                INDArray inputAction = Nd4j.concat(1,interaction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction()));
-                inputs.putRow(i, inputAction);
-                observations.putRow(i, interaction.getObservation());
-                labels.putRow(i, this.labelize(interaction));
-            }
-            this.learn_critic(inputs,labels,numRows);
-            this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
-            this.learn_actor(observations,sizeObservation,numColumns,numRows);
-            this.cpt_time++ ;
-
-        }*/
-    }
 }

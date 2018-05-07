@@ -59,14 +59,15 @@ public class LSTM extends Mlp implements StateApproximator{
         node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         builder.layer(cursor,
                 new RnnOutputLayer.Builder()
+                        .lossFunction(this.lossFunction)
                         .nIn(node)
                         .nOut(output)
                         .activation(this.lastActivation)
                         .build());
         cursor++ ;
-        if(!epsilon)
+        /*if(!epsilon)
             builder.layer(cursor, new LossLayer.Builder(this.lossFunction)
-                    .build());
+                    .build());*/
 
         this.multiLayerConfiguration = builder
                 .backpropType(BackpropType.TruncatedBPTT)

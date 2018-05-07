@@ -3,6 +3,6 @@ package fr.univlyon1.agents;
 import fr.univlyon1.environment.space.Observation;
 
 public interface AgentRL<A> {
-    A control(Double reward,Observation observation);
+    A control(Double reward,Observation observation,Double dt);
     void stop();
 }

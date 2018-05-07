@@ -48,11 +48,11 @@ public class RandomActor<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input, Double time) {
         this.td.evaluate(input,this.reward);
         Object o = this.actionSpace.randomAction();
         A a = this.actionSpace.mapNumberToAction(o);
-        this.td.step(input,this.actionSpace.mapNumberToAction(o));
+        this.td.step(input,this.actionSpace.mapNumberToAction(o),time);
         return a ;
     }
 

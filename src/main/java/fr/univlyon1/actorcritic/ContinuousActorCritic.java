@@ -97,7 +97,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input, Double time) {
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
@@ -114,7 +114,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
-        this.td.step(input,actionBehaviore); // step learning algorithm
+        this.td.step(input,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 

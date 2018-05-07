@@ -72,14 +72,14 @@ public class AgentDRL<A> implements AgentRL<A> {
     }
 
     @Override
-    public A control(Double reward,Observation observation) {
+    public A control(Double reward,Observation observation, Double time) {
         //System.out.println(observation+" ---> "+reward);
         count++ ;
         if(reward != null) {
             this.learning.putReward(reward);
         }
 
-        A action = this.learning.getAction(observation.getData());
+        A action = this.learning.getAction(observation.getData(),time);
         //A action = this.actionSpace.mapNumberToAction(0);
         this.action = action ;
         if(reward != null ){

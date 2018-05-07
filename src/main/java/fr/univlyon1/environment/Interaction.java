@@ -10,6 +10,7 @@ import java.util.Map;
 @Getter
 public class Interaction <A> implements Cloneable{
     private static int count = 0 ;
+    private Double time ;
     private INDArray observation ;
     private INDArray secondObservation ;
 

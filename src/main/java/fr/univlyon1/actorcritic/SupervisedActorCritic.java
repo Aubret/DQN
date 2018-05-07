@@ -29,13 +29,13 @@ public class SupervisedActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input, Double time) {
         A actionBehaviore;
         this.td.evaluate(input,this.reward);
         this.td.learn();
         INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
-        this.td.step(input,actionBehaviore);
+        this.td.step(input,actionBehaviore,time);
         return actionBehaviore;
     }
 }
