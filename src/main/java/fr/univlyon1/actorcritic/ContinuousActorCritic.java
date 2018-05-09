@@ -31,7 +31,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     protected Mlp criticApproximator ;
     protected Mlp cloneMaximizeCriticApproximator ;
     protected ActionSpace<A> actionSpace ;
-    protected TDActorCritic<A> td ;
+    protected Algorithm<A> td ;
     protected Policy policy ;
     protected Double reward ;
     protected int epoch ;

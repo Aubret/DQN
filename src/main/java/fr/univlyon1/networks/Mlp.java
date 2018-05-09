@@ -33,7 +33,7 @@ import java.util.ArrayList;
 @Getter
 @Setter
 public class Mlp implements Approximator{
-    protected MultiLayerNetwork model ;
+    protected EpsilonMultiLayerNetwork model ;
     protected INDArray tmp ;
     protected int iterations = 0;
     protected MultiLayerConfiguration multiLayerConfiguration ;
@@ -198,7 +198,7 @@ public class Mlp implements Approximator{
             builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
             cursor++ ;
         }
-        node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
+        node = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         Layer.Builder l = new DenseLayer.Builder()
                 .biasInit(0.1)
                 .weightInit(WeightInit.XAVIER_UNIFORM)
@@ -219,7 +219,7 @@ public class Mlp implements Approximator{
                 .backprop(true).pretrain(false)
                 .build();
 
-        this.model = new MultiLayerNetwork(this.multiLayerConfiguration);
+        this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);
         this.model.init();
         if(this.listener)
             this.attachListener(this.model);
@@ -289,7 +289,7 @@ public class Mlp implements Approximator{
             if(lossFunction instanceof LossMseSaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
-                return lossfn.getLastScoreArray().detach();
+                this.scoreArray = lossfn.getLastScoreArray().detach();
             }
         }
         //return this.model.getOutputLayer().com ;

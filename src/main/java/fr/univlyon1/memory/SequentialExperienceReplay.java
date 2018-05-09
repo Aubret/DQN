@@ -36,14 +36,18 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
             return false ;
         if(cursor == this.interactions.size()-1)
             cursor = 0 ;
+        if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
+            return false ;
+        if(this.interactions.size() <= 2)
+            return false ;
         // On vérifie qu ele curseur actuel suffit à proposer une séquence complète
         Interaction<A> start = this.interactions.get(cursor);
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
-        if(dt < this.sequenceSize){
+        if(dt < this.sequenceSize || (this.interactions.size() - cursor <= 2)){
             if(cursor == 0)
                 return false ;
             else
-                cursor = 0;
+                cursor = 0; // On a déjà vérifié que c'était possible avec 0
         }
         this.startTime = this.interactions.get(cursor).getTime() ;
         this.backpropNumber = 0 ;

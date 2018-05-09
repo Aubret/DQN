@@ -5,6 +5,7 @@ import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
+import fr.univlyon1.learning.TDBatch;
 import fr.univlyon1.networks.Mlp;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -27,12 +28,12 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     public void learn(){
-        this.td.setBatchSize(conf.getBatchSize());
+        ((TDBatch)this.td).setBatchSize(conf.getBatchSize());
 
         for(int i = 0;i < this.epoch; i++){
             this.td.learn();
         }
-        this.td.setBatchSize(0);
+        ((TDBatch)this.td).setBatchSize(0);
     }
 
     @Override
