@@ -152,6 +152,15 @@ public class Node<A>{
         return n ;
     }
 
+    public void print(){
+        if(this.left != null){
+            this.left.print();
+        }
+        System.out.println("error : "+this.getIh().getErrorValue()+"number : "+this.ih.getSumValues()+" ; sum : "+this.sum);
+        if(this.right != null){
+            this.right.print();
+        }
+    }
 
     public void majSum(){
         this.sum =( this.left!= null ? this.left.getSum() :0. )+ ( this.right!= null ? this.right.getSum():0. ) + this.ih.getErrorValue();

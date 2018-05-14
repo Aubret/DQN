@@ -93,5 +93,7 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
         return this.history.size()+this.toTake.size();
     }
 
-
+    public void print(){
+        this.history.print();
+    }
 }

@@ -24,9 +24,9 @@ public class InteractionHistory<A> {
 
     public void computeError(double error){
         this.sumValues++ ;
+        //error =1. / (1. + Math.exp(-5*error));
         //this.errorFactor = 0.99*this.errorFactor ;
-        //double val = Math.min(sumValues/30.,1.);
-        this.errorValue = Math.sqrt(error) ;//*(1-val);//-0.05*sumValues;
+        this.errorValue =error ;//*(1-val);//-0.05*sumValues;
     }
 
 

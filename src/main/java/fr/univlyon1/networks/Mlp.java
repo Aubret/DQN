@@ -263,9 +263,9 @@ public class Mlp implements Approximator{
         this.model.getUpdater().update(this.model, this.model.gradient(), iterations,this.epoch,number);
         //if(this.model.getOutputLayer() instanceof IOutputLayer)
          //   System.out.println(this.model.getOutputLayer().gradient().gradient() );
-        if(this.minimize)
+        if(this.minimize) {
             this.model.params().subi(this.model.gradient().gradient());
-        else {
+        }else {
             this.model.params().addi(this.model.gradient().gradient());
         }
 
@@ -295,6 +295,7 @@ public class Mlp implements Approximator{
     @Override
     public INDArray error(INDArray input, INDArray labels, int number) {
         //System.out.println(this.gradPolicyMlp.params());
+        this.model.clear();
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         this.model.setLabels(labels);//Nd4j.create(new double[]{0}));
