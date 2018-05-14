@@ -2,6 +2,7 @@ package fr.univlyon1.networks;
 
 public interface StateApproximator extends Approximator {
     Object getMemory();
+    Object getSecondMemory();
     void setMemory(Object memory);
     void setBackpropNumber(int backpropNumber);
     void setForwardNumber(int forwardNumber);

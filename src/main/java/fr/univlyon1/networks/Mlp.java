@@ -1,14 +1,10 @@
 package fr.univlyon1.networks;
 
-import com.sun.xml.internal.bind.v2.runtime.output.SAXOutput;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.api.layers.IOutputLayer;
 import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.BatchNormalization;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.Layer;
