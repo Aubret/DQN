@@ -65,4 +65,8 @@ public class SumTree<A> extends Node<A> {
     public int size(){
         return this.root == null ? 0 : this.root.getNumberDescendant()+1 ;
     }
+
+    public void print(){
+        this.root.print();
+    }
 }

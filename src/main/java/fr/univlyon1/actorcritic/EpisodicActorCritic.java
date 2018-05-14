@@ -45,13 +45,13 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
         A actionBehaviore ;
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
-        if (this.countStep == 100) {
+        if (this.countStep == 120) {
             this.countStep = 0;
             this.learn();
         }
         this.countStep++;
 
-        //this.td.learn();
+        this.td.learn();
         this.td.step(input,actionBehaviore); // step learning algorithm
         return actionBehaviore;
     }

@@ -1,10 +1,12 @@
 package fr.univlyon1.learning;
 
+import fr.univlyon1.actorcritic.EpisodicActorCritic;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.memory.prioritizedExperienceReplay.PrioritizedExperienceReplay;
+import fr.univlyon1.memory.prioritizedExperienceReplay.StochasticPrioritizedExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.EpsilonMultiLayerNetwork;
 import fr.univlyon1.networks.Mlp;
@@ -28,6 +30,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     protected int time = 200;
     protected int cpt_time = 0 ;
     protected boolean t = true ;
+    protected boolean epochOne = true;
 
     protected Double scoreI ;
 
@@ -75,6 +78,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
             this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
             this.learn_actor(observations,sizeObservation,numColumns,numRows);
             this.cpt_time++ ;
+            this.epoch();
 
         }
     }
@@ -83,6 +87,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         //System.out.println("----");
         //INDArray epsilonObsAct = (INDArray)this.criticApproximator.learn(inputs, labels, numRows); // Critic learning
         INDArray scores = (INDArray) this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
+        //INDArray scores = ((Mlp)this.criticApproximator).getValues();
         this.experienceReplay.setError(scores);
 
         if(this.cpt_time%this.time == 0){
@@ -108,6 +113,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         if(this.cpt_time%this.time == 0) {
             old = this.cloneCriticApproximator.getOneResult(inputAction);
         }
+
         this.learning.getApproximator().learn(observations, epsilonAction, numRows); //Policy learning
 
         if(this.cpt_time%this.time == 0 ) {
@@ -126,6 +132,9 @@ public class TDActorCritic<A> extends TDBatch<A> {
      */
     @Override
     protected INDArray labelize(Interaction<A> interaction){
+        /*if(this.epochOne){
+            return Nd4j.create(new double[]{interaction.getReward()});
+        }*/
         //INDArray entry = Nd4j.concat(1,interaction.getObservation(), (INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction())) ;
         // INDArray entryTarget = Nd4j.concat(1,interaction.getObservation(), (INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction())) ;
         INDArray actionTarget = this.targetActorApproximator.getOneResult(interaction.getSecondObservation());
@@ -148,10 +157,10 @@ public class TDActorCritic<A> extends TDBatch<A> {
     }
 
     public void epoch(){
-        /*double alpha = 0.001 ;
+        double alpha = 0.01 ;
         targetActorApproximator.getParams().muli(1.-alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
         targetCriticApproximator.getParams().muli(1.-alpha).addi(this.criticApproximator.getParams().mul(alpha));
-        */
+
         /*System.out.println("here");
         System.out.println(targetCriticApproximator.getParams().mul(1-alpha));
         System.out.println(this.criticApproximator.getParams().mul(alpha));
@@ -159,12 +168,13 @@ public class TDActorCritic<A> extends TDBatch<A> {
         //this.targetCriticApproximator.setParams(p2);
         //this.targetActorApproximator.setParams(p);
         System.out.println(this.targetCriticApproximator.getParams());*/
-        this.criticApproximator.epoch();
-        this.learning.getApproximator().epoch();
-
-        this.targetCriticApproximator.setParams(this.criticApproximator.getParams());
-        this.targetActorApproximator.setParams(this.learning.getApproximator().getParams());
-
+        this.epochOne = false;
+        //this.criticApproximator.epoch();
+        //this.learning.getApproximator().epoch();
+        /*
+        this.targetCriticApproximator.setParams(this.criticApproximator.getParams().dup());
+        this.targetActorApproximator.setParams(this.learning.getApproximator().getParams().dup());
+        */
         //this.cpt_time =0 ;
         //this.targetActorApproximator = this.learning.getApproximator().clone(false);
     }

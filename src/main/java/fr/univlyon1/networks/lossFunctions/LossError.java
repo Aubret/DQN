@@ -26,7 +26,7 @@ public class LossError implements ILossFunction {
     public INDArray computeScoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         if(labels.size(1) != preOutput.size(1))
             throw new IllegalArgumentException("Labels array numColumns (size(1) = " + labels.size(1) + ") does not match output layer number of outputs (nOut = " + preOutput.size(1) + ") ");
-        INDArray res = activationFn.getActivation(preOutput.dup(), true).muli(labels);
+        INDArray res = labels;//activationFn.getActivation(preOutput.dup(), true).muli(labels);
         if( mask != null){
             LossUtil.applyMask(res,mask);
         }

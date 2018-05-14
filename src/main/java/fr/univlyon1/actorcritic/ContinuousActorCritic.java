@@ -62,13 +62,14 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 this.criticApproximator,
                 this.cloneMaximizeCriticApproximator
         );
-        Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
-        this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
+        //Policy mixtePolicy =
+        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
                 actionSpace,
                 mixtePolicy,
-                conf.getInitStdEpsilon());
+                conf.getInitStdEpsilon());*/
 
         /*this.policy = new Egreedy<A>(conf.getMinEpsilon(),
                 seed,
@@ -109,7 +110,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
             this.countStep++;
             if (this.countStep == this.epoch) {
                 countStep = 0;
-                this.td.epoch();
+                //this.td.epoch();
                 //System.out.println("An epoch : "+ AgentDRL.getCount());
             }
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
@@ -156,7 +157,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.policyApproximator.setLastActivation(Activation.TANH);
         this.policyApproximator.setHiddenActivation(Activation.RELU);
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
-        //this.policyApproximator.setL2(0.0001);
+        //this.policyApproximator.setL2(0.001);
         //this.policyApproximator.setDropout(true);
         //this.policyApproximator.setBatchNormalization(true);
         //this.policyApproximator.setFinalBatchNormalization(true);
@@ -174,16 +175,17 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.criticApproximator.setEpsilon(false);
         this.criticApproximator.setHiddenActivation(Activation.RELU);
         //this.criticApproximator.setDropout(true);
-        //this.criticApproximator.setUpdater(new RmsProp(conf.getLearning_rateCritic()));
+        this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //this.criticApproximator.setL2(0.01);
+        this.criticApproximator.setL2(0.001);
+        //this.criticApproximator.setLossFunction(new Loss);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
 
         this.cloneMaximizeCriticApproximator = new Mlp(observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, seed);
         this.cloneMaximizeCriticApproximator.setLearning_rate(conf.getLearning_rateCritic());
-        this.cloneMaximizeCriticApproximator.setListener(false);
+        this.cloneMaximizeCriticApproximator.setListener(true);
         this.cloneMaximizeCriticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());
         this.cloneMaximizeCriticApproximator.setNumLayers(conf.getNumCriticLayers());
         this.cloneMaximizeCriticApproximator.setMinimize(false);
