@@ -345,6 +345,11 @@ public class Mlp implements Approximator{
         System.out.println(this.model.params());
     }
 
+    @Override
+    public void clear() {
+
+    }
+
     protected void attachListener(MultiLayerNetwork mlp){
         UIServer uiServer = UIServer.getInstance();
         //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.

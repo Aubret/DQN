@@ -39,6 +39,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this,
                 new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime()),
                 conf.getIterations(),
+                conf.getBatchSize(),
                 this.criticApproximator,
                 this.cloneMaximizeCriticApproximator,
                 this.observationApproximator,
@@ -60,7 +61,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 0) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = this.td.behave(input);
             this.td.learn();
             this.countStep++;
@@ -129,7 +130,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //this.criticApproximator.setL2(0.001);
+        this.criticApproximator.setL2(0.001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;

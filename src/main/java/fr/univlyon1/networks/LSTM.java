@@ -10,6 +10,7 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
@@ -30,11 +31,11 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class LSTM extends Mlp implements StateApproximator,Approximator{
+public class LSTM extends Mlp implements StateApproximator{
 
-    private int backpropNumber = 1 ;
-    private int forwardNumber = 1 ;
     private int numOut ;
+    private INDArray mask;
+    private INDArray maskLabel;
 
     public LSTM(LSTM lstm,boolean listener) {// MultiLayerNetwork model,int output){
         super(lstm,listener);
@@ -58,7 +59,9 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
                 //.l2(0.001)
                 .weightInit(WeightInit.XAVIER)
                 .updater(this.updater);
-
+        if(l2 != null) {
+            b.l2(this.l2);
+        }
         NeuralNetConfiguration.ListBuilder builder = b.list() ;
         //-------------------------------------- Initialisation des couches------------------
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
@@ -87,8 +90,8 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
                         .nOut(output)
                         .activation(this.lastActivation)
                         .build());
-        //builder.inputPreProcessor(cursor, new RnnToFeedForwardPreProcessor());
-        //builder.layer(cursor,new LossLayer.Builder(this.lossFunction).build());
+        /*builder.inputPreProcessor(cursor, new RnnToFeedForwardPreProcessor());
+        builder.layer(cursor,new LossLayer.Builder(this.lossFunction).build());*/
 
         cursor++ ;
         /*if(!epsilon)
@@ -134,14 +137,14 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
 
 
     @Override
-    public INDArray error(INDArray input,INDArray labels,int number){
-        for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) { // On nettoie d'abord l'état de sa mémoire
+    public INDArray forwardLearn(INDArray input,INDArray labels,int number,INDArray mask,INDArray maskLabel){
+        this.model.rnnClearPreviousState();
+        /*for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) { // On nettoie d'abord l'état de sa mémoire
             ((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
-        }
+        }*/
+        this.mask=mask;
+        this.maskLabel = maskLabel ;
         //System.out.println(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(0)).rnnGetTBPTTState());
-
-        //this.model.getLayerWiseConfigurations().setTbpttBackLength(this.backpropNumber);
-        //this.model.getLayerWiseConfigurations().setTbpttFwdLength(this.forwardNumber);
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(input, true, true);
@@ -156,28 +159,22 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
         INDArray last = workspace.get(workspace.size()-1); // Dernière couche
         //System.out.println(last);
         INDArray getter = last.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(last.size(2)-1));
-        //return last.getRow(last.size(0)-1);
+        //return last.getRow(last.size(0)-1);*/
         return getter ;
 
     }
 
     @Override
     public Object learn(INDArray input,INDArray labels,int number) {
-        //this.model.getLayerWiseConfigurations().setTbpttFwdLength(this.forwardNumber);
-        //this.model.getLayerWiseConfigurations().setTbpttBackLength(this.backpropNumber);
-        //this.model.getLayerWiseConfigurations().setTbpttBackLength(1);
-        ;
+        /*INDArray maskLabels = Nd4j.zeros(number,this.forwardNumber);
+        maskLabels.putColumn(this.forwardNumber-1,Nd4j.ones(number,1)) ;*/
 
-        INDArray mask = Nd4j.zeros(number,this.forwardNumber);
-        mask.putColumn(this.forwardNumber-1,Nd4j.ones(number,1)) ;
-
-        INDArray nullLabel = Nd4j.zeros(number,numOut,this.forwardNumber);
+        /*INDArray nullLabel = Nd4j.zeros(number,numOut,input.size(2));
         INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(this.forwardNumber-1)};
-        nullLabel.put(indexs,labels);
-        //labels = Nd4j.concat(1,mask.dup(),labels);
-        this.model.setLabels(nullLabel);
-        //this.model.getLayer(this.model.getnLayers()-1).setMaskArray(mask);
-        this.model.setLayerMaskArrays(null, mask);
+        nullLabel.put(indexs,labels);*/
+
+        this.model.setLabels(labels);
+        this.model.setLayerMaskArrays(this.mask, this.maskLabel);
 
         this.model.mytruncatedBPTTGradient();
         this.score = this.model.score() ;
@@ -208,6 +205,11 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
         this.model.clearLayerMaskArrays();
         return this.model.epsilon() ;
     }
+
+    public INDArray error(INDArray input,INDArray labels,int number){
+        return null ;
+    }
+
 
     @Override
     public StateApproximator clone() {
@@ -241,7 +243,6 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
         return new HiddenState(memories);
     }
 
-
     @Override
     public void setMemory(Object memory) {
         if (memory instanceof HiddenState){
@@ -252,5 +253,10 @@ public class LSTM extends Mlp implements StateApproximator,Approximator{
         }else{
             System.out.println("erreur casting");
         }
+    }
+
+    @Override
+    public void clear(){
+        this.model.rnnClearPreviousState();
     }
 }

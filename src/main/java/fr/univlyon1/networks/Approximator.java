@@ -20,4 +20,5 @@ public interface Approximator extends Policy{
     Approximator clone(); // clônage
     Approximator clone(boolean Listener);
     void stop(); // Fin d'apprentissage
+    void clear();
 }
