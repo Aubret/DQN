@@ -62,14 +62,13 @@ public class ContinuousActorCritic<A> implements Learning<A> {
                 this.criticApproximator,
                 this.cloneMaximizeCriticApproximator
         );
-        //Policy mixtePolicy =
-        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
-        /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
+        Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
                 actionSpace,
                 mixtePolicy,
-                conf.getInitStdEpsilon());*/
+                conf.getInitStdEpsilon());
 
         /*this.policy = new Egreedy<A>(conf.getMinEpsilon(),
                 seed,
@@ -104,7 +103,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 0) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
             this.td.learn();
             this.countStep++;

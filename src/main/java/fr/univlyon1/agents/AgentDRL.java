@@ -57,10 +57,25 @@ public class AgentDRL<A> implements AgentRL<A> {
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //1-5 mémoire intiailisée
+        //6-10 sans mémoire
+        //11-13 sans heure
+        //14-15 une seule boucle électro magnétique
+        //16-19 Deux boucles électro-magnétiques
+        //20 - 22 SAns mémoire
+        //23 40% de connectés
+        //24 - 27 60Secondes seulement
+        //27-28 30 secondes
+        //29 - 30 60 secondes + 40% véhicules connectés
+        //31 60 secondes, 40% véhicules, 3 voies;
+        //32 100% véhicules 3v oies
         this.learning.init();
         if(this.print) {
             try {
-                FileWriter fw = new FileWriter("sim/arthur/continuous_rewards.csv");
+                //FileWriter fw = new FileWriter("sim/arthur/continuous_rewards_baseline.csv");
+                    FileWriter fw = new FileWriter("sim/arthur/results/a6_rewards1.csv");
+                //FileWriter fw = new FileWriter("sim/arthur/results/a6_baseline.csv");
+
                 this.rewardResults = new PrintWriter(fw);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -79,6 +94,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         }
         INDArray data = observation.getData();
         A action = this.learning.getAction(data);
+        //A action = this.learning.getActionSpace().mapNumberToAction(0);
         this.action = action ;
         if(reward != null ){
             if(this.print) {
@@ -99,6 +115,7 @@ public class AgentDRL<A> implements AgentRL<A> {
             }
         }
 
+        action = actionSpace.mapNumberToAction(Nd4j.create(new double[]{-1,-1}));
 
         if(action instanceof ContinuousAction)
             ((ContinuousAction) action).unNormalize();
