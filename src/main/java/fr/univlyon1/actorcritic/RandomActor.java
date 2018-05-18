@@ -1,5 +1,7 @@
 package fr.univlyon1.actorcritic;
 
+import fr.univlyon1.actorcritic.policy.Policy;
+import fr.univlyon1.actorcritic.policy.RandomPolicy;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.configurations.ListPojo;
 import fr.univlyon1.configurations.PojoInteraction;
@@ -11,6 +13,7 @@ import fr.univlyon1.learning.TDBatch;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.networks.Approximator;
+import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -20,14 +23,15 @@ import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
+@Getter
 public class RandomActor<A> implements Learning<A> {
     private long seed ;
     private ActionSpace<A> actionSpace ;
     private TD<A> td ;
     private double reward ;
     private RandomExperienceReplay<A> ep ;
+    private Policy<A> policy ;
 
     private Configuration conf ;
 
@@ -36,6 +40,7 @@ public class RandomActor<A> implements Learning<A> {
         this.actionSpace = as ;
         this.ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,null);
         this.conf = conf ;
+        this.policy = new RandomPolicy<A>(as);
     }
 
     public void init(){
@@ -48,11 +53,11 @@ public class RandomActor<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input, Double time) {
         this.td.evaluate(input,this.reward);
-        Object o = this.actionSpace.randomAction();
+        Object o = this.policy.getAction(input);
         A a = this.actionSpace.mapNumberToAction(o);
-        this.td.step(input,this.actionSpace.mapNumberToAction(o));
+        this.td.step(input,this.actionSpace.mapNumberToAction(o),time);
         return a ;
     }
 

@@ -24,12 +24,13 @@ public abstract class ExperienceReplay<A> {
         this.maxSize = maxSize ;
     }
 
-    public boolean initChoose(){return true;};
     public abstract void addInteraction(Interaction<A> interaction);
     public abstract Interaction<A> chooseInteraction();
     public abstract void resetMemory();
     public abstract int getSize();
     public abstract void setError(INDArray errors);
+
+    public boolean initChoose(){return true ;}
 
     public int getMaxSize() {
         return maxSize;
@@ -58,6 +59,7 @@ public abstract class ExperienceReplay<A> {
                     e.printStackTrace();
                 }
             }
+            this.setError(null);
         }
     }
 }

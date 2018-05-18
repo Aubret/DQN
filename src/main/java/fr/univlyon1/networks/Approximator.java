@@ -5,11 +5,13 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 public interface Approximator extends Policy{
     void init(); // Initialisation
-    INDArray getOneResult(INDArray data); // Obtenir un résultat
-    INDArray getOneTrainingResult(INDArray data);
+    INDArray getOneResult(INDArray data); // Obtenir un résultat test
+    INDArray getOneTrainingResult(INDArray data); // Obtenir un résultat de training
+
     int numOutput(); // taille de l'INDArray résultant
     Object learn(INDArray input,INDArray labels,int number); // Apprentissage supervisé
     INDArray error(INDArray input,INDArray labels,int number); // retourne l'erreur sur l'entrée sans apprentissage
+    INDArray getScoreArray();
     void epoch();
 
 
@@ -20,4 +22,5 @@ public interface Approximator extends Policy{
     Approximator clone(); // clônage
     Approximator clone(boolean Listener);
     void stop(); // Fin d'apprentissage
+    void clear();
 }

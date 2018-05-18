@@ -46,17 +46,14 @@ public class AgentDRL<A> implements AgentRL<A> {
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            String f = "resources/learning/ddpg.xml";
+            //String f = "resources/learning/ddpg.xml";
             //String f = "resources/learning/justhour_ddpg.xml";
+            String f = "resources/learning/lstm.xml";
             this.configuration = (Configuration)unmarshaller.unmarshal( new File(f));
         }catch(Exception e){
             e.printStackTrace();;
         }
-        //this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
-        this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+
         //1-5 mémoire intiailisée
         //6-10 sans mémoire
         //11-13 sans heure
@@ -69,6 +66,12 @@ public class AgentDRL<A> implements AgentRL<A> {
         //29 - 30 60 secondes + 40% véhicules connectés
         //31 60 secondes, 40% véhicules, 3 voies;
         //32 100% véhicules 3v oies
+        //this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
+        //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         this.learning.init();
         if(this.print) {
             try {
@@ -86,14 +89,14 @@ public class AgentDRL<A> implements AgentRL<A> {
     }
 
     @Override
-    public A control(Double reward,Observation observation) {
+    public A control(Double reward,Observation observation, Double time) {
         //System.out.println(observation+" ---> "+reward);
         count++ ;
         if(reward != null) {
             this.learning.putReward(reward);
         }
         INDArray data = observation.getData();
-        A action = this.learning.getAction(data);
+        A action = this.learning.getAction(data,time);
         //A action = this.learning.getActionSpace().mapNumberToAction(0);
         this.action = action ;
         if(reward != null ){
@@ -119,7 +122,7 @@ public class AgentDRL<A> implements AgentRL<A> {
 
         if(action instanceof ContinuousAction)
             ((ContinuousAction) action).unNormalize();
-        if(count % 200 == 0)
+        if(count % 10000 == 0)
             System.out.println(action);
         return action ;
     }

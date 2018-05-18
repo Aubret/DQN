@@ -4,6 +4,7 @@ import fr.univlyon1.actorcritic.policy.*;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ObservationSpace;
+import fr.univlyon1.learning.Algorithm;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.memory.prioritizedExperienceReplay.PrioritizedExperienceReplay;
@@ -30,7 +31,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     protected Mlp criticApproximator ;
     protected Mlp cloneMaximizeCriticApproximator ;
     protected ActionSpace<A> actionSpace ;
-    protected TDActorCritic<A> td ;
+    protected Algorithm<A> td ;
     protected Policy policy ;
     protected Double reward ;
     protected int epoch ;
@@ -98,7 +99,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input, Double time) {
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
@@ -115,7 +116,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
-        this.td.step(input,actionBehaviore); // step learning algorithm
+        this.td.step(input,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 
@@ -176,6 +177,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
+        //this.criticApproximator.setL2(0.001);
         this.criticApproximator.setL2(0.001);
         //this.criticApproximator.setLossFunction(new Loss);
         //this.criticApproximator.setBatchNormalization(true);

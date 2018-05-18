@@ -5,6 +5,7 @@ import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
+import fr.univlyon1.learning.TDBatch;
 import fr.univlyon1.networks.Mlp;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -27,18 +28,16 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     public void learn(){
-        this.td.setBatchSize(conf.getBatchSize());
+        ((TDBatch)this.td).setBatchSize(conf.getBatchSize());
 
         for(int i = 0;i < this.epoch; i++){
             this.td.learn();
         }
-        this.td.epoch();
-
-        this.td.setBatchSize(0);
+        ((TDBatch)this.td).setBatchSize(0);
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input,Double time) {
         this.td.evaluate(input, this.reward); //Evaluation
 
         //actionBehaviore = this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
@@ -49,10 +48,9 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
             this.countStep = 0;
             this.learn();
         }
-        this.countStep++;
-
         this.td.learn();
-        this.td.step(input,actionBehaviore); // step learning algorithm
+        this.td.step(input,actionBehaviore,time); // step learning algorithm
+        this.countStep++ ;
         return actionBehaviore;
     }
 

@@ -5,15 +5,21 @@ import lombok.Getter;
 import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.Map;
+
 @Setter
 @Getter
 public class Interaction <A>{
     private static int count = 0 ;
+    private Double time ;
     private INDArray observation ;
     private INDArray secondObservation ;
 
-    private INDArray state =null ;
-    private INDArray secondState=null ;
+    private INDArray state ;
+    private INDArray secondState ;
+    private Object memoryBefore ;
+    private Object memoryAfter ;
+
 
     private A action ;
     private A secondAction ;
@@ -25,6 +31,7 @@ public class Interaction <A>{
         this.observation = observation ;
         this.id = count ;
         count++;
+        this.state = null ;
     }
 
     public Interaction(A action, INDArray observation, INDArray state){

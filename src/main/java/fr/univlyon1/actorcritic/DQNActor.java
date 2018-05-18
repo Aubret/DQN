@@ -11,8 +11,12 @@ import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.Mlp;
+import lombok.Getter;
+import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+@Getter
+@Setter
 public class DQNActor<A> implements Learning<A> {
     private Configuration conf ;
     private Mlp mlp ;
@@ -64,7 +68,7 @@ public class DQNActor<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input) {
+    public A getAction(INDArray input,Double time) {
         if(AgentDRL.getCount() > 50) { // Ne pas overfitter sur les premières données arrivées
             this.td.evaluate(input, this.reward); //Evaluation
             this.countStep++;
@@ -75,11 +79,11 @@ public class DQNActor<A> implements Learning<A> {
                 this.td.epoch();
             }
         }
-        INDArray results  = this.mlp.getOneResult(input); // get action behavioure
+        INDArray results  = this.td.behave(input); // get action behavioure
         int indiceBehaviore = (Integer)this.policy.getAction(results);
         A actionBehaviore = this.actionSpace.mapNumberToAction(indiceBehaviore);
 
-        this.td.step(input,actionBehaviore); // step learning algorithm
+        this.td.step(input,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 

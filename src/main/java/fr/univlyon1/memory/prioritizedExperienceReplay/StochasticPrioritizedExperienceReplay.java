@@ -40,7 +40,9 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
 
     @Override
     public void setError(INDArray errors) {
-        for (int i = 0; i < this.tmp.size(); i++) {
+        if(errors == null)
+            return ;
+        for(int i = 0;i< this.tmp.size(); i++){
             InteractionHistory<A> ih = this.tmp.get(i);
             double error = errors.getDouble(i);
             ih.computeError(error); // Important de le faire avant

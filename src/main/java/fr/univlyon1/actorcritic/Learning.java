@@ -1,5 +1,6 @@
 package fr.univlyon1.actorcritic;
 
+import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
@@ -11,10 +12,11 @@ import javax.xml.bind.JAXBException;
 public interface Learning<A> {
     void init();
     Configuration getConf();
-    A getAction(INDArray input);
+    A getAction(INDArray input,Double time);
     ObservationSpace getObservationSpace();
     void putReward(Double reward);
     Approximator getApproximator();
+    Policy getPolicy();
     ActionSpace<A> getActionSpace();
     void stop();
 }

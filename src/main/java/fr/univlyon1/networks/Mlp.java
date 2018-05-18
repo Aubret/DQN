@@ -2,12 +2,9 @@ package fr.univlyon1.networks;
 
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
-import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.api.layers.IOutputLayer;
 import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.BatchNormalization;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.Layer;
@@ -21,8 +18,6 @@ import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
@@ -30,12 +25,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
 public class Mlp implements Approximator{
-    protected MultiLayerNetwork model ;
+    protected EpsilonMultiLayerNetwork model ;
     protected INDArray tmp ;
     protected int iterations = 0;
     protected MultiLayerConfiguration multiLayerConfiguration ;
@@ -62,6 +56,7 @@ public class Mlp implements Approximator{
     protected boolean dropout ;
     protected Double score ;
     protected INDArray values ;
+    protected INDArray scoreArray ;
 
     protected Double l2 ;
     protected int epoch ;
@@ -70,6 +65,7 @@ public class Mlp implements Approximator{
         this.input = mlp.getInput();
         //this.model = mlp.getModel().clone();
         this.output = mlp.getOutput() ;
+        this.input = mlp.getInput();
         this.tmp = mlp.tmp ;
         this.minimize = mlp.isMinimize() ;
         this.epsilon = mlp.isEpsilon();
@@ -146,7 +142,7 @@ public class Mlp implements Approximator{
         if(l2 != null) {
             b.l2(this.l2);
         }
-        NeuralNetConfiguration.ListBuilder  builder = b.list() ;
+        NeuralNetConfiguration.ListBuilder builder = b.list() ;
 
 
         //
@@ -198,7 +194,7 @@ public class Mlp implements Approximator{
             builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
             cursor++ ;
         }
-        node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
+        node = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         Layer.Builder l = new DenseLayer.Builder()
                 .biasInit(0.1)
                 .weightInit(WeightInit.XAVIER_UNIFORM)
@@ -219,7 +215,7 @@ public class Mlp implements Approximator{
                 .backprop(true).pretrain(false)
                 .build();
 
-        this.model = new MultiLayerNetwork(this.multiLayerConfiguration);
+        this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);
         this.model.init();
         if(this.listener)
             this.attachListener(this.model);
@@ -227,13 +223,13 @@ public class Mlp implements Approximator{
     }
 
     public INDArray getOneResult(INDArray data){
-        this.model.setInputMiniBatchSize(data.shape()[0]);
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
         INDArray res = this.model.output(data,false) ;
         return res ;
     }
 
     public INDArray getOneTrainingResult(INDArray data){
-        this.model.setInputMiniBatchSize(data.shape()[0]);
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
         //double[] datas =  new double[]{-0.74,  -0.91,  -0.76,  -0.91,  -0.68,  -0.84,  -0.74,  -0.91,  -0.74,  -0.91,  -0.68,  -0.84,  -0.78,  -0.91,  -0.68,  -0.91,  -0.68,  -0.84,  -0.43,  -0.74,  -0.90,  -0.74,  -0.91,  -0.70,  -0.84,  -0.76,  -0.91,  -0.74,  -0.91,  -0.70,  -0.84,  -0.76,  -0.94,  -0.76,  -0.94,  -0.68,  -0.83,  -0.44};
         INDArray res = this.model.output(data,false);
         return res;
@@ -250,7 +246,7 @@ public class Mlp implements Approximator{
         //this.model.clear();
         //System.out.println(this.model.getUpdater().getStateViewArray().getDouble(0));
 
-        this.model.setInputMiniBatchSize(number);
+        //this.model.setInputMiniBatchSize(number);
         //this.model.clear();
         this.model.setInput(input);
         this.model.setLabels(labels);
@@ -289,11 +285,11 @@ public class Mlp implements Approximator{
             if(lossFunction instanceof LossMseSaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
-                return lossfn.getLastScoreArray().detach();
+                this.scoreArray = lossfn.getLastScoreArray().detach();
             }
         }
         //return this.model.getOutputLayer().com ;
-        return null ;
+        return this.model.epsilon() ;
     }
 
     @Override
@@ -349,6 +345,11 @@ public class Mlp implements Approximator{
         System.out.println(this.model.params());
     }
 
+    @Override
+    public void clear() {
+
+    }
+
     protected void attachListener(MultiLayerNetwork mlp){
         UIServer uiServer = UIServer.getInstance();
         //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
@@ -384,6 +385,10 @@ public class Mlp implements Approximator{
 
     public INDArray getValues(){
         return this.values ;
+    }
+
+    public INDArray getScoreArray(){
+        return this.scoreArray ;
     }
 
 }

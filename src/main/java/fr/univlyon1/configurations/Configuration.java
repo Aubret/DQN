@@ -15,7 +15,8 @@ public class Configuration {
     int epochs = 50; // Nombre de time step avant la fusion des approximateurs
     @XmlElement(name="iterations")
     int iterations = 1; // Nombre d'itération d'apprentissage à chaque timestep
-
+    @XmlElement(name="learn")
+    int learn = 1; // NOmbre d'action avant chaque apprentissage
     @XmlElement(name="batchSize")
     int batchSize = 1; // Taille des batchs pour l'apprentissage
 
@@ -64,6 +65,13 @@ public class Configuration {
     @XmlElement(name="LstmHiddenNodes")
     @XmlList
     ArrayList<Integer> layersLstmHiddenNodes = new ArrayList<>();
+    @XmlElement(name="numLstmOutputNodes")
+    int numLstmOutputNodes = 50 ;
+
+    @XmlElement(name="forwardTime")
+    int forwardTime = 10;
+    @XmlElement(name="backpropTime")
+    int backpropTime = 10 ;
 
 
     //expererience replay

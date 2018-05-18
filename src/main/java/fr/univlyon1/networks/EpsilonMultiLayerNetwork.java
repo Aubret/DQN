@@ -4,25 +4,30 @@ import org.deeplearning4j.exception.DL4JException;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.Updater;
 import org.deeplearning4j.nn.api.layers.IOutputLayer;
-import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.api.layers.RecurrentLayer;
+import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.CacheMode;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
+import org.deeplearning4j.nn.conf.layers.BaseLayer;
+import org.deeplearning4j.nn.gradient.DefaultGradient;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.layers.FrozenLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.memory.enums.MirroringPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.INDArrayIndex;
-import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.memory.abstracts.DummyWorkspace;
 import org.nd4j.linalg.primitives.Pair;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
     public EpsilonMultiLayerNetwork(MultiLayerConfiguration conf) {
@@ -109,7 +114,7 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
 
             }
 
-        //}
+
 
 
 
@@ -148,5 +153,58 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
         return ret;
     }
 
+    public void mytruncatedBPTTGradient() {
+        MemoryWorkspace wsExternal = null;
+        boolean shouldCloseWorkspace = false;
+        if (this.layerWiseConfigurations.getTrainingWorkspaceMode() != WorkspaceMode.NONE) {
+            wsExternal = Nd4j.getWorkspaceManager().getWorkspaceForCurrentThread(workspaceConfigurationExternal, "LOOP_EXTERNAL");
+            if (!wsExternal.isScopeActive()) {
+                wsExternal.notifyScopeEntered();
+                shouldCloseWorkspace = true;
+            }
+        }
+        try{
+            if (!(this.getOutputLayer() instanceof IOutputLayer)) {
+                throw new DL4JException("Cannot calculate gradient and score with respect to labels: final layer is not an IOutputLayer");
+            }
+            this.truncatedBPTTGradient();
+            this.score = ((IOutputLayer)this.getOutputLayer()).computeScore(this.calcL1(true), this.calcL2(true), true);
+            if (!this.trainingListeners.isEmpty()) {
+                MemoryWorkspace workspace = Nd4j.getMemoryManager().scopeOutOfWorkspaces();
+                Throwable var26 = null;
 
+                try {
+                    Iterator var27 = this.trainingListeners.iterator();
+
+                    while(var27.hasNext()) {
+                        TrainingListener tl = (TrainingListener)var27.next();
+                        tl.onBackwardPass(this);
+                    }
+                } catch (Throwable var21) {
+                    var26 = var21;
+                    throw var21;
+                } finally {
+                    if (workspace != null) {
+                        if (var26 != null) {
+                            try {
+                                workspace.close();
+                            } catch (Throwable var20) {
+                                var26.addSuppressed(var20);
+                            }
+                        } else {
+                            workspace.close();
+                        }
+                    }
+
+                }
+            }
+
+            this.getOutputLayer().clearNoiseWeightParams();
+        } finally {
+            if (shouldCloseWorkspace) {
+                wsExternal.notifyScopeLeft();
+            }
+
+        }
+    }
 }
