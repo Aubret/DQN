@@ -1,5 +1,6 @@
 package fr.univlyon1.actorcritic;
 
+import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
@@ -15,6 +16,7 @@ public interface Learning<A> {
     ObservationSpace getObservationSpace();
     void putReward(Double reward);
     Approximator getApproximator();
+    Policy getPolicy();
     ActionSpace<A> getActionSpace();
     void stop();
 }

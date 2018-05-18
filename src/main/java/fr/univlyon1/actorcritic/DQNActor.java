@@ -11,8 +11,12 @@ import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.Mlp;
+import lombok.Getter;
+import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+@Getter
+@Setter
 public class DQNActor<A> implements Learning<A> {
     private Configuration conf ;
     private Mlp mlp ;

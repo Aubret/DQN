@@ -3,6 +3,7 @@ package fr.univlyon1.actorcritic;
 import akka.actor.dsl.Creators;
 import fr.univlyon1.actorcritic.policy.EgreedyDecrement;
 import fr.univlyon1.actorcritic.policy.NoisyGreedy;
+import fr.univlyon1.actorcritic.policy.NoisyGreedyDecremental;
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
@@ -10,9 +11,11 @@ import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDActorCritic;
 import fr.univlyon1.learning.TDLstm;
+import fr.univlyon1.learning.TDLstm2D;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
+import fr.univlyon1.networks.LSTM2D;
 import fr.univlyon1.networks.Mlp;
 import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.networks.lossFunctions.LossIdentity;
@@ -25,19 +28,21 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
     protected LSTM observationApproximator ;
     protected LSTM cloneObservationApproximator ;
+    protected int learn_step ;
 
     public LstmActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed) {
         super(observationSpace, actionSpace, conf, seed);
         this.initLstm();
+        this.learn_step = conf.getLearn();
     }
 
     public void init(){
         this.initActor();
         this.initCritic();
         this.initLstm();
-        this.td = new TDLstm<A>(conf.getGamma(),
+        this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
-                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime()),
+                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
                 conf.getIterations(),
                 conf.getBatchSize(),
                 this.criticApproximator,
@@ -45,7 +50,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this.observationApproximator,
                 this.cloneObservationApproximator
         );
-        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        this.policy= new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
         /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
@@ -63,14 +68,17 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.td.evaluate(input, this.reward); //Evaluation
         if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = this.td.behave(input);
-            this.td.learn();
-            this.countStep++;
-            if (this.countStep == this.epoch) {
-                countStep = 0;
-                this.td.epoch();
-                //System.out.println("An epoch : "+ AgentDRL.getCount());
-            }
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
+            if(AgentDRL.getCount()%this.learn_step== 0) {
+                this.td.learn();
+                this.countStep++;
+                if (this.countStep == this.epoch) {
+                    countStep = 0;
+                    this.td.epoch();
+                    //System.out.println("An epoch : "+ AgentDRL.getCount());
+                }
+            }
+
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
         this.td.step(input,actionBehaviore,time); // step learning algorithm
@@ -78,7 +86,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     public void initLstm(){
-        this.observationApproximator = new LSTM(observationSpace.getShape()[0], conf.getNumLstmOutputNodes(), seed);
+        this.observationApproximator = new LSTM2D(observationSpace.getShape()[0], conf.getNumLstmOutputNodes(), seed);
         this.observationApproximator.setLearning_rate(conf.getLearning_rateLstm());
         this.observationApproximator.setListener(true);
         this.observationApproximator.setNumNodesPerLayer(conf.getLayersLstmHiddenNodes());
@@ -130,7 +138,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        this.criticApproximator.setL2(0.001);
+        this.criticApproximator.setL2(0.0001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;

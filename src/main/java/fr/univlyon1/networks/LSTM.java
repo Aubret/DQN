@@ -33,9 +33,8 @@ import java.util.Map;
 @Setter
 public class LSTM extends Mlp implements StateApproximator{
 
-    private int numOut ;
-    private INDArray mask;
-    private INDArray maskLabel;
+    protected INDArray mask;
+    protected INDArray maskLabel;
 
     public LSTM(LSTM lstm,boolean listener) {// MultiLayerNetwork model,int output){
         super(lstm,listener);
@@ -44,7 +43,6 @@ public class LSTM extends Mlp implements StateApproximator{
     public LSTM(int input, int output, long seed){
         super(input,output,seed);
         this.hiddenActivation = Activation.TANH ;
-        this.numOut = output;
     }
 
     public void init(){
@@ -161,7 +159,6 @@ public class LSTM extends Mlp implements StateApproximator{
         INDArray getter = last.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(last.size(2)-1));
         //return last.getRow(last.size(0)-1);*/
         return getter ;
-
     }
 
     @Override

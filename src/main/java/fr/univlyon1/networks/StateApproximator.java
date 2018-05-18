@@ -8,6 +8,7 @@ public interface StateApproximator extends Approximator {
     Object getMemory();
     Object getSecondMemory();
     INDArray forwardLearn(INDArray input, INDArray labels, int number, INDArray mask, INDArray maskLabels);
+    void setMaskLabel(INDArray maskLabel);
     void setMemory(Object memory);
     StateApproximator clone(); // clônage
     StateApproximator clone(boolean Listener);

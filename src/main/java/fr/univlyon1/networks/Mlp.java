@@ -142,7 +142,7 @@ public class Mlp implements Approximator{
         if(l2 != null) {
             b.l2(this.l2);
         }
-        NeuralNetConfiguration.ListBuilder  builder = b.list() ;
+        NeuralNetConfiguration.ListBuilder builder = b.list() ;
 
 
         //
@@ -223,13 +223,13 @@ public class Mlp implements Approximator{
     }
 
     public INDArray getOneResult(INDArray data){
-        this.model.setInputMiniBatchSize(data.shape()[0]);
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
         INDArray res = this.model.output(data,false) ;
         return res ;
     }
 
     public INDArray getOneTrainingResult(INDArray data){
-        this.model.setInputMiniBatchSize(data.shape()[0]);
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
         //double[] datas =  new double[]{-0.74,  -0.91,  -0.76,  -0.91,  -0.68,  -0.84,  -0.74,  -0.91,  -0.74,  -0.91,  -0.68,  -0.84,  -0.78,  -0.91,  -0.68,  -0.91,  -0.68,  -0.84,  -0.43,  -0.74,  -0.90,  -0.74,  -0.91,  -0.70,  -0.84,  -0.76,  -0.91,  -0.74,  -0.91,  -0.70,  -0.84,  -0.76,  -0.94,  -0.76,  -0.94,  -0.68,  -0.83,  -0.44};
         INDArray res = this.model.output(data,false);
         return res;
@@ -246,7 +246,7 @@ public class Mlp implements Approximator{
         //this.model.clear();
         //System.out.println(this.model.getUpdater().getStateViewArray().getDouble(0));
 
-        this.model.setInputMiniBatchSize(number);
+        //this.model.setInputMiniBatchSize(number);
         //this.model.clear();
         this.model.setInput(input);
         this.model.setLabels(labels);

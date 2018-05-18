@@ -29,6 +29,7 @@ public class TD<A> implements Algorithm<A> {
     public void step(INDArray observation, A action,Double time) {
         //this.lastInteraction.setSecondAction(action);
         this.lastInteraction = new Interaction<A>(action,observation);
+        this.lastInteraction.setTime(time);
     }
 
     @Override
