@@ -7,6 +7,7 @@ import fr.univlyon1.actorcritic.policy.NoisyGreedyDecremental;
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
+import fr.univlyon1.environment.HiddenState;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDActorCritic;
@@ -29,11 +30,13 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     protected LSTM observationApproximator ;
     protected LSTM cloneObservationApproximator ;
     protected int learn_step ;
+    protected int restartMemory ;
 
     public LstmActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed) {
         super(observationSpace, actionSpace, conf, seed);
         this.initLstm();
         this.learn_step = conf.getLearn();
+        this.restartMemory = 5000 ;
     }
 
     public void init(){
@@ -50,13 +53,16 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this.observationApproximator,
                 this.cloneObservationApproximator
         );
-        this.policy= new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
-        /*this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
+        //this.policy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
+        Policy mixtePolicy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
+
+        //Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
                 actionSpace,
                 mixtePolicy,
-                conf.getInitStdEpsilon());*/
+                conf.getInitStdEpsilon());
 
     }
 
@@ -81,6 +87,17 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
+
+        int tmp = this.learn_step%restartMemory;
+        if(tmp <= 50) {
+            if(tmp == 50) {
+                this.cloneObservationApproximator.setMemory(this.observationApproximator.getMemory());
+            }else if (tmp == 0) {
+                this.observationApproximator.setMemory(this.cloneObservationApproximator);
+            }else{
+                this.cloneObservationApproximator.getOneResult(input);
+            }
+        }
         this.td.step(input,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
@@ -138,7 +155,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        this.criticApproximator.setL2(0.0001);
+        //this.criticApproximator.setL2(0.0001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;

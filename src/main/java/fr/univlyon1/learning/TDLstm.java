@@ -86,10 +86,12 @@ public class TDLstm<A> extends TD<A> {
      */
     @Override
     public void learn(){
+        Object state2 = this.cloneObservationApproximator.getMemory();
         this.state = this.observationApproximator.getMemory();
         if(this.replay)
             this.learn_replay();
         this.observationApproximator.setMemory(this.state);
+        this.cloneObservationApproximator.setMemory(state2);
     }
 
     protected void learn_replay(){

@@ -71,12 +71,15 @@ public class AgentDRL<A> implements AgentRL<A> {
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //a6 2-6 lstm test2.xprj
+        //a6 7-12 correction vraie récompense moyenne
+        //a6 13 - 17 Vitesse minmale avec changement output lstm, marche tjrs pas très bien sur 17
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         this.learning.init();
         if(this.print) {
             try {
                 //FileWriter fw = new FileWriter("sim/arthur/continuous_rewards_baseline.csv");
-                    FileWriter fw = new FileWriter("sim/arthur/results/a6_rewards1.csv");
+                    FileWriter fw = new FileWriter("sim/arthur/results/a6_rewards17.csv");
                 //FileWriter fw = new FileWriter("sim/arthur/results/a6_baseline.csv");
 
                 this.rewardResults = new PrintWriter(fw);
@@ -118,11 +121,11 @@ public class AgentDRL<A> implements AgentRL<A> {
             }
         }
 
-        action = actionSpace.mapNumberToAction(Nd4j.create(new double[]{-1,-1}));
+        //action = actionSpace.mapNumberToAction(Nd4j.create(new double[]{-1,-1}));
 
         if(action instanceof ContinuousAction)
             ((ContinuousAction) action).unNormalize();
-        if(count % 10000 == 0)
+        if(count % 1000 == 0)
             System.out.println(action);
         return action ;
     }

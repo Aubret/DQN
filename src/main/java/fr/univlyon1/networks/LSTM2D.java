@@ -4,10 +4,7 @@ import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
-import org.deeplearning4j.nn.conf.layers.GravesLSTM;
-import org.deeplearning4j.nn.conf.layers.LossLayer;
-import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
+import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
@@ -64,7 +61,13 @@ public class LSTM2D extends LSTM {
             b.l2(this.l2);
         }
         NeuralNetConfiguration.ListBuilder builder = b.list() ;
+
         //-------------------------------------- Initialisation des couches------------------
+        /*Layer lay = new BatchNormalization.Builder().nIn(input).nOut(input).build();
+        builder.layer(cursor, lay);
+        cursor++;*/
+
+
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
         builder.layer(cursor, new GravesLSTM.Builder()
                 .activation(this.hiddenActivation)
