@@ -37,6 +37,28 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
         this.interactions.put(interaction, newIh);
     }
 
+    // Ne pas combiner Not taken et le classique
+    public void addInteractionNotTaken(Interaction<A> interaction) {
+        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,0.5);
+        this.history.insert(newIh);
+        this.interactions.put(interaction, newIh);
+    }
+
+    public void removeInteraction(Interaction<A> remove){
+        if(remove != null) {
+            InteractionHistory ih = this.interactions.get(remove);
+            if(ih != null) {
+                InteractionHistory ih2=this.history.getInteractionUp(ih.getErrorValue(), ih.getId());
+                this.interactions.remove(remove);
+            }
+        }
+    }
+
+    public void repushLast(){
+        InteractionHistory<A> ih = this.tmp.get(this.tmp.size()-1);
+        this.history.insert(ih);
+        this.tmp.remove(this.tmp.size()-1);
+    }
 
     @Override
     public void setError(INDArray errors) {
@@ -44,15 +66,16 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
             return ;
         for(int i = 0;i< this.tmp.size(); i++){
             InteractionHistory<A> ih = this.tmp.get(i);
-            double error = errors.getDouble(i);
-            ih.computeError(error); // Important de le faire avant
-            this.history.insert(ih);
+            if(this.interactions.containsKey(ih.getInteraction())) {
+                double error = errors.getDouble(i);
+                ih.computeError(error); // Important de le faire avant
+                this.history.insert(ih);
+            }
         }
         this.tmp = new ArrayList<>();
     }
 
     public boolean initChoose(){
-
         return true ;
     }
 
@@ -65,9 +88,6 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
                 return ih.getInteraction();
             }
         }
-
-
-
         if(this.history.size() > 0) {
             Double max = this.history.getTotalSum();
             Double rand = random.nextDouble() ;

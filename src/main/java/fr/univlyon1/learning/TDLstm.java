@@ -24,6 +24,7 @@ public class TDLstm<A> extends TD<A> {
 
     protected StateApproximator observationApproximator ;
     protected StateApproximator cloneObservationApproximator ;
+    protected StateApproximator targetObservationApproximator ;
     protected Approximator targetActorApproximator ;
     protected Approximator criticApproximator ;
     protected Approximator targetCriticApproximator ;
@@ -59,6 +60,7 @@ public class TDLstm<A> extends TD<A> {
         this.approximator = criticApproximator;
         this.targetCriticApproximator = criticApproximator.clone(false);
         this.cloneCriticApproximator = cloneCriticApproximator ; // Le clône permet de traiter deux fontions de pertes différentes.
+        this.targetObservationApproximator = this.observationApproximator.clone(false);
     }
 
     @Override
@@ -248,9 +250,11 @@ public class TDLstm<A> extends TD<A> {
     protected INDArray labelize(INDArray secondObservations ,INDArray rewards){
         // Les états précédents sont dans la mémoire de l'approximateur
         //this.cloneObservationApproximator.clear();
-        this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
-        this.cloneObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
-        INDArray stateLabel = this.cloneObservationApproximator.getOneResult(secondObservations);
+        //this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
+        //this.cloneObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
+        //INDArray stateLabel = this.cloneObservationApproximator.getOneResult(secondObservations);
+        this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
+        INDArray stateLabel = this.targetObservationApproximator.getOneResult(secondObservations);
         INDArray action = this.targetActorApproximator.getOneResult(stateLabel);
         INDArray entryCriticTarget = Nd4j.concat(1,stateLabel, action) ;
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
@@ -266,8 +270,10 @@ public class TDLstm<A> extends TD<A> {
 
     public void epoch() {
         double alpha = 0.01;
-        targetActorApproximator.getParams().muli(1. - alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
-        targetCriticApproximator.getParams().muli(1. - alpha).addi(this.criticApproximator.getParams().mul(alpha));
+        this.targetActorApproximator.getParams().muli(1. - alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
+        this.targetCriticApproximator.getParams().muli(1. - alpha).addi(this.criticApproximator.getParams().mul(alpha));
+        this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
+
         //this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
 
         /*targetActorApproximator.setParams(this.learning.getApproximator().getParams());

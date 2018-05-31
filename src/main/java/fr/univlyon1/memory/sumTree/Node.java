@@ -31,6 +31,23 @@ public class Node<A>{
         this.numberDescendant = 0 ;
     }
 
+    public Node<A> getUp(Double value,int id){
+
+        if(ih.getErrorValue().equals(value) && ih.getId() == id) {
+            return this.reajust(); // Cas où on le trouve
+        }
+        Node<A> retour = null ;
+        if(value <= ih.getErrorValue()  && this.left != null){
+            retour = this.left.getUp(value,id); // Il est à gauche
+        }
+
+        if(value >= ih.getErrorValue() && retour != null && this.right != null){
+            retour = this.right.getUp(value,id); //Avec les repositionnement, peut-être que ce cas est possible...
+        }
+        this.majSum();
+        return retour ;
+    }
+
     public Node<A> getUp(Double value){
         if(this.left != null){
             double val = value - this.left.getSum() ;
@@ -44,38 +61,7 @@ public class Node<A>{
         double val = value - this.ih.getErrorValue() ;
         if(val <= 0) { // On a trouvé le bon candidat, il faut maintenant réajuster l'arbre
             //System.out.println("here");
-            int numberL = this.left != null ? this.left.getNumberDescendant()+1 : -1 ;
-            int numberR =  this.right != null ? this.right.getNumberDescendant()+1 : -1 ;
-            Node<A> changePlace=null; // Il faut récupérer le noeud qiu remplacera le noeud qu'on enlève
-            if(numberL > numberR){ //left != -1 et left > right
-                changePlace = this.left.removeLast();
-            }else if(this.right != null){ // right != -1 et right >= left
-                changePlace = this.right.removeFirst() ;
-            }else{
-                if(this.left != null || this.right != null){
-                    System.out.println("LA BUG");
-                }
-            }
-
-            if(changePlace != null) { // right || left != null
-                if(this.left != changePlace) {
-                    changePlace.setLeft(this.left); // On met à jour l'arbre
-                    if(this.left != null)
-                        this.left.setParent(changePlace);
-                }else
-                    changePlace.setLeft(null);
-
-                if(this.right != changePlace) {
-                    changePlace.setRight(this.right);
-                    if(this.right != null)
-                        this.right.setParent(changePlace);
-                }else
-                    changePlace.setRight(null);
-                changePlace.majSum();
-            }
-
-            this.parent.remove(this,changePlace);
-            return this;
+            return this.reajust();
         }
         value = val ;
         if( this.right == null || value > this.right.getSum()){
@@ -95,6 +81,7 @@ public class Node<A>{
         this.majSum();
         return n;
     }
+
 
     public void insert(InteractionHistory<A> ih) {
         if(ih.getErrorValue() <= this.ih.getErrorValue()){
@@ -150,6 +137,41 @@ public class Node<A>{
         Node<A> n = this.right.removeLast();
         this.majSum();
         return n ;
+    }
+
+    protected Node<A> reajust(){
+            //System.out.println("here");
+        int numberL = this.left != null ? this.left.getNumberDescendant()+1 : -1 ;
+        int numberR =  this.right != null ? this.right.getNumberDescendant()+1 : -1 ;
+        Node<A> changePlace=null; // Il faut récupérer le noeud qiu remplacera le noeud qu'on enlève
+        if(numberL > numberR){ //left != -1 et left > right
+            changePlace = this.left.removeLast();
+        }else if(this.right != null){ // right != -1 et right >= left
+            changePlace = this.right.removeFirst() ;
+        }else{
+            if(this.left != null || this.right != null){
+                System.out.println("LA BUG");
+            }
+        }
+
+        if(changePlace != null) { // right || left != null
+            if(this.left != changePlace) {
+                changePlace.setLeft(this.left); // On met à jour l'arbre
+                if(this.left != null)
+                    this.left.setParent(changePlace);
+            }else
+                changePlace.setLeft(null);
+
+            if(this.right != changePlace) {
+                changePlace.setRight(this.right);
+                if(this.right != null)
+                    this.right.setParent(changePlace);
+            }else
+                changePlace.setRight(null);
+            changePlace.majSum();
+        }
+        this.parent.remove(this,changePlace);
+        return this;
     }
 
     public void print(){

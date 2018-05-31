@@ -74,12 +74,16 @@ public class AgentDRL<A> implements AgentRL<A> {
         //a6 2-6 lstm test2.xprj
         //a6 7-12 correction vraie récompense moyenne
         //a6 13 - 17 Vitesse minmale avec changement output lstm, marche tjrs pas très bien sur 17
+        // 18 on inaugure le nouveau experience replay priorisé sur test
+        //21 nouveau paramétrage fonctionne
+        //22 encore nouveau sur test3
+        // 23-30 tests
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         this.learning.init();
         if(this.print) {
             try {
                 //FileWriter fw = new FileWriter("sim/arthur/continuous_rewards_baseline.csv");
-                    FileWriter fw = new FileWriter("sim/arthur/results/a6_rewards17.csv");
+                    FileWriter fw = new FileWriter("sim/arthur/results/a6_rewards30.csv");
                 //FileWriter fw = new FileWriter("sim/arthur/results/a6_baseline.csv");
 
                 this.rewardResults = new PrintWriter(fw);

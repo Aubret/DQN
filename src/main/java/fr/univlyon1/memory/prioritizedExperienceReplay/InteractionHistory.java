@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class InteractionHistory<A> {
     private Interaction<A> interaction ;
+    private int id ;
     private Double errorValue ;
     private Double sumValues ;
     private double epsilon ;
@@ -20,6 +21,7 @@ public class InteractionHistory<A> {
         this.errorValue = error ;
         this.epsilon = 0.05 ;
         this.sumValues=0. ;
+        this.id = interaction.getId();
     }
 
     public void computeError(double error){

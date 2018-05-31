@@ -101,12 +101,15 @@ public class TDLstm2D<A> extends TDLstm<A> {
             INDArray state_label = this.observationApproximator.forwardLearn(inputs, null, totalBatchs,masks,maskLabel);
 
             //Commencement de l'apprentissage, labellisation
-            this.cloneObservationApproximator.setMaskLabel(maskLabel);
+            this.targetObservationApproximator.setMaskLabel(maskLabel);
             INDArray labels = this.labelize(secondObservations,rewards); // A faire après le forard learn pour avoir la bonne mémoire
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label, actions);
             INDArray epsilon = this.learn_critic(inputCritics, labels, totalBatchs*forward);
+            INDArray score = this.criticApproximator.getScoreArray();
+            this.experienceReplay.setError(score, backwardsNumber, backward, total);
+
 
             //Apprentissage politique
             int sizeObservation = state_label.size(1);

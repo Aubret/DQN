@@ -23,8 +23,15 @@ public class SumTree<A> extends Node<A> {
             return 0.;
     }
 
+    // value d'une seule interaction
+    public InteractionHistory<A> getInteractionUp(double value, int id){
+        if(this.root == null)
+            return null ;
+        Node<A> n = this.root.getUp(value,id);
+        return n!= null ? n.getIh():null;
+    }
 
-
+    // Value bornée par la somme des valeurs totales
     public InteractionHistory<A> getInteractionUp(double value){
         if(this.root == null)
             return null ;

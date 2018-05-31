@@ -29,7 +29,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
 
     @Override
     public void addInteraction(Interaction<A> interaction) {
-        if(this.interactions.size() == this.maxSize-1)
+        if(this.interactions.size() == this.maxSize)
             this.interactions.remove(this.interactions.get(0));
         this.interactions.add(interaction);
     }
@@ -37,14 +37,12 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
         if(this.interactions.size() == 0)
             return false ;
-        if(cursor == this.interactions.size()-1)
-            cursor = 0 ;
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
             return false ;
         if(this.interactions.size() <= 2)
             return false ;
         // On vérifie qu ele curseur actuel suffit à proposer une séquence complète
-        Interaction<A> start = this.interactions.get(cursor);
+        Interaction<A> start = this.choose();
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
         int cpt = 0 ;
         while(dt < this.sequenceSize || (this.interactions.size() - cursor <= 2)){
@@ -52,23 +50,27 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
                 cursor=0 ; // On veut limiter le nombre de recherches aléatoires
                 break;
             }else {
-                cursor = this.random.nextInt(this.interactions.size()-1);
-                start = this.interactions.get(cursor);
+                start = this.choose();
                 dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
                 //cursor = 0; // On a déjà vérifié que c'était possible avec 0
                 cpt++ ;
             }
         }
-        this.startTime = this.interactions.get(cursor).getTime() ;
+        this.startTime = start.getTime() ;
         this.backpropNumber = 0 ;
         this.forwardNumber = 0 ;
         this.tmp = new ArrayList<>();
         return true ;
     }
 
+    protected Interaction<A> choose(){
+        cursor = this.random.nextInt(this.interactions.size()-1);
+        return this.interactions.get(cursor);
+    }
+
     @Override
     public Interaction<A> chooseInteraction() {
-        Interaction<A> choose = this.interactions.get(cursor);
+        Interaction<A> choose = this.interactions.get(this.cursor);
         Double dt = choose.getTime() - startTime;
         if(dt > sequenceSize)
             return null;
@@ -94,6 +96,10 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
 
     }
 
+    public void setError(INDArray errors, ArrayList<Integer> backpropNumber, int backward,ArrayList<ArrayList<Interaction<A>>> total) {
+
+    }
+
 
     public int getForwardNumber(){
         return this.forwardNumber ;
@@ -103,12 +109,12 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         Double endTime = this.tmp.get(this.tmp.size()-1).getTime() ;
         for(int i = this.tmp.size()-1 ; i >= 0 ; i-- ) {
             if (endTime - this.tmp.get(i).getTime() > this.backpropSize) {
-                return Math.min(this.backpropNumber,5);
+                return Math.min(this.backpropNumber,10);
                 //return this.backpropNumber;
             } else
                 this.backpropNumber++;
         }
-        return Math.min(this.backpropNumber,1);
+        return Math.min(this.backpropNumber,10);
         //return this.backpropNumber;
     }
 

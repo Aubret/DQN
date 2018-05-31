@@ -14,6 +14,7 @@ import fr.univlyon1.learning.TDActorCritic;
 import fr.univlyon1.learning.TDLstm;
 import fr.univlyon1.learning.TDLstm2D;
 import fr.univlyon1.memory.SequentialExperienceReplay;
+import fr.univlyon1.memory.prioritizedExperienceReplay.SequentialPrioritizedExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.LSTM2D;
@@ -45,7 +46,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initLstm();
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
-                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
+                new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 conf.getIterations(),
                 conf.getBatchSize(),
                 this.criticApproximator,
@@ -54,9 +55,9 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this.cloneObservationApproximator
         );
         //this.policy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
-        Policy mixtePolicy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
+        //Policy mixtePolicy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
 
-        //Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
+        Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
         this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),
                 conf.getStepEpsilon(),
                 seed,
@@ -84,7 +85,6 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                     //System.out.println("An epoch : "+ AgentDRL.getCount());
                 }
             }
-
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
 
