@@ -179,4 +179,15 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.cloneMaximizeCriticApproximator.setParams(this.criticApproximator.getParams());
     }
 
+    @Override
+    public void stop() {
+        System.out.println("Policy approximator");
+        this.policyApproximator.stop();
+        System.out.println("critic approximator");
+        this.criticApproximator.stop();
+        System.out.println("observation approximator");
+        this.observationApproximator.stop();
+    }
+
+
 }

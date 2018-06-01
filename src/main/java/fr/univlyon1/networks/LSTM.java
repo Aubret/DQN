@@ -124,7 +124,7 @@ public class LSTM extends Mlp implements StateApproximator{
     public INDArray getOneTrainingResult(INDArray data){
         //this.model.rnnClearPreviousState();
         for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) {
-            ((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
+            ((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
         }
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(data, true, true);
         INDArray last = workspace.get(workspace.size()-1);
@@ -223,8 +223,9 @@ public class LSTM extends Mlp implements StateApproximator{
     @Override
     public Object getMemory() {
         ArrayList<Map<String,INDArray>> memories = new ArrayList<>();
-        for(int i=0; i < this.numLayers ; i++){
-            memories.add(this.model.rnnGetPreviousState(i));
+        for(int i=0; i < this.model.getnLayers() ; i++){
+            if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
+                memories.add(this.model.rnnGetPreviousState(i));
             //emories.add(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(i)).rnnGetTBPTTState());
         }
         return new HiddenState(memories);
@@ -233,9 +234,10 @@ public class LSTM extends Mlp implements StateApproximator{
     @Override
     public Object getSecondMemory() {
         ArrayList<Map<String,INDArray>> memories = new ArrayList<>();
-        for(int i=0; i < this.numLayers ; i++){
+        for(int i=0; i < this.model.getnLayers() ; i++){
             //memories.add(this.model.rnnGetPreviousState(i));
-            memories.add(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(i)).rnnGetTBPTTState());
+            if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
+                memories.add(((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnGetTBPTTState());
         }
         return new HiddenState(memories);
     }
@@ -243,9 +245,16 @@ public class LSTM extends Mlp implements StateApproximator{
     @Override
     public void setMemory(Object memory) {
         if (memory instanceof HiddenState){
+            int k=0;
             ArrayList<Map<String, INDArray>> mem = ((HiddenState) memory).getState();
-            for(int i = 0;i< mem.size();i++){
-                this.model.rnnSetPreviousState(i,mem.get(i));
+            for(int i = 0;i< this.model.getnLayers();i++){
+                if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) {
+                    this.model.rnnSetPreviousState(i, mem.get(k));
+                    k=k+1;
+                    if(k==mem.size())
+                        break ;
+                }
+
             }
         }else{
             System.out.println("erreur casting");

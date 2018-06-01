@@ -1,6 +1,5 @@
 package fr.univlyon1.networks;
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
@@ -11,20 +10,12 @@ import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
-import org.nd4j.linalg.api.ops.impl.controlflow.WhereNumpy;
-import org.nd4j.linalg.api.ops.impl.indexaccum.IAMax;
-import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.indexing.conditions.Condition;
-import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.indexing.conditions.GreaterThan;
 import org.nd4j.linalg.learning.config.Sgd;
-import org.nd4j.linalg.lossfunctions.LossUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +46,7 @@ public class LSTM2D extends LSTM {
                 .trainingWorkspaceMode(WorkspaceMode.NONE)
                 .inferenceWorkspaceMode(WorkspaceMode.NONE)
                 //.l2(0.001)
+                .biasInit(1.)
                 .weightInit(WeightInit.XAVIER)
                 .updater(this.updater);
         if(l2 != null) {
@@ -67,21 +59,21 @@ public class LSTM2D extends LSTM {
         builder.layer(cursor, lay);
         cursor++;*/
 
-
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
-        builder.layer(cursor, new GravesLSTM.Builder()
+        builder.layer(cursor, new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                 .activation(this.hiddenActivation)
                 .units(node)
                 .gateActivationFunction(Activation.SIGMOID)
                 .nIn(input).nOut(output)
                 .build()
         );
+
         cursor++;
         for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
             //if(i == numLayers -1)
-            builder.layer(cursor, new GravesLSTM.Builder()
+            builder.layer(cursor, new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                     .activation(this.hiddenActivation)
                     .units(node)
                     .nIn(output).nOut(output)
@@ -99,6 +91,16 @@ public class LSTM2D extends LSTM {
                         .build());*/
         builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
+
+        //---
+        /*cursor++;
+        int previousNode =  numNodes ;
+        builder.layer(cursor, new DenseLayer.Builder()
+                .activation(this.hiddenActivation)
+                .nIn(node).nOut(output)
+                .build()
+        );*/
+        //---
 
         this.multiLayerConfiguration = builder
                 .backpropType(BackpropType.Standard)
@@ -125,7 +127,7 @@ public class LSTM2D extends LSTM {
     public INDArray getOneTrainingResult(INDArray data){
         //this.model.rnnClearPreviousState();
         for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) {
-            ((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
+            ((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
         }
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(data, true, true);
         INDArray last = workspace.get(workspace.size()-1); // Dernière couche
