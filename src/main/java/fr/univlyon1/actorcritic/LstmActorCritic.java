@@ -122,7 +122,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
 
     private void initActor(){
-        this.policyApproximator =new Mlp(conf.getNumLstmOutputNodes(),this.actionSpace.getSize(),this.seed);
+        this.policyApproximator =new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0],this.actionSpace.getSize(),this.seed);
         this.policyApproximator.setLearning_rate(conf.getLearning_rate());
         this.policyApproximator.setNumNodes(conf.getNumHiddenNodes());
         this.policyApproximator.setNumLayers(conf.getNumLayers());
@@ -145,7 +145,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     private void initCritic(){
-        this.criticApproximator = new Mlp(conf.getNumLstmOutputNodes()+this.actionSpace.getSize(), 1, this.seed);
+        this.criticApproximator = new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, this.seed);
         this.criticApproximator.setLearning_rate(conf.getLearning_rateCritic());
         this.criticApproximator.setListener(true);
         this.criticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());
@@ -160,7 +160,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
 
-        this.cloneMaximizeCriticApproximator = new Mlp(conf.getNumLstmOutputNodes()+this.actionSpace.getSize(), 1, this.seed);
+        this.cloneMaximizeCriticApproximator = new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, this.seed);
         this.cloneMaximizeCriticApproximator.setLearning_rate(conf.getLearning_rateCritic());
         this.cloneMaximizeCriticApproximator.setListener(false);
         this.cloneMaximizeCriticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());

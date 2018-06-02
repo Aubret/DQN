@@ -22,6 +22,9 @@ import java.util.ArrayList;
 @Setter
 public class TDLstm<A> extends TD<A> {
 
+    /*
+    Attention classe pas maintenue !!!! Utiliser le TDLSTM 2D. Seules les parties communes sont ok
+     */
     protected StateApproximator observationApproximator ;
     protected StateApproximator cloneObservationApproximator ;
     protected StateApproximator targetObservationApproximator ;
@@ -66,7 +69,8 @@ public class TDLstm<A> extends TD<A> {
     @Override
     public INDArray behave(INDArray input){
         INDArray state = this.observationApproximator.getOneResult(input);
-        INDArray action = (INDArray)this.learning.getPolicy().getAction(state);
+        INDArray state_observation = Nd4j.concat(1,state,input);
+        INDArray action = (INDArray)this.learning.getPolicy().getAction(state_observation);
         if(this.lastInteraction != null) {
             this.lastInteraction.setSecondState(state);
             this.lastInteraction.setSecondAction(this.learning.getActionSpace().mapNumberToAction(action));
@@ -156,7 +160,9 @@ public class TDLstm<A> extends TD<A> {
             }
             INDArray labels = this.labelize(secondObservations,rewards);
             // Apprentissage : besoin de l'état
-            INDArray state_label = this.observationApproximator.forwardLearn(inputs, null, numRows,masks,maskLabel);
+            INDArray state = this.observationApproximator.forwardLearn(inputs, null, numRows,masks,maskLabel);
+            INDArray state_label = Nd4j.concat(1,state,inputs);
+
             //state_label= state_label.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(state_label.size(2)-1));
 
             INDArray inputCritics = Nd4j.concat(1, state_label, actions);
@@ -179,7 +185,7 @@ public class TDLstm<A> extends TD<A> {
         }
     }
 
-    protected void learn_observator(INDArray inputs, INDArray epsilonObservation, int numRows,INDArray action,INDArray oldState,INDArray labels){
+    protected void learn_observator(INDArray inputs, INDArray epsilonObservation, int numRows,INDArray action,INDArray inputs2,INDArray labels){
         this.observationApproximator.learn(inputs,epsilonObservation,numRows);
         if(this.cpt_time%this.time == 0){
             INDArray firstval = ((Mlp) this.criticApproximator).getValues().detach();
@@ -187,7 +193,7 @@ public class TDLstm<A> extends TD<A> {
             Double val1 = s1.muli(s1).meanNumber().doubleValue();
 
             INDArray res = this.observationApproximator.getOneTrainingResult(inputs);
-            INDArray inputAction = Nd4j.concat(1,res,action);
+            INDArray inputAction = Nd4j.concat(1,res,inputs2,action);
             INDArray newVal = this.criticApproximator.getOneResult(inputAction);
             INDArray s2 = newVal.sub(labels);
             Double val2 =s2.muli(s2).meanNumber().doubleValue();
