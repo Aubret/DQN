@@ -43,8 +43,8 @@ public class LSTM2D extends LSTM {
         }
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(this.seed+1)
-                .trainingWorkspaceMode(WorkspaceMode.NONE)
-                .inferenceWorkspaceMode(WorkspaceMode.NONE)
+                .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
+                .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
                 //.l2(0.001)
                 .biasInit(1.)
                 .weightInit(WeightInit.XAVIER)

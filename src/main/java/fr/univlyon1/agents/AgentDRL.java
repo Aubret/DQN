@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AgentDRL<A> implements AgentRL<A> {
     private static int count = 0 ;
+    private static String filename = "a6_rewards39";
+
     private A action ;
 
     private ActionSpace<A> actionSpace ;
@@ -85,7 +87,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         if(this.print) {
             try {
                 //FileWriter fw = new FileWriter("sim/arthur/continuous_rewards_baseline.csv");
-                FileWriter fw = new FileWriter("sim/arthur/results/a6_rewards39.csv");
+                FileWriter fw = new FileWriter("sim/arthur/results/"+filename+".csv");
                 //FileWriter fw = new FileWriter("sim/arthur/results/a6_baseline.csv");
 
                 this.rewardResults = new PrintWriter(fw);
@@ -112,6 +114,7 @@ public class AgentDRL<A> implements AgentRL<A> {
             if(this.print) {
                 this.totalReward += reward;
                 if(action instanceof ContinuousAction && this.learning instanceof ContinuousActorCritic) {
+                    //------------REward and action------------
                     INDArray res = ((INDArray) this.actionSpace.mapActionToNumber(action));
                     //TD td = ((TD)(((ContinuousActorCritic)this.learning).getTd()));
                     //Double qvalue = td.getQvalue();
@@ -121,9 +124,18 @@ public class AgentDRL<A> implements AgentRL<A> {
                     }
                     Double score =((ContinuousActorCritic)this.learning).getScore() ;
                     str+=";"+ (score == null ? 0 : score) ;
-                    this.rewardResults.println(count +";"+reward+str);
-                }else
-                    this.rewardResults.println(count + ";" + reward) ;
+                    String inputs ="";
+                    for(int i = 0 ; i < data.size(1) ; i++){
+                        inputs=inputs.concat(";"+data.getDouble(i));
+                    }
+
+                    this.rewardResults.println(count +";"+reward+str+inputs);
+                    //------------Inputs-----------------------
+
+
+                }else {
+                    this.rewardResults.println(count + ";" + reward);
+                }
             }
         }
 
@@ -154,5 +166,13 @@ public class AgentDRL<A> implements AgentRL<A> {
 
     public static void setCount(int count) {
         AgentDRL.count = count;
+    }
+
+    public static String getFilename() {
+        return filename;
+    }
+
+    public static void setFilename(String filename) {
+        AgentDRL.filename = filename;
     }
 }

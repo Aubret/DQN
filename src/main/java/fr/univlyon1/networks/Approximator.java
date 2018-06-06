@@ -12,6 +12,7 @@ public interface Approximator extends Policy{
     Object learn(INDArray input,INDArray labels,int number); // Apprentissage supervisé
     INDArray error(INDArray input,INDArray labels,int number); // retourne l'erreur sur l'entrée sans apprentissage
     INDArray getScoreArray();
+    Double getScore();
     void epoch();
 
 

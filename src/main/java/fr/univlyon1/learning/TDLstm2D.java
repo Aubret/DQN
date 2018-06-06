@@ -1,6 +1,7 @@
 package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.Learning;
+import fr.univlyon1.configurations.SavesLearning;
 import fr.univlyon1.environment.HiddenState;
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.memory.ExperienceReplay;
@@ -21,9 +22,12 @@ import java.util.ArrayList;
 @Getter
 @Setter
 public class TDLstm2D<A> extends TDLstm<A> {
+    protected SavesLearning savelearning ;
 
     public TDLstm2D(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize,Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator,StateApproximator cloneObservationApproximator) {
         super(gamma, learning,experienceReplay,iterations,batchSize,criticApproximator,cloneCriticApproximator,observationApproximator,cloneObservationApproximator);
+        this.savelearning = new SavesLearning();
+
     }
 
     protected void learn_replay(){
@@ -130,6 +134,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);
             INDArray epsilon = this.learn_critic(inputCritics, labels, totalBatchs*forward);
+            this.savelearning.add(this.criticApproximator.getScore());
             INDArray score = this.criticApproximator.getScoreArray();
             this.experienceReplay.setError(score, backwardsNumber, backward, total);
 
