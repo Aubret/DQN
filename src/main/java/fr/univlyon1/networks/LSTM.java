@@ -124,7 +124,8 @@ public class LSTM extends Mlp implements StateApproximator{
     public INDArray getOneTrainingResult(INDArray data){
         //this.model.rnnClearPreviousState();
         for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) {
-            ((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
+            if(this.model.getLayer(i) instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
+                ((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
         }
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(data, true, true);
         INDArray last = workspace.get(workspace.size()-1);

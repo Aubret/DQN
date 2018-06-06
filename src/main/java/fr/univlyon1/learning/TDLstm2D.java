@@ -28,7 +28,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
     protected void learn_replay(){
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
-        int size = this.learning.getObservationSpace().getShape()[0];
+        int size = this.learning.getObservationSpace().getShape()[0]+this.learning.getActionSpace().getSize();
         if(numRows < 1 ) {
             return;
         }
@@ -53,17 +53,22 @@ public class TDLstm2D<A> extends TDLstm<A> {
                     backwardsNumber.add(back);
                     backward+=back;
                 }else{
-                    return ;
+                    if(total.size() == 0){
+                        return ;
+                    }else{
+                        break ;
+                    }
                 }
             }
             //contruction des INDArrays
             int totalBatchs = total.size();
+            backward = backward - totalBatchs;
             INDArray secondObservations = Nd4j.zeros(totalBatchs,size,forward);
-            INDArray secondObservations2 = Nd4j.zeros(backward,size);// On avait besoin de la taille maximale du forward
+            INDArray secondObservations2 = Nd4j.zeros(backward,this.learning.getObservationSpace().getShape()[0]);// On avait besoin de la taille maximale du forward
 
             INDArray rewards = Nd4j.zeros(backward,1);
             INDArray actions = Nd4j.zeros(backward,this.learning.getActionSpace().getSize());
-            INDArray inputs2 = Nd4j.zeros(backward,size);// On avait besoin de la taille maximale du forward
+            INDArray inputs2 = Nd4j.zeros(backward,this.learning.getObservationSpace().getShape()[0]);// On avait besoin de la taille maximale du forward
 
             INDArray inputs = Nd4j.zeros(totalBatchs,size,forward);// On avait besoin de la taille maximale du forward
             INDArray masks = Nd4j.zeros(totalBatchs,forward);
@@ -77,31 +82,40 @@ public class TDLstm2D<A> extends TDLstm<A> {
                     Interaction<A> interact = observations.get(temporal);
                     //labels globaux
                     int indice = - numberObservation +numBackwards + temporal;
-                    if(indice >= 0){
-                        INDArray action = (INDArray) this.learning.getActionSpace().mapActionToNumber(interact.getAction());
+                    INDArray action = (INDArray) this.learning.getActionSpace().mapActionToNumber(interact.getAction());
+                    INDArray action2 = (INDArray) this.learning.getActionSpace().mapActionToNumber(interact.getSecondAction());
+                    if(indice > 0){ // de >= à >0
+
                         //Préparation actions
                         actions.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward), NDArrayIndex.all()}, action);
+
                         //inputs observations pour la concaténation
-                        inputs2.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},interact.getObservation());
+                        inputs2.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward), NDArrayIndex.all()}, interact.getObservation());
+
                         //secondes observations pour la conténation de la labellisation
-                        secondObservations2.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},interact.getSecondObservation());
-                        //Labellisation des secondes observations
-                        secondObservations.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)},interact.getSecondObservation());
+                        secondObservations2.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward), NDArrayIndex.all()},interact.getSecondObservation());
+
                         //rewards
                         rewards.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.getReward());
-                        //Label du mask
-                        maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(batch*forward + temporal),NDArrayIndex.all()},Nd4j.ones(1));
+
                         cursorBackward++ ;
                     }
+                    if(indice >= 0 && temporal != numberObservation-1){
+                        //Label du mask
+                        maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(batch*forward + temporal),NDArrayIndex.all()},Nd4j.ones(1));
+                        //Labellisation des secondes observations
+                        secondObservations.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)},Nd4j.concat(1,interact.getSecondObservation(),action2));
+                    }
 
-                    //inputs observations
-                    INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.all(),NDArrayIndex.point(temporal)};
-                    inputs.put(indexs,interact.getObservation());
+                    if(temporal != numberObservation-1) {
+                        //inputs observations
+                        INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)};
+                        inputs.put(indexs, Nd4j.concat(1, interact.getObservation(), action));
 
-                    //mask index
-                    INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(temporal)};
-                    masks.put(indexMask, Nd4j.ones(1));
-
+                        //mask index
+                        INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(temporal)};
+                        masks.put(indexMask, Nd4j.ones(1));
+                    }
                 }
             }
 

@@ -89,18 +89,17 @@ public class LSTM2D extends LSTM {
                         .nOut(output)
                         .activation(this.lastActivation)
                         .build());*/
-        builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
 
         //---
-        /*cursor++;
-        int previousNode =  numNodes ;
-        builder.layer(cursor, new DenseLayer.Builder()
-                .activation(this.hiddenActivation)
-                .nIn(node).nOut(output)
+        /*builder.layer(cursor, new DenseLayer.Builder()
+                .activation(Activation.TANH)
+                .nIn(output).nOut(output)
                 .build()
-        );*/
+        );
+        cursor++;*/
         //---
+        builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
 
         this.multiLayerConfiguration = builder
                 .backpropType(BackpropType.Standard)
@@ -127,7 +126,8 @@ public class LSTM2D extends LSTM {
     public INDArray getOneTrainingResult(INDArray data){
         //this.model.rnnClearPreviousState();
         for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) {
-            ((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
+            if(this.model.getLayer(i) instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
+                ((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnSetTBPTTState(new HashMap<>());
         }
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(data, true, true);
         INDArray last = workspace.get(workspace.size()-1); // Dernière couche

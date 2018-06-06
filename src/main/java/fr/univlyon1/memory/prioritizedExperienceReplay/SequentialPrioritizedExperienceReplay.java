@@ -43,19 +43,20 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
         INDArray errorsNew = Nd4j.zeros(total.size());
         for(int i=0; i< total.size();i++){
             ArrayList<Interaction<A>> seqTemp = total.get(i);
-            int seqTempSize = seqTemp.size();
             INDArray mean = Nd4j.zeros(1);
-            for( int j = 0; j < backpropNumber.get(i);j++){
+            for( int j = 0; j < backpropNumber.get(i)-1;j++){ //-1 pcq le premier S est pas envoyé au critic
                 mean.addi(errors.getDouble(cursor));
                 cursor++;
             }
-            mean.divi(backpropNumber.get(i));
+            mean.divi(backpropNumber.get(i)-1);
             errorsNew.put(i,mean);
         }
         this.prioritized.setError(errorsNew);
     }
 
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
+        if(this.prioritized.getSize() == 0)
+            return false ;
         if(this.interactions.size() == 0)
             return false ;
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )

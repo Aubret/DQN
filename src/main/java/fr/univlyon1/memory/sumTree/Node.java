@@ -41,7 +41,7 @@ public class Node<A>{
             retour = this.left.getUp(value,id); // Il est à gauche
         }
 
-        if(value >= ih.getErrorValue() && retour != null && this.right != null){
+        if(value >= ih.getErrorValue() && retour == null && this.right != null){
             retour = this.right.getUp(value,id); //Avec les repositionnement, peut-être que ce cas est possible...
         }
         this.majSum();

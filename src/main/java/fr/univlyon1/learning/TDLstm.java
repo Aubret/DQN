@@ -41,7 +41,7 @@ public class TDLstm<A> extends TD<A> {
     protected double cumulObservation= 0;
     protected double cumulOnlyObservation= 0;
 
-    protected int time = 50;
+    protected int time =10;
     protected int cpt_time = 0 ;
     protected boolean t = true ;
 
@@ -49,6 +49,7 @@ public class TDLstm<A> extends TD<A> {
     protected SequentialExperienceReplay<A> experienceReplay;
     protected int iterations ;
     protected int batchSize ;
+
 
     public TDLstm(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize,Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator,StateApproximator cloneObservationApproximator) {
         super(gamma, learning);
@@ -68,14 +69,18 @@ public class TDLstm<A> extends TD<A> {
 
     @Override
     public INDArray behave(INDArray input){
-        INDArray state = this.observationApproximator.getOneResult(input);
-        INDArray state_observation = Nd4j.concat(1,state,input);
-        INDArray action = (INDArray)this.learning.getPolicy().getAction(state_observation);
         if(this.lastInteraction != null) {
-            this.lastInteraction.setSecondState(state);
-            this.lastInteraction.setSecondAction(this.learning.getActionSpace().mapNumberToAction(action));
+            INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
+            INDArray actualState= this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+            INDArray state_observation = Nd4j.concat(1,actualState,input);
+            INDArray action = (INDArray)this.learning.getPolicy().getAction(state_observation);
+
+            return action ;
+        }else{
+            System.out.println("behave pas bon ! faut au moins une action random");
+            return null ;
         }
-        return action ;
+
     }
 
     @Override
@@ -200,7 +205,7 @@ public class TDLstm<A> extends TD<A> {
             double meanScore = val1-val2 ;
             cumulObservation+=meanScore ;
             //cumulOnlyObservation+=(val3-val2);
-            System.out.println(meanScore + " -- " +cumulObservation);
+            System.out.println(meanScore + " -- " +(cumulObservation-cumulScoreUp));
             //System.out.println((val3-val2) + " -- " + cumulOnlyObservation);
 
         }

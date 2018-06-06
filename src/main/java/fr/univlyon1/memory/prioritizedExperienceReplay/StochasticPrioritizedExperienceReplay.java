@@ -49,6 +49,11 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
             InteractionHistory ih = this.interactions.get(remove);
             if(ih != null) {
                 InteractionHistory ih2=this.history.getInteractionUp(ih.getErrorValue(), ih.getId());
+                if(ih2 == null){
+                    System.out.println("null");
+                }else if(ih2 != ih ){
+                    System.out.println("differen !");
+                }
                 this.interactions.remove(remove);
             }
         }

@@ -21,7 +21,8 @@ public class NoisyGreedy implements Policy {
     public INDArray getAction(INDArray inputs) {
         INDArray results = (INDArray)this.greedy.getAction(inputs);
         for(int i = 0 ; i < results.size(1) ; i++){
-            double newVal = results.getDouble(i)+random.nextGaussian()*this.std+this.mean ;
+            Double newVal =null ;
+            newVal = results.getDouble(i) + random.nextGaussian() * this.std + this.mean;
             newVal = Math.min(1.,Math.max(-1,newVal)) ; // Sinon on sort de 1 ett -1 et ca fai tbuguer
             results.putScalar(i,newVal);
         }
