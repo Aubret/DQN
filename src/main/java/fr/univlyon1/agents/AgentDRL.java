@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AgentDRL<A> implements AgentRL<A> {
     private static int count = 0 ;
-    private static String filename = "a6_rewards39";
+    private static String filename = "a6_rewards46";
 
     private A action ;
 
@@ -82,7 +82,10 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 23-29 tests sur graves
         //30 - ?
         //mon 2e modèle fonctionnel ? test3.xprj / 32 - 37
+        // 40 premier exemple d'adaptatio aux lanes avecc cheat seed59
+        // 42
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         this.learning.init();
         if(this.print) {
             try {

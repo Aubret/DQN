@@ -45,7 +45,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initLstm();
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
-                new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
+                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
+                //new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 conf.getIterations(),
                 conf.getBatchSize(),
                 this.criticApproximator,
@@ -74,6 +75,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
         INDArray resultBehaviore;
+        //if(AgentDRL.getCount() > 1000)
         this.td.evaluate(input, this.reward); //Evaluation
         if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
@@ -103,6 +105,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this.cloneObservationApproximator.getOneResult(Nd4j.concat(1,input,resultBehaviore));
             }
         }
+        //if(AgentDRL.getCount() > 1000)
         this.td.step(input,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
@@ -160,6 +163,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
+        //this.criticApproximator.setL2(0.0001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;

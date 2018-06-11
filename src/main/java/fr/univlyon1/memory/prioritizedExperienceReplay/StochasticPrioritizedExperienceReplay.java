@@ -17,15 +17,22 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
     ArrayList<InteractionHistory<A>> tmp ;
     private Random random;
     ArrayList<InteractionHistory<A>> toTake ;
+    protected int num;
 
 
     public StochasticPrioritizedExperienceReplay(int maxSize,long seed,ArrayList<String> file) {
         super(maxSize,file);
         this.resetMemory();
         this.random = new Random(seed);
+        this.num = 0 ;
     }
     @Override
     public void addInteraction(Interaction<A> interaction) {
+        if(this.num != 5) {
+            this.num++ ;
+            return;
+        }
+        this.num=0;
         if(this.history.size() == this.maxSize) {
             InteractionHistory ih = history.getFirst();
             this.interactions.remove(ih.getInteraction());
@@ -39,7 +46,7 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
 
     // Ne pas combiner Not taken et le classique
     public void addInteractionNotTaken(Interaction<A> interaction) {
-        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,0.5);
+        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,0.1);
         this.history.insert(newIh);
         this.interactions.put(interaction, newIh);
     }

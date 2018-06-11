@@ -295,7 +295,7 @@ public class Mlp implements Approximator{
     @Override
     public INDArray error(INDArray input, INDArray labels, int number) {
         //System.out.println(this.gradPolicyMlp.params());
-        this.model.clear();
+        //this.model.clear();
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         this.model.setLabels(labels);//Nd4j.create(new double[]{0}));

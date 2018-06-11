@@ -10,11 +10,13 @@ import java.util.ArrayList;
 public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperienceReplay<A>{
     private StochasticPrioritizedExperienceReplay<A> prioritized ;
     private int num ;
+    private int learn ;
 
     public SequentialPrioritizedExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed,int learn) {
         super(maxSize, file, sequenceSize, backpropSize, seed);
         this.prioritized = new StochasticPrioritizedExperienceReplay<A>(maxSize,seed,file);
-        this.num = learn ;
+        this.learn = learn ;
+        this.num = 0;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
             this.prioritized.removeInteraction(remove);
             this.interactions.remove(remove);
         }
-        if(this.num == 20) {
+        if(this.num == 5) {
             this.prioritized.addInteractionNotTaken(interaction);
             this.num = 0 ;
         }

@@ -64,6 +64,7 @@ public class LSTM2D extends LSTM {
                 .activation(this.hiddenActivation)
                 .units(node)
                 .gateActivationFunction(Activation.SIGMOID)
+                .weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(input).nOut(output)
                 .build()
         );
@@ -92,9 +93,10 @@ public class LSTM2D extends LSTM {
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
 
         //---
-        /*builder.layer(cursor, new DenseLayer.Builder()
+       /* builder.layer(cursor, new DenseLayer.Builder()
+                .weightInit(WeightInit.XAVIER_UNIFORM)
                 .activation(Activation.TANH)
-                .nIn(output).nOut(output)
+                .nIn(20).nOut(output)
                 .build()
         );
         cursor++;*/

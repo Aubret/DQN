@@ -104,7 +104,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
             this.td.learn();
             this.countStep++;
@@ -178,7 +178,6 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //this.criticApproximator.setL2(0.001);
-        this.criticApproximator.setL2(0.001);
         //this.criticApproximator.setLossFunction(new Loss);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
@@ -186,7 +185,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
 
         this.cloneMaximizeCriticApproximator = new Mlp(observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, seed);
         this.cloneMaximizeCriticApproximator.setLearning_rate(conf.getLearning_rateCritic());
-        this.cloneMaximizeCriticApproximator.setListener(true);
+        this.cloneMaximizeCriticApproximator.setListener(false);
         this.cloneMaximizeCriticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());
         this.cloneMaximizeCriticApproximator.setNumLayers(conf.getNumCriticLayers());
         this.cloneMaximizeCriticApproximator.setMinimize(false);
