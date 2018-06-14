@@ -12,6 +12,8 @@ public class TD<A> implements Algorithm<A> {
     protected GreedyDiscrete policy;
     protected Learning<A> learning ;
     protected Approximator approximator ;
+    protected Interaction<A> previousInteraction ;
+
 
     public TD(double gamma,Learning<A> learning){
         this.gamma = gamma ;
@@ -27,8 +29,10 @@ public class TD<A> implements Algorithm<A> {
 
     @Override
     public void step(INDArray observation, A action,Double time) {
-        if(this.lastInteraction != null)
+        if(this.lastInteraction != null) {
             this.lastInteraction.setSecondAction(action);
+            this.previousInteraction = this.lastInteraction;
+        }
         this.lastInteraction = new Interaction<A>(action,observation);
         this.lastInteraction.setTime(time);
     }

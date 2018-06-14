@@ -45,9 +45,9 @@ public class LSTM2D extends LSTM {
                 .seed(this.seed+1)
                 .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
                 .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
-                //.l2(0.001)
-                .biasInit(1.)
-                .weightInit(WeightInit.XAVIER)
+                //.l2(0.001)Mlp
+                .biasInit(0.01)
+                .weightInit(WeightInit.XAVIER_UNIFORM)
                 .updater(this.updater);
         if(l2 != null) {
             b.l2(this.l2);
@@ -62,9 +62,9 @@ public class LSTM2D extends LSTM {
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
         builder.layer(cursor, new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                 .activation(this.hiddenActivation)
-                .units(node)
+                //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
-                .weightInit(WeightInit.XAVIER_UNIFORM)
+                //.weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(input).nOut(output)
                 .build()
         );
@@ -93,10 +93,10 @@ public class LSTM2D extends LSTM {
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
 
         //---
-       /* builder.layer(cursor, new DenseLayer.Builder()
+        /*builder.layer(cursor, new DenseLayer.Builder()
                 .weightInit(WeightInit.XAVIER_UNIFORM)
                 .activation(Activation.TANH)
-                .nIn(20).nOut(output)
+                .nIn(40).nOut(output)
                 .build()
         );
         cursor++;*/

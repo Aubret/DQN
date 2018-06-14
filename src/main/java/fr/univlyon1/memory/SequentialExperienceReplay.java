@@ -33,19 +33,23 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
             this.interactions.remove(this.interactions.get(0));
         this.interactions.add(interaction);
     }
+    public void addInteraction(Interaction<A> interaction,double error) {
+        if(this.interactions.size() == this.maxSize)
+            this.interactions.remove(this.interactions.get(0));
+        this.interactions.add(interaction);
+    }
 
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
-        if(this.interactions.size() == 0)
+        if(this.interactions.size() <= 5)
             return false ;
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
             return false ;
-        if(this.interactions.size() <= 2)
-            return false ;
+
         // On vérifie qu ele curseur actuel suffit à proposer une séquence complète
         Interaction<A> start = this.choose();
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
         int cpt = 0 ;
-        while(dt < this.sequenceSize || (this.interactions.size() - cursor <= 2)){
+        while(dt < this.sequenceSize || (this.interactions.size() - cursor <= 5)){
             if(cpt == 10){
                 cursor=0 ; // On veut limiter le nombre de recherches aléatoires
                 break;

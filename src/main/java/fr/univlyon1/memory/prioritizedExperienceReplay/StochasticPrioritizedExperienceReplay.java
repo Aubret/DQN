@@ -6,17 +6,14 @@ import fr.univlyon1.memory.sumTree.SumTree;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.Sum;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
 public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
-    SumTree<A> history;
-    HashMap<Interaction<A>,InteractionHistory<A>> interactions ;
-    ArrayList<InteractionHistory<A>> tmp ;
-    private Random random;
-    ArrayList<InteractionHistory<A>> toTake ;
+    protected SumTree<A> history;
+    protected HashMap<Interaction<A>,InteractionHistory<A>> interactions ;
+    protected ArrayList<InteractionHistory<A>> tmp ;
+    protected Random random;
+    protected List<InteractionHistory<A>> toTake ;
     protected int num;
 
 
@@ -28,10 +25,10 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
     }
     @Override
     public void addInteraction(Interaction<A> interaction) {
-        if(this.num != 5) {
+        /*if(this.num != 5) {
             this.num++ ;
             return;
-        }
+        }*/
         this.num=0;
         if(this.history.size() == this.maxSize) {
             InteractionHistory ih = history.getFirst();
@@ -46,7 +43,11 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
 
     // Ne pas combiner Not taken et le classique
     public void addInteractionNotTaken(Interaction<A> interaction) {
-        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,0.1);
+        if(this.history.size() == this.maxSize) {
+            InteractionHistory ih = history.getFirst();
+            this.interactions.remove(ih.getInteraction());
+        }
+        InteractionHistory<A> newIh = new InteractionHistory<A>(interaction,1);
         this.history.insert(newIh);
         this.interactions.put(interaction, newIh);
     }

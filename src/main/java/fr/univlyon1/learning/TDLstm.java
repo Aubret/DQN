@@ -287,11 +287,14 @@ public class TDLstm<A> extends TD<A> {
 
 
 
+
     public void epoch() {
-        double alpha = 0.01;
-        this.targetActorApproximator.getParams().muli(1. - alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
-        this.targetCriticApproximator.getParams().muli(1. - alpha).addi(this.criticApproximator.getParams().mul(alpha));
-        this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
+        double alphaActor = 0.01;
+        double alphaCritic = 0.01;
+        double alphaObserv = 0.01;
+        this.targetActorApproximator.getParams().muli(1. - alphaActor).addi(this.learning.getApproximator().getParams().mul(alphaActor));
+        this.targetCriticApproximator.getParams().muli(1. - alphaCritic).addi(this.criticApproximator.getParams().mul(alphaCritic));
+        this.targetObservationApproximator.getParams().muli(1. - alphaObserv).addi(this.observationApproximator.getParams().mul(alphaObserv));
         //this.targetObservationApproximator.setParams(this.observationApproximator.getParams());
         //this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
 
