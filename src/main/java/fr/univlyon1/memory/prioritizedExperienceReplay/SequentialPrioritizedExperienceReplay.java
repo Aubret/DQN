@@ -69,7 +69,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
         Interaction<A> start = this.choose();
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
         int cpt = 0 ;
-        while(dt < this.sequenceSize || (this.interactions.size() - cursor <= 5)){
+        while(dt < this.sequenceSize || (this.interactions.size() - cursor <= 5) || this.interactions.get(cursor+1).getTime()-start.getTime() > this.sequenceSize){
             if(cpt == 10){
                 this.prioritized.repushLast();// On replace le dernier choisi
                 cursor=0 ; // On veut limiter le nombre de recherches aléatoires
@@ -93,7 +93,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
     public boolean isAvailable(Interaction<A> interaction){
         int curs = this.interactions.indexOf(interaction);
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - interaction.getTime() ;
-        if(dt < this.sequenceSize || (this.interactions.size() - curs <= 2))
+        if(dt < this.sequenceSize || (this.interactions.size() - curs <= 5))
             return false ;
         return true ;
     }

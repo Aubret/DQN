@@ -100,7 +100,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
                         secondObservations2.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward), NDArrayIndex.all()},interact.getSecondObservation());
 
                         //rewards
-                        rewards.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.getReward());
+                        rewards.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeReward());
 
                         cursorBackward++ ;
                     }

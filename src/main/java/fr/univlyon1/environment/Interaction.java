@@ -10,21 +10,21 @@ import java.util.Map;
 @Setter
 @Getter
 public class Interaction <A>{
-    private static int count = 0 ;
-    private Double time ;
-    private INDArray observation ;
-    private INDArray secondObservation ;
+    protected static int count = 0 ;
+    protected Double time ;
+    protected INDArray observation ;
+    protected INDArray secondObservation ;
 
-    private INDArray state ;
-    private INDArray secondState ;
-    private Object memoryBefore ;
-    private Object memoryAfter ;
+    protected INDArray state ;
+    protected INDArray secondState ;
+    protected Object memoryBefore ;
+    protected Object memoryAfter ;
 
 
-    private A action ;
-    private A secondAction ;
-    private double reward ;
-    private int id ;
+    protected A action ;
+    protected A secondAction ;
+    protected double reward ;
+    protected int id ;
 
     public Interaction(A action, INDArray observation){
         this.action = action ;
@@ -34,11 +34,6 @@ public class Interaction <A>{
         this.state = null ;
     }
 
-    public Interaction(A action, INDArray observation, INDArray state){
-        this(action,observation);
-        this.setState(state);
-    }
-
     public Interaction<A> clone(){
         //A action = (A)((ContinuousAction)this.getAction()).copy();
         Interaction<A> i = new Interaction<A>(this.getAction(),this.getObservation());
@@ -46,5 +41,9 @@ public class Interaction <A>{
         i.setReward(this.getReward());
         i.setId(this.getId());
         return i ;
+    }
+
+    public double computeReward() {
+        return this.reward;
     }
 }

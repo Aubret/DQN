@@ -29,7 +29,6 @@ public class AgentDRL<A> implements AgentRL<A> {
     private A action ;
 
     private ActionSpace<A> actionSpace ;
-    private ObservationSpace observationSpace;
     private Learning<A> learning;
     private PrintWriter rewardResults ;
     private double totalReward = 0 ;
@@ -44,7 +43,6 @@ public class AgentDRL<A> implements AgentRL<A> {
         //Nd4j.getMemoryManager().togglePeriodicGc(false);
         this.actionSpace = actionSpace ;
         Nd4j.getRandom().setSeed(seed);
-        this.observationSpace = observationSpace ;
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
