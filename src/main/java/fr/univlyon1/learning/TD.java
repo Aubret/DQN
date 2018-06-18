@@ -2,6 +2,7 @@ package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.policy.GreedyDiscrete;
 import fr.univlyon1.actorcritic.Learning;
+import fr.univlyon1.environment.GammaInteraction;
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -33,7 +34,7 @@ public class TD<A> implements Algorithm<A> {
             this.lastInteraction.setSecondAction(action);
             this.previousInteraction = this.lastInteraction;
         }
-        this.lastInteraction = new Interaction<A>(action,observation);
+        this.lastInteraction = new Interaction<A>(action,observation,this.learning.getConf().getGamma());
         this.lastInteraction.setTime(time);
     }
 

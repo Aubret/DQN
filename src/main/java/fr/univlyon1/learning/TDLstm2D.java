@@ -71,6 +71,8 @@ public class TDLstm2D<A> extends TDLstm<A> {
             INDArray secondObservations2 = Nd4j.zeros(backward,this.learning.getObservationSpace().getShape()[0]);// On avait besoin de la taille maximale du forward
 
             INDArray rewards = Nd4j.zeros(backward,1);
+            //INDArray gammas = Nd4j.zeros(backward,1);
+
             INDArray actions = Nd4j.zeros(backward,this.learning.getActionSpace().getSize());
             INDArray inputs2 = Nd4j.zeros(backward,this.learning.getObservationSpace().getShape()[0]);// On avait besoin de la taille maximale du forward
 
@@ -101,6 +103,8 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
                         //rewards
                         rewards.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeReward());
+                        //gammas
+                        //gammas.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeGamma());
 
                         cursorBackward++ ;
                     }
@@ -130,7 +134,9 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
             //Commencement de l'apprentissage, labellisation
             this.targetObservationApproximator.setMaskLabel(maskLabel);
-            INDArray labels = this.labelize(secondObservations,rewards,secondObservations2); // A faire après le forard learn pour avoir la bonne mémoire
+            INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));
+            //INDArray labels = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
+            INDArray labels = this.labelize(secondObservations,rewards,secondObservations2,obs1); // A faire après le forard learn pour avoir la bonne mémoire
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);
@@ -156,13 +162,12 @@ public class TDLstm2D<A> extends TDLstm<A> {
         }
     }
 
-    protected INDArray labelize(INDArray secondObservations ,INDArray rewards,INDArray secondObservations2){
+        protected INDArray labelize(INDArray secondObservations ,INDArray rewards,INDArray secondObservations2,INDArray obs1){
         // Les états précédents sont dans la mémoire de l'approximateur
-        //this.cloneObservationApproximator.clear();
-        //this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
-        //this.cloneObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
-        //INDArray stateLabel = this.cloneObservationApproximator.getOneResult(secondObservations);
-        this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
+        this.targetObservationApproximator.clear();
+        this.targetObservationApproximator.getOneResult(obs1);
+
+        //this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
         INDArray state = this.targetObservationApproximator.getOneResult(secondObservations);
         INDArray stateLabel = Nd4j.concat(1,state,secondObservations2);
 
@@ -170,6 +175,23 @@ public class TDLstm2D<A> extends TDLstm<A> {
         INDArray entryCriticTarget = Nd4j.concat(1,stateLabel, action) ;
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
         res = res.muli(this.gamma);
+        res.addi(rewards) ;
+        return res ;
+    }
+
+    protected INDArray labelize(INDArray secondObservations ,INDArray rewards,INDArray secondObservations2/*,INDArray gammas*/){
+        // Les états précédents sont dans la mémoire de l'approximateur
+        //this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
+        this.targetObservationApproximator.clear();
+
+
+        INDArray state = this.targetObservationApproximator.getOneResult(secondObservations);
+        INDArray stateLabel = Nd4j.concat(1,state,secondObservations2);
+
+        INDArray action = this.targetActorApproximator.getOneResult(stateLabel);
+        INDArray entryCriticTarget = Nd4j.concat(1,stateLabel, action) ;
+        INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
+        //res = res.muli(gammas);
         res.addi(rewards) ;
         return res ;
     }

@@ -19,12 +19,15 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     protected int backpropNumber;
     protected double startTime ;
 
+    protected int minForward ;
+
     public SequentialExperienceReplay(int maxSize, ArrayList<String> file,int sequenceSize, int backpropSize,long seed){
         super(maxSize,file);
         this.resetMemory();
         this.sequenceSize = sequenceSize ;
         this.backpropSize = backpropSize ;
         this.random = new Random(seed);
+        this.minForward = 2 ;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         Interaction<A> start = this.choose();
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
         int cpt = 0 ;
-        while(dt < this.sequenceSize || this.interactions.size() - cursor <= 5 || this.interactions.get(cursor+1).getTime()-start.getTime() > this.sequenceSize){
+        while(dt < this.sequenceSize || this.interactions.size() - cursor <= minForward || this.interactions.get(cursor+1).getTime()-start.getTime() > this.sequenceSize){
             if(cpt == 10){
                 cursor=0 ; // On veut limiter le nombre de recherches aléatoires
                 break;
@@ -113,12 +116,12 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         Double endTime = this.tmp.get(this.tmp.size()-1).getTime() ;
         for(int i = this.tmp.size()-1 ; i >= 0 ; i-- ) {
             if (endTime - this.tmp.get(i).getTime() > this.backpropSize) {
-                return Math.max(2,Math.min(this.backpropNumber,5));
+                return Math.max(2,Math.min(this.backpropNumber,10));
                 //return this.backpropNumber;
             } else
                 this.backpropNumber++;
         }
-        return Math.max(2,Math.min(this.backpropNumber,5));
+        return Math.max(2,Math.min(this.backpropNumber,10));
         //return this.backpropNumber;
     }
 

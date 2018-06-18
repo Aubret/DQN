@@ -14,8 +14,8 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
 
     public SequentialPrioritizedExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed,int learn) {
         super(maxSize, file, sequenceSize, backpropSize, seed);
-        //this.prioritized = new StochasticPrioritizedExperienceReplay<A>(maxSize/10,seed,file);
-        this.prioritized = new StochasticForPrioritized<A>(maxSize/10,seed,file,this);
+        //this.prioritized = new StochasticPrioritizedExperienceReplay<A>(maxSize/5,seed,file);
+        this.prioritized = new StochasticForPrioritized<A>(5000,seed,file,this);
         this.learn = learn ;
         this.num = 0;
     }
@@ -27,10 +27,14 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
             this.prioritized.removeInteraction(remove);
             this.interactions.remove(remove);
         }
-        //if(this.num == 5) {
-        this.prioritized.addInteractionNotTaken(interaction);
-          //  this.num = 0 ;
-        //}
+        if(this.num == 10) {
+            if(! (this.prioritized instanceof StochasticForPrioritized)) {
+                this.prioritized.addInteractionNotTaken(interaction);
+            }else {
+                this.prioritized.addInteraction(interaction);
+            }
+            this.num = 0 ;
+        }
         this.interactions.add(interaction);
         this.num++ ;
     }
@@ -69,7 +73,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
         Interaction<A> start = this.choose();
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
         int cpt = 0 ;
-        while(dt < this.sequenceSize || (this.interactions.size() - cursor <= 5) || this.interactions.get(cursor+1).getTime()-start.getTime() > this.sequenceSize){
+        while(dt < this.sequenceSize || (this.interactions.size() - cursor <= minForward) || this.interactions.get(cursor+1).getTime()-start.getTime() > this.sequenceSize){
             if(cpt == 10){
                 this.prioritized.repushLast();// On replace le dernier choisi
                 cursor=0 ; // On veut limiter le nombre de recherches aléatoires
@@ -93,7 +97,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
     public boolean isAvailable(Interaction<A> interaction){
         int curs = this.interactions.indexOf(interaction);
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - interaction.getTime() ;
-        if(dt < this.sequenceSize || (this.interactions.size() - curs <= 5))
+        if(dt < this.sequenceSize || (this.interactions.size() - curs <= minForward) || this.interactions.get(curs+1).getTime()-interaction.getTime() > this.sequenceSize)
             return false ;
         return true ;
     }

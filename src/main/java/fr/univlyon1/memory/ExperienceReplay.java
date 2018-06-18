@@ -41,7 +41,7 @@ public abstract class ExperienceReplay<A> {
     }
 
     public void load(ActionSpace<A> as){
-        if(file != null){
+        /*if(file != null){ // Need to adjust gamma interaction
             for(String f : this.file) {
                 try {
                     JAXBContext context = JAXBContext.newInstance(ListPojo.class);
@@ -60,6 +60,6 @@ public abstract class ExperienceReplay<A> {
                 }
             }
             this.setError(null);
-        }
+        }*/
     }
 }

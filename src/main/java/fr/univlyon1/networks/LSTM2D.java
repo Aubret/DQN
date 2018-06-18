@@ -46,8 +46,8 @@ public class LSTM2D extends LSTM {
                 .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
                 .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
                 //.l2(0.001)Mlp
-                .biasInit(0.01)
-                .weightInit(WeightInit.XAVIER_UNIFORM)
+                .biasInit(0.1)
+                .weightInit(WeightInit.XAVIER)
                 .updater(this.updater);
         if(l2 != null) {
             b.l2(this.l2);
@@ -64,6 +64,7 @@ public class LSTM2D extends LSTM {
                 .activation(this.hiddenActivation)
                 //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
+                .forgetGateBiasInit(1.)
                 //.weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(input).nOut(output)
                 .build()

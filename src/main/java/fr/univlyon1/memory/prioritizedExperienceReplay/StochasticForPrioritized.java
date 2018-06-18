@@ -15,7 +15,7 @@ public class StochasticForPrioritized<A> extends StochasticPrioritizedExperience
 
     @Override
     public Interaction<A> chooseInteraction() {
-        if(this.history.size()>0 && this.toTake.size() != 0 && this.seq.isAvailable(this.toTake.get(0).getInteraction())){
+        if(this.toTake.size() != 0 && this.seq.isAvailable(this.toTake.get(0).getInteraction())){
             InteractionHistory<A> ih = this.toTake.remove(0);
             this.tmp.add(ih);
             return ih.getInteraction();

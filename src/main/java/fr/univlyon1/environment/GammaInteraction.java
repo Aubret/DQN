@@ -11,9 +11,8 @@ public class GammaInteraction<A> extends Interaction<A> {
 
 
     public GammaInteraction(A action, INDArray observation, double gamma) {
-        super(action, observation);
-        this.timefactor = sigmo.value(3*observation.getDouble(6));
-        this.gamma = gamma*(1-timefactor) ;
+        super(action, observation,gamma);
+        this.gamma = gamma ;
 
     }
 
@@ -34,7 +33,16 @@ public class GammaInteraction<A> extends Interaction<A> {
     }
 
     public double computeReward() {
+        //System.out.println(this.gamma+" "+(this.reward*this.timefactor));
+            this.timefactor = sigmo.value(3*this.secondObservation.getDouble(6));
+        //this.timefactor = Math.max(0,Math.min(1,(this.secondObservation.getDouble(6)+1)/2));
         return this.reward*this.timefactor;
+    }
+
+    public double computeGamma() {
+        this.timefactor = sigmo.value(3*this.secondObservation.getDouble(6));
+        //this.timefactor = Math.max(0,Math.min(1,(this.secondObservation.getDouble(6)+1)/2));
+        return this.gamma+(1-this.gamma)*(1-timefactor) ;
     }
 
 }
