@@ -8,14 +8,14 @@ import org.nd4j.linalg.factory.Nd4j;
 import java.util.ArrayList;
 
 public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperienceReplay<A>{
-    private StochasticPrioritizedExperienceReplay<A> prioritized ;
-    private int num ;
-    private int learn ;
+    protected StochasticPrioritizedExperienceReplay<A> prioritized ;
+    protected int num ;
+    protected int learn ;
 
     public SequentialPrioritizedExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed,int learn) {
         super(maxSize, file, sequenceSize, backpropSize, seed);
-        //this.prioritized = new StochasticPrioritizedExperienceReplay<A>(maxSize/5,seed,file);
-        this.prioritized = new StochasticForPrioritized<A>(5000,seed,file,this);
+        this.prioritized = new StochasticPrioritizedExperienceReplay<A>(maxSize/5,seed,file);
+        //this.prioritized = new StochasticForPrioritized<A>(20000,seed,file,this);
         this.learn = learn ;
         this.num = 0;
     }
@@ -27,7 +27,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
             this.prioritized.removeInteraction(remove);
             this.interactions.remove(remove);
         }
-        if(this.num == 10) {
+        if(this.num == 3) {
             if(! (this.prioritized instanceof StochasticForPrioritized)) {
                 this.prioritized.addInteractionNotTaken(interaction);
             }else {
@@ -49,7 +49,6 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
         int cursor = 0;
         INDArray errorsNew = Nd4j.zeros(total.size());
         for(int i=0; i< total.size();i++){
-            ArrayList<Interaction<A>> seqTemp = total.get(i);
             INDArray mean = Nd4j.zeros(1);
             for( int j = 0; j < backpropNumber.get(i)-1;j++){ //-1 pcq le premier S est pas envoyé au critic
                 mean.addi(errors.getDouble(cursor));
@@ -64,7 +63,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
         if(this.prioritized.getSize() == 0)
             return false ;
-        if(this.interactions.size() <= 5)
+        if(this.interactions.size() <= minForward)
             return false ;
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
             return false ;

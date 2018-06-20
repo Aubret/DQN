@@ -28,8 +28,8 @@ public class InteractionHistory<A> {
         this.sumValues++ ;
         //error =1. / (1. + Math.exp(-5*error));
         //this.errorFactor = 0.99*this.errorFactor ;
-        this.errorValue =Math.pow(error,2) ;//*(1-val);//-0.05*sumValues;
-        //this.errorValue = error;
+        //this.errorValue =Math.pow(error,2) ;//*(1-val);//-0.05*sumValues;
+        this.errorValue = error;
     }
 
 

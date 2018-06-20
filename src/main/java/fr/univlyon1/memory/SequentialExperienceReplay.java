@@ -43,7 +43,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     }
 
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
-        if(this.interactions.size() <= 5)
+        if(this.interactions.size() <= minForward)
             return false ;
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
             return false ;
@@ -116,12 +116,12 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         Double endTime = this.tmp.get(this.tmp.size()-1).getTime() ;
         for(int i = this.tmp.size()-1 ; i >= 0 ; i-- ) {
             if (endTime - this.tmp.get(i).getTime() > this.backpropSize) {
-                return Math.max(2,Math.min(this.backpropNumber,10));
+                return Math.max(2,Math.min(this.backpropNumber,2));
                 //return this.backpropNumber;
             } else
                 this.backpropNumber++;
         }
-        return Math.max(2,Math.min(this.backpropNumber,10));
+        return Math.max(2,Math.min(this.backpropNumber,2));
         //return this.backpropNumber;
     }
 

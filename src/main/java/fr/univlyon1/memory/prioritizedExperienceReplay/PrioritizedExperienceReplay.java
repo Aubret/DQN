@@ -11,9 +11,9 @@ import java.util.*;
  * @param <A>
  */
 public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
-    TreeSet<InteractionHistory<A>> history;
-    HashMap<Interaction<A>,InteractionHistory<A>> interactions ;
-    ArrayList<InteractionHistory<A>> tmp ;
+    protected TreeSet<InteractionHistory<A>> history;
+    protected HashMap<Interaction<A>,InteractionHistory<A>> interactions ;
+    protected ArrayList<InteractionHistory<A>> tmp ;
     //private
 
     public PrioritizedExperienceReplay(int maxSize,ArrayList<String>     file) {

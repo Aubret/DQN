@@ -165,7 +165,6 @@ public class LSTM2D extends LSTM {
 
 
     public INDArray crop3dData(INDArray data,INDArray maskLabel){
-
         INDArray linspace = Nd4j.linspace(1,data.shape()[0],data.shape()[0]);
         INDArray indicesAndZeros = maskLabel.mul(linspace);//.reshape(data.shape()[0]);
         this.indices = BooleanIndexing.chooseFrom(new INDArray[]{indicesAndZeros},Arrays.asList(0.0), Collections.emptyList(),new GreaterThan()).addi(-1);

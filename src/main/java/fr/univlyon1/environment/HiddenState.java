@@ -17,4 +17,14 @@ public class HiddenState {
     public int size(){
         return this.state.size() ;
     }
+
+
+    public String toString(){
+        String str= "size : "+this.size() ;
+        for(int i = 0; i < state.size() ; i++){
+            str += "\n "+state.get(i).toString();
+        }
+        return str ;
+    }
+
 }

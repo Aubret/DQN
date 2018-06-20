@@ -12,6 +12,7 @@ import fr.univlyon1.learning.TDActorCritic;
 import fr.univlyon1.learning.TDLstm;
 import fr.univlyon1.learning.TDLstm2D;
 import fr.univlyon1.memory.SequentialExperienceReplay;
+import fr.univlyon1.memory.prioritizedExperienceReplay.SequentialFixedNumber;
 import fr.univlyon1.memory.prioritizedExperienceReplay.SequentialPrioritizedExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
@@ -46,7 +47,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
                 //new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
-                new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
+                //new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
+                new SequentialFixedNumber<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 conf.getIterations(),
                 conf.getBatchSize(),
                 this.criticApproximator,
@@ -141,7 +143,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.policyApproximator.setListener(true);
         this.policyApproximator.setUpdater(new Adam(conf.getLearning_rate()));
         this.policyApproximator.setLastActivation(Activation.TANH);
-        this.policyApproximator.setHiddenActivation(Activation.RELU);
+        this.policyApproximator.setHiddenActivation(Activation.LEAKYRELU);
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
         //this.policyApproximator.setL2(0.0002);
         //this.policyApproximator.setDropout(true);
@@ -159,11 +161,11 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.criticApproximator.setNumNodes(conf.getNumCriticHiddenNodes());
         this.criticApproximator.setNumLayers(conf.getNumCriticLayers());
         this.criticApproximator.setEpsilon(false);
-        this.criticApproximator.setHiddenActivation(Activation.RELU);
+        this.criticApproximator.setHiddenActivation(Activation.LEAKYRELU);
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //this.criticApproximator.setL2(0.0001);
+        //this.criticApproximator.setL2(0.000001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;
@@ -175,7 +177,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.cloneMaximizeCriticApproximator.setNumLayers(conf.getNumCriticLayers());
         this.cloneMaximizeCriticApproximator.setMinimize(false);
         this.cloneMaximizeCriticApproximator.setEpsilon(false);
-        this.cloneMaximizeCriticApproximator.setHiddenActivation(Activation.RELU);
+        this.cloneMaximizeCriticApproximator.setHiddenActivation(Activation.LEAKYRELU);
         this.cloneMaximizeCriticApproximator.setLossFunction(new LossIdentity());
         this.cloneMaximizeCriticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
