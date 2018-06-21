@@ -47,8 +47,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
                 //new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
-                //new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
-                new SequentialFixedNumber<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
+                new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
+                //new SequentialFixedNumber<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 conf.getIterations(),
                 conf.getBatchSize(),
                 this.criticApproximator,
@@ -165,7 +165,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //this.criticApproximator.setL2(0.000001);
+        //  this.criticApproximator.setL2(0.000001);
         //this.criticApproximator.setBatchNormalization(true);
         //this.criticApproximator.setFinalBatchNormalization(true);
         this.criticApproximator.init() ;

@@ -151,6 +151,7 @@ public class LSTM2D extends LSTM {
         //System.out.println(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(0)).rnnGetTBPTTState());
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
+        this.model.setLayerMaskArrays(mask,maskLabel);
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(input, true, true);
 
         for(IterationListener it : this.model.getListeners()){

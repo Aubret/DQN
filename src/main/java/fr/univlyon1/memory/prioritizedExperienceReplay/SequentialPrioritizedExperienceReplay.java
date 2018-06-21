@@ -57,6 +57,7 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
             mean.divi(backpropNumber.get(i)-1);
             errorsNew.put(i,mean);
         }
+        //System.out.println(errorsNew);
         this.prioritized.setError(errorsNew);
     }
 
