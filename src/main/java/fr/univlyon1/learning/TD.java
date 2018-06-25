@@ -34,7 +34,7 @@ public class TD<A> implements Algorithm<A> {
             this.lastInteraction.setSecondAction(action);
             this.previousInteraction = this.lastInteraction;
         }
-        this.lastInteraction = new Interaction<A>(action,observation,this.learning.getConf().getGamma());
+        this.lastInteraction = new GammaInteraction<A>(action,observation,this.learning.getConf().getGamma());
         this.lastInteraction.setTime(time);
     }
 

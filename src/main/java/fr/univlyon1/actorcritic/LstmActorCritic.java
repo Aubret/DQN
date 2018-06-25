@@ -46,8 +46,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initLstm();
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
-                //new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
-                new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
+                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
+                //new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 //new SequentialFixedNumber<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 conf.getIterations(),
                 conf.getBatchSize(),
@@ -66,8 +66,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 actionSpace,
                 mixtePolicy,
                 conf.getInitStdEpsilon());
-
-        this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));
+        this.policy = mixtePolicy2;
+        //this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));
 
     }
 
