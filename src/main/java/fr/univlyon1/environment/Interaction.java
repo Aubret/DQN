@@ -12,6 +12,7 @@ import java.util.Map;
 public class Interaction <A>{
     protected static int count = 0 ;
     protected Double time ;
+    protected Double dt ;
     protected INDArray observation ;
     protected INDArray secondObservation ;
 

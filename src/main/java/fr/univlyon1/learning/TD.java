@@ -30,12 +30,16 @@ public class TD<A> implements Algorithm<A> {
 
     @Override
     public void step(INDArray observation, A action,Double time) {
+        double dt = 0. ;
         if(this.lastInteraction != null) {
             this.lastInteraction.setSecondAction(action);
+            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
+
             this.previousInteraction = this.lastInteraction;
-        }
+            }
         this.lastInteraction = new GammaInteraction<A>(action,observation,this.learning.getConf().getGamma());
         this.lastInteraction.setTime(time);
+
     }
 
     @Override
