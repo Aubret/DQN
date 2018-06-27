@@ -90,7 +90,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         if(this.print) {
             try {
                 //FileWriter fw = new FileWriter("sim/arthur/continuous_rewards_baseline.csv");
-                FileWriter fw = new FileWriter("sim/arthur/results/"+filename+".csv");
+                File fw = new File("sim/arthur/results/"+filename+".csv");
                 //FileWriter fw = new FileWriter("sim/arthur/results/a6_baseline.csv");
 
                 this.rewardResults = new PrintWriter(fw);
