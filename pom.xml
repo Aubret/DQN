@@ -74,6 +74,17 @@
 
   </dependencies>
   <build>
+    <resources>
+      <resource>
+        <directory>
+          ../Multi-Agent-Cooperative-Traffic-Simulator/resources</directory>
+      </resource>
+      <resource>
+        <directory>
+          ../Multi-Agent-Cooperative-Traffic-Simulator/sim
+        </directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -89,20 +100,6 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.0.2</version>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
   </build>
 </project>
