@@ -271,7 +271,6 @@ public class TDLstm<A> extends TD<A> {
     protected INDArray labelize(INDArray secondObservations ,INDArray rewards){
         // Les états précédents sont dans la mémoire de l'approximateur
 
-
         this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
         INDArray stateLabel = this.targetObservationApproximator.getOneResult(secondObservations);
         INDArray action = this.targetActorApproximator.getOneResult(stateLabel);

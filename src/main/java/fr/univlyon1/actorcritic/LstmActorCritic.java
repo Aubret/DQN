@@ -66,8 +66,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 actionSpace,
                 mixtePolicy,
                 conf.getInitStdEpsilon());
-        this.policy = mixtePolicy2;
-        //this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));
+        //this.policy = mixtePolicy2;
+        this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));
 
     }
 

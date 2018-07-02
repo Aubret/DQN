@@ -194,22 +194,20 @@ public class TDLstm2D<A> extends TDLstm<A> {
         }
     }
 
-    protected INDArray labelize(INDArray secondObservations ,INDArray rewards,INDArray secondObservations2){
+    protected INDArray labelize2(INDArray secondObservations ,INDArray rewards,INDArray secondObservations2 ,INDArray gammas){
         // Les états précédents sont dans la mémoire de l'approximateur
         this.targetObservationApproximator.clear();
-        //this.targetObservationApproximator.getOneResult(obs1);
 
         this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
-        //System.out.println(this.targetObservationApproximator.getMemory());
-        INDArray state = this.targetObservationApproximator.getOneResult(secondObservations);
-        //System.out.println(this.targetObservationApproximator.getMemory());
 
+
+        INDArray state = this.targetObservationApproximator.getOneResult(secondObservations);
         INDArray stateLabel = Nd4j.concat(1,state,secondObservations2);
 
         INDArray action = this.targetActorApproximator.getOneResult(stateLabel);
         INDArray entryCriticTarget = Nd4j.concat(1,stateLabel, action) ;
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
-        res = res.muli(this.gamma);
+        res = res.muli(gammas);
         res.addi(rewards) ;
         return res ;
     }
@@ -217,7 +215,6 @@ public class TDLstm2D<A> extends TDLstm<A> {
     protected INDArray labelize(INDArray secondObservations ,INDArray rewards,INDArray secondObservations2,INDArray gammas){
         // Les états précédents sont dans la mémoire de l'approximateur
         this.targetObservationApproximator.clear();
-
         this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
 
 
