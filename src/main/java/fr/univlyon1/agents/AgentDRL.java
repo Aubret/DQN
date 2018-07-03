@@ -8,6 +8,8 @@ import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.learning.TD;
 import fr.univlyon1.learning.TDActorCritic;
+import fr.univlyon1.reward.NstepTime;
+import fr.univlyon1.reward.RewardShaping;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -16,6 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +37,7 @@ public class AgentDRL<A> implements AgentRL<A> {
     private double totalReward = 0 ;
     private boolean print =true ;
     private Configuration configuration ;
+    private RewardShaping rewardShaping;
 
     private long time ;
 
@@ -86,6 +90,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 55-56-57 sans cheat fonctionne bien du monis normalement
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.rewardShaping = new NstepTime(this.configuration);
         this.learning.init();
         if(this.print) {
             try {
@@ -150,6 +155,57 @@ public class AgentDRL<A> implements AgentRL<A> {
             System.out.println(action);
         return action ;
     }
+
+    @Override
+    public A control(HashMap<Double,Double> rewardTime, Observation observation, Double time) {
+        //System.out.println(observation+" ---> "+reward);
+        count++ ;
+        Double reward=null;
+        if(rewardTime != null) {
+            reward = this.rewardShaping.constructReward(rewardTime,time);
+            this.learning.putReward(reward);
+        }
+        INDArray data = observation.getData();
+        A action = this.learning.getAction(data,time);
+        //A action = this.learning.getActionSpace().mapNumberToAction(0);
+        this.action = action ;
+        if(rewardTime != null ){
+            if(this.print) {
+                if(action instanceof ContinuousAction && this.learning instanceof ContinuousActorCritic) {
+                    //------------REward and action------------
+                    INDArray res = ((INDArray) this.actionSpace.mapActionToNumber(action));
+                    //TD td = ((TD)(((ContinuousActorCritic)this.learning).getTd()));
+                    //Double qvalue = td.getQvalue();
+                    String str ="";
+                    for(int i = 0 ; i < res.size(1) ; i++){
+                        str+=";"+res.getDouble(i);
+                    }
+                    Double score =((ContinuousActorCritic)this.learning).getScore() ;
+                    str+=";"+ (score == null ? 0 : score) ;
+                    String inputs ="";
+                    for(int i = 0 ; i < data.size(1) ; i++){
+                        inputs=inputs.concat(";"+data.getDouble(i));
+                    }
+
+                    this.rewardResults.println(count +";"+reward+str+inputs);
+                    //------------Inputs-----------------------
+
+
+                }else {
+                    this.rewardResults.println(count + ";" + reward);
+                }
+            }
+        }
+
+        //action = actionSpace.mapNumberToAction(Nd4j.create(new double[]{-1,-1}));
+
+        if(action instanceof ContinuousAction)
+            ((ContinuousAction) action).unNormalize();
+        if(count % 500== 0)
+            System.out.println(action);
+        return action ;
+    }
+
 
     @Override
     public void stop() {
