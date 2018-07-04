@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AgentDRL<A> implements AgentRL<A> {
     private static int count = 0 ;
-    private static String filename = "a6_rewards56";
-
+    private static String filename = "a6_rewards57";
+    private Double previousTime ;
     private A action ;
 
     private ActionSpace<A> actionSpace ;
@@ -162,7 +162,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         count++ ;
         Double reward=null;
         if(rewardTime != null) {
-            reward = this.rewardShaping.constructReward(rewardTime,time);
+            reward = this.rewardShaping.constructReward(rewardTime,this.previousTime);
             this.learning.putReward(reward);
         }
         INDArray data = observation.getData();
@@ -203,6 +203,7 @@ public class AgentDRL<A> implements AgentRL<A> {
             ((ContinuousAction) action).unNormalize();
         if(count % 500== 0)
             System.out.println(action);
+        this.previousTime=time ;
         return action ;
     }
 

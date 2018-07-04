@@ -14,7 +14,7 @@ public class NstepTime implements RewardShaping {
     public Double constructReward(HashMap<Double,Double> rewardTime, double simulationTime){
         double reward = 0. ;
         for(Map.Entry<Double,Double> entry : rewardTime.entrySet()){
-            double t = simulationTime-entry.getKey() ;
+            double t = entry.getKey()-simulationTime ;
             reward += Math.pow(this.gamma,t)*entry.getValue() ;
         }
         return reward ;
