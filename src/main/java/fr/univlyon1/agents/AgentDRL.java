@@ -18,6 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -157,7 +158,7 @@ public class AgentDRL<A> implements AgentRL<A> {
     }
 
     @Override
-    public A control(HashMap<Double,Double> rewardTime, Observation observation, Double time) {
+    public A control(HashMap<Double,Double> rewardTime, ArrayList<Double> evaluation, Observation observation, Double time) {
         //System.out.println(observation+" ---> "+reward);
         count++ ;
         Double reward=null;
@@ -187,12 +188,16 @@ public class AgentDRL<A> implements AgentRL<A> {
                         inputs=inputs.concat(";"+data.getDouble(i));
                     }
 
+                    for (int i = 0; i < evaluation.size(); i++) {
+                        inputs = inputs.concat(";" + evaluation.get(i));
+                    }
+
                     this.rewardResults.println(count +";"+reward+str+inputs);
                     //------------Inputs-----------------------
 
 
                 }else {
-                    this.rewardResults.println(count + ";" + reward);
+                    this.rewardResults.println(count + ";" + evaluation);
                 }
             }
         }
