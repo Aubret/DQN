@@ -77,8 +77,11 @@ public class LSTM2D extends LSTM {
             //if(i == numLayers -1)
             builder.layer(cursor, new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                     .activation(this.hiddenActivation)
-                    .units(node)
-                    .nIn(output).nOut(output)
+                    //.units(node)
+                    .gateActivationFunction(Activation.SIGMOID)
+                    .forgetGateBiasInit(1.)
+                    //.weightInit(WeightInit.XAVIER_UNIFORM)
+                    .nIn(input).nOut(output)
                     .build()
             );
             cursor++ ;
