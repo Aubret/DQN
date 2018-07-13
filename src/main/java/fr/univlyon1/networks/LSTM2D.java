@@ -1,6 +1,10 @@
 package fr.univlyon1.networks;
 
+import fr.univlyon1.environment.AllHiddenState;
+import fr.univlyon1.networks.layers.LSTMLayer;
+import fr.univlyon1.networks.layers.LSTMLayerConf;
 import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
@@ -17,10 +21,7 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.GreaterThan;
 import org.nd4j.linalg.learning.config.Sgd;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class LSTM2D extends LSTM {
 
@@ -45,6 +46,7 @@ public class LSTM2D extends LSTM {
                 .seed(this.seed+1)
                 .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
                 .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
+                //.cacheMode(CacheMode.DEVICE)
                 //.l2(0.001)Mlp
                 .biasInit(0.1)
                 .weightInit(WeightInit.XAVIER)
@@ -60,7 +62,7 @@ public class LSTM2D extends LSTM {
         cursor++;*/
 
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
-        builder.layer(cursor, new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
+        builder.layer(cursor, new LSTMLayerConf.Builder()
                 .activation(this.hiddenActivation)
                 //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
@@ -75,7 +77,7 @@ public class LSTM2D extends LSTM {
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
             //if(i == numLayers -1)
-            builder.layer(cursor, new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
+            builder.layer(cursor, new LSTMLayerConf.Builder()//new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                     .activation(this.hiddenActivation)
                     //.units(node)
                     .gateActivationFunction(Activation.SIGMOID)
@@ -122,6 +124,7 @@ public class LSTM2D extends LSTM {
 
     public INDArray getOneResult(INDArray data){
         //this.model.setInputMiniBatchSize(data.shape()[0]);
+        this.model.clearLayerMaskArrays();
         INDArray res = this.model.rnnTimeStep(data);
         if(data.rank() ==2)
             return res ;
@@ -195,6 +198,20 @@ public class LSTM2D extends LSTM {
 
     }
 
+    public Object allMemory(){
+        ArrayList<INDArray[]> memories = new ArrayList<>();
+        ArrayList<INDArray[]> prevAct = new ArrayList<>();
+        for(int i=0; i < this.model.getnLayers() ; i++){
+            //memories.add(this.model.rnnGetPreviousState(i));
+            if(this.model.getLayer(i) instanceof LSTMLayer) {
+                LSTMLayer recurrent = (LSTMLayer) this.model.getLayer(i);
+                memories.add(recurrent.getSaved().memCellState);
+                prevAct.add(recurrent.getSaved().fwdPassOutputAsArrays);
+            }
+
+        }
+        return new AllHiddenState(memories,prevAct) ;
+    }
 
     @Override
     public StateApproximator clone(boolean listener) {

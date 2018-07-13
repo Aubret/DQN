@@ -24,12 +24,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
+
     public EpsilonMultiLayerNetwork(MultiLayerConfiguration conf) {
         super(conf);
     }
@@ -207,4 +205,5 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
 
         }
     }
+
 }

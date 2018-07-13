@@ -1,26 +1,23 @@
 package fr.univlyon1.networks;
 
 import fr.univlyon1.environment.HiddenState;
+import fr.univlyon1.networks.layers.LSTMLayer;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
 import lombok.Getter;
 import lombok.Setter;
+import org.deeplearning4j.nn.api.*;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
-import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 
@@ -224,23 +221,33 @@ public class LSTM extends Mlp implements StateApproximator{
     @Override
     public Object getMemory() {
         ArrayList<Map<String,INDArray>> memories = new ArrayList<>();
+
         for(int i=0; i < this.model.getnLayers() ; i++){
-            if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
+            if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) {
                 memories.add(this.model.rnnGetPreviousState(i));
+            }
             //emories.add(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(i)).rnnGetTBPTTState());
         }
         return new HiddenState(memories);
     }
 
     @Override
-    public Object getSecondMemory() {
+    public Object getSecondMemory(){
         ArrayList<Map<String,INDArray>> memories = new ArrayList<>();
+
         for(int i=0; i < this.model.getnLayers() ; i++){
             //memories.add(this.model.rnnGetPreviousState(i));
-            if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
-                memories.add(((org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i)).rnnGetTBPTTState());
+            if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) {
+                org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer recurrent = (org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i);
+                memories.add(recurrent.rnnGetTBPTTState());
+            }
+
         }
         return new HiddenState(memories);
+    }
+
+    public Object allMemory(){
+        return null ;
     }
 
     @Override
