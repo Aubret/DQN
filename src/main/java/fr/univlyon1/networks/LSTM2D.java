@@ -126,7 +126,8 @@ public class LSTM2D extends LSTM {
 
     public INDArray getOneResult(INDArray data){
         //this.model.setInputMiniBatchSize(data.shape()[0]);
-        this.model.clearLayerMaskArrays();
+        if(data.rank()==2)
+            this.model.clearLayerMaskArrays();
         INDArray res = this.model.rnnTimeStep(data);
         if(data.rank() ==2)
             return res ;
