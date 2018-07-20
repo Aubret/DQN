@@ -282,7 +282,7 @@ public class Mlp implements Approximator{
         if(this.model.getOutputLayer() instanceof org.deeplearning4j.nn.layers.LossLayer){
             org.deeplearning4j.nn.layers.LossLayer l = (org.deeplearning4j.nn.layers.LossLayer)this.model.getOutputLayer() ;
             ILossFunction lossFunction = l.layerConf().getLossFn();
-            if(lossFunction instanceof LossMseSaveScore){
+            if(lossFunction instanceof SaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
                 this.scoreArray = lossfn.getLastScoreArray().detach();
@@ -308,6 +308,17 @@ public class Mlp implements Approximator{
             }
             it.iterationDone(this.model, iterations,this.epoch );
         }
+
+        if(this.model.getOutputLayer() instanceof org.deeplearning4j.nn.layers.LossLayer){
+            org.deeplearning4j.nn.layers.LossLayer l = (org.deeplearning4j.nn.layers.LossLayer)this.model.getOutputLayer() ;
+            ILossFunction lossFunction = l.layerConf().getLossFn();
+            if(lossFunction instanceof SaveScore){
+                SaveScore lossfn = (SaveScore)lossFunction ;
+                this.values = lossfn.getValues();
+                this.scoreArray = lossfn.getLastScoreArray().detach();
+            }
+        }
+
         return this.model.epsilon().detach() ;
     }
 

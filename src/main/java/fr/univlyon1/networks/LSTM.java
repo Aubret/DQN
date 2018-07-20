@@ -192,7 +192,7 @@ public class LSTM extends Mlp implements StateApproximator{
         if(this.model.getOutputLayer() instanceof org.deeplearning4j.nn.layers.LossLayer){
             org.deeplearning4j.nn.layers.LossLayer l = (org.deeplearning4j.nn.layers.LossLayer)this.model.getOutputLayer() ;
             ILossFunction lossFunction = l.layerConf().getLossFn();
-            if(lossFunction instanceof LossMseSaveScore){
+            if(lossFunction instanceof SaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
             }

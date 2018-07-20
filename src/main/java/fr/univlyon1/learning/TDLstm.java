@@ -201,7 +201,7 @@ public class TDLstm<A> extends TD<A> {
     protected void learn_observator(INDArray inputs, INDArray epsilonObservation, int numRows,INDArray action,INDArray inputs2,INDArray labels){
         this.observationApproximator.learn(inputs,epsilonObservation,numRows);
         if(this.cpt_time%this.time == 0){
-            INDArray firstval = ((Mlp) this.criticApproximator).getValues().detach();
+            INDArray firstval = ((Mlp) this.cloneCriticApproximator).getValues().detach();
             INDArray s1 = firstval.sub(labels);
             Double val1 = s1.muli(s1).meanNumber().doubleValue();
 

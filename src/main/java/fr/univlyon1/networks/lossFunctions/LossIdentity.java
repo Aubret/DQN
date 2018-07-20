@@ -30,6 +30,7 @@ public class LossIdentity implements ILossFunction,SaveScore{
     @JsonIgnore
     private INDArray lastScoreArray ;
 
+
     public LossIdentity(){}
 
     @Override
@@ -53,6 +54,7 @@ public class LossIdentity implements ILossFunction,SaveScore{
             LossUtil.applyMask(res,mask);
         }
         this.lastScoreArray = res.dup() ;
+
         return res;
     }
 
@@ -67,6 +69,8 @@ public class LossIdentity implements ILossFunction,SaveScore{
         INDArray grad = activationFn.backprop(preOutput,dLda).getFirst();
         if(mask != null)
             LossUtil.applyMask(grad,mask);
+        this.lastScoreArray = activationFn.getActivation(preOutput.dup(), true);
+
         return grad ;
     }
 

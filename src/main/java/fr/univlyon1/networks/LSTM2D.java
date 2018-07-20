@@ -62,13 +62,14 @@ public class LSTM2D extends LSTM {
         cursor++;*/
 
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
+        node = cursor+1 == this.numLayers ? output : node ;
         builder.layer(cursor, new LSTMLayerConf.Builder()
                 .activation(this.hiddenActivation)
                 //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
                 .forgetGateBiasInit(1.)
                 //.weightInit(WeightInit.XAVIER_UNIFORM)
-                .nIn(input).nOut(output)
+                .nIn(input).nOut(node)
                 .build()
         );
 
@@ -76,6 +77,7 @@ public class LSTM2D extends LSTM {
         for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
+            node = cursor+1 == this.numLayers ? output : node ;
             //if(i == numLayers -1)
             builder.layer(cursor, new LSTMLayerConf.Builder()//new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                     .activation(this.hiddenActivation)
@@ -83,7 +85,7 @@ public class LSTM2D extends LSTM {
                     .gateActivationFunction(Activation.SIGMOID)
                     .forgetGateBiasInit(1.)
                     //.weightInit(WeightInit.XAVIER_UNIFORM)
-                    .nIn(input).nOut(output)
+                    .nIn(previousNode).nOut(node)
                     .build()
             );
             cursor++ ;
