@@ -121,7 +121,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
             } else
                 this.backpropNumber++;
         }
-        return Math.max(2,Math.min(this.backpropNumber,30));
+        return Math.max(2,Math.min(this.backpropNumber,100));
         //return this.backpropNumber;
     }
 
