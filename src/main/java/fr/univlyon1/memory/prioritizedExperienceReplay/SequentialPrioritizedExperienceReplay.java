@@ -51,11 +51,12 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
         for(int i=0; i< total.size();i++){
             INDArray mean = Nd4j.zeros(1);
             for( int j = 0; j < backpropNumber.get(i)-1;j++){ //-1 pcq le premier S est pas envoyé au critic
-                mean.addi(errors.getDouble(cursor));
+                //mean.addi(errors.getDouble(cursor));
                 cursor++;
             }
-            mean.divi(backpropNumber.get(i)-1);
-            errorsNew.put(i,mean);
+            /*mean.divi(backpropNumber.get(i)-1);
+            errorsNew.put(i,mean);*/
+            errorsNew.putScalar(i,errors.getDouble(cursor-1));
         }
         //System.out.println(errorsNew);
         this.prioritized.setError(errorsNew);

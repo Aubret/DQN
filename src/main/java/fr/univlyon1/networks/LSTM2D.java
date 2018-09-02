@@ -62,7 +62,7 @@ public class LSTM2D extends LSTM {
         cursor++;*/
 
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
-        node = cursor+1 == this.numLayers ? output : node ;
+        //node = cursor+1 == this.numLayers ? output : node ;
         builder.layer(cursor, new LSTMLayerConf.Builder()
                 .activation(this.hiddenActivation)
                 //.units(node)
@@ -74,10 +74,10 @@ public class LSTM2D extends LSTM {
         );
 
         cursor++;
-        for (int i = 1; i < numLayers; i++){
+        for (int i = 1; i < numLayers-1; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
-            node = cursor+1 == this.numLayers ? output : node ;
+            //node = cursor+1 == this.numLayers ? output : node ;
             //if(i == numLayers -1)
             builder.layer(cursor, new LSTMLayerConf.Builder()//new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                     .activation(this.hiddenActivation)
@@ -101,14 +101,15 @@ public class LSTM2D extends LSTM {
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
 
         //---
-        /*builder.layer(cursor, new DenseLayer.Builder()
-                .weightInit(WeightInit.XAVIER_UNIFORM)
+        int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
+        builder.layer(cursor, new DenseLayer.Builder()
+                .weightInit(WeightInit.XAVIER)
                 .activation(Activation.TANH)
-                .nIn(40).nOut(output)
+                .nIn(previousNode).nOut(output)
                 .build()
         );
-        cursor++;*/
-        //---
+        cursor++;
+        //--
         builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
 
         this.multiLayerConfiguration = builder
