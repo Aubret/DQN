@@ -74,7 +74,7 @@ public class LSTM2D extends LSTM {
         );
 
         cursor++;
-        for (int i = 1; i < numLayers-1; i++){
+        for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
             //node = cursor+1 == this.numLayers ? output : node ;
@@ -101,15 +101,15 @@ public class LSTM2D extends LSTM {
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
 
         //---
-        int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
+        /*int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         builder.layer(cursor, new DenseLayer.Builder()
                 .weightInit(WeightInit.XAVIER)
                 .activation(Activation.TANH)
                 .nIn(previousNode).nOut(output)
                 .build()
         );
-        cursor++;
-        //--
+        cursor++;*/
+        //---
         builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
 
         this.multiLayerConfiguration = builder

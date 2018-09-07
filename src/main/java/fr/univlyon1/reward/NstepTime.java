@@ -20,6 +20,7 @@ public class NstepTime implements RewardShaping {
             double t = entry.getKey()-simulationTime ;
             reward += Math.pow(this.gamma,t)*entry.getValue() ;
         }
+        System.out.println(reward);
         return reward ;
     }
 }

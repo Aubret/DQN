@@ -19,7 +19,7 @@ public class NoisyGreedyDecremental extends NoisyGreedy{
         this.numberStep = 1 ;
         this.stepStd = stdInit ;
         this.schedule = schedule ;
-        this.std = Math.min(1.f, Math.max(this.minStd, 1. / this.stepStd));
+        this.std = Math.min(1.f, Math.max(this.minStd, 0.5-0.05*this.stepStd));
     }
     @Override
     public INDArray getAction(INDArray results) {
@@ -32,7 +32,8 @@ public class NoisyGreedyDecremental extends NoisyGreedy{
         if(this.numberStep % this.schedule == 0){
             this.numberStep = 0 ;
             this.stepStd++ ; // Augmente de 1 tous les schedule iterations
-            this.std = Math.min(1.f, Math.max(this.minStd, 1. / this.stepStd )) ;
+            this.std = Math.min(1.f, Math.max( this.minStd, 0.5-0.05*this.stepStd)) ;
+            System.out.println("new std :"+this.std);
         }
     }
 }

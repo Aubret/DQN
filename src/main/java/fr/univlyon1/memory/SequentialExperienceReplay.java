@@ -116,12 +116,12 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         Double endTime = this.tmp.get(this.tmp.size()-1).getTime() ;
         for(int i = this.tmp.size()-1 ; i >= 0 ; i-- ) {
             if (endTime - this.tmp.get(i).getTime() > this.backpropSize) {
-                return Math.max(2,Math.min(this.backpropNumber,30));
+                return Math.max(2,Math.min(this.backpropNumber,2));
                 //return this.backpropNumber;
             } else
                 this.backpropNumber++;
         }
-        return Math.max(2,Math.min(this.backpropNumber,100));
+        return Math.max(2,Math.min(this.backpropNumber,2));
         //return this.backpropNumber;
     }
 
