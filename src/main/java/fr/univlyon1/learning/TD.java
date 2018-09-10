@@ -14,6 +14,7 @@ public class TD<A> implements Algorithm<A> {
     protected Learning<A> learning ;
     protected Approximator approximator ;
     protected Interaction<A> previousInteraction ;
+    protected Informations informations ;
 
 
     public TD(double gamma,Learning<A> learning){
@@ -21,6 +22,7 @@ public class TD<A> implements Algorithm<A> {
         this.policy = new GreedyDiscrete();
         this.learning = learning;
         this.approximator = this.learning.getApproximator() ;
+        this.informations = new Informations();
     }
 
     @Override
@@ -34,9 +36,9 @@ public class TD<A> implements Algorithm<A> {
         if(this.lastInteraction != null) {
             this.lastInteraction.setSecondAction(action);
             this.lastInteraction.setDt(time-this.lastInteraction.getTime());
-
+            this.informations.setDt(time-this.lastInteraction.getTime());
             this.previousInteraction = this.lastInteraction;
-            }
+        }
         this.lastInteraction = new GammaInteraction<A>(action,observation,this.learning.getConf().getGamma());
         this.lastInteraction.setTime(time);
 
@@ -55,14 +57,14 @@ public class TD<A> implements Algorithm<A> {
 
     }
 
-    @Override
-    public Double getScore() {
-        return null;
-    }
-
     public void learn(){
         INDArray res = this.labelize(this.lastInteraction);
         this.learning.getApproximator().learn(this.lastInteraction.getObservation(), res,1);
+    }
+
+    @Override
+    public Informations getInformation() {
+        return this.informations;
     }
 
     /**

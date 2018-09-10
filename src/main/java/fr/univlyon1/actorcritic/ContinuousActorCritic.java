@@ -211,7 +211,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     public Double getScore(){
-        return this.td.getScore() ;
+        return this.td.getInformation().getScore() ;
     }
 
 

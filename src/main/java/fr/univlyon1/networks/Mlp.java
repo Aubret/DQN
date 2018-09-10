@@ -148,21 +148,11 @@ public class Mlp implements Approximator{
         //
                 //.list();
 
-        /*
-        Layer layerActiv = new ActivationLayer.Builder()
-                .activation(Activation.IDENTITY)
-                .build();
-        layerActiv.setNIn(InputType.feedForward(input),true);
-        builder.layer(cursor, layerActiv);
-        cursor++ ;
-        if(this.firstBatchNormalization){
+        /*if(this.batchNormalization){
             Layer l = new BatchNormalization.Builder().nIn(input).nOut(input).build();
             builder.layer(cursor, l);
             cursor++ ;
         }*/
-        /*Layer lay = new BatchNormalization.Builder().nIn(input).nOut(input).build();
-        builder.layer(cursor, lay);
-        cursor++ ;*/
 
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
         builder.layer(cursor, new DenseLayer.Builder()
@@ -172,9 +162,11 @@ public class Mlp implements Approximator{
         );
         cursor++ ;
         if(this.batchNormalization) {
-            builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
+            builder.layer(cursor, new BatchNormalization.Builder().activation(this.hiddenActivation).build());
             cursor++ ;
         }
+
+
         for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
@@ -191,7 +183,7 @@ public class Mlp implements Approximator{
         }
 
         if(this.finalBatchNormalization){
-            builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
+            builder.layer(cursor, new BatchNormalization.Builder().activation(this.hiddenActivation).build());
             cursor++ ;
         }
         node = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;

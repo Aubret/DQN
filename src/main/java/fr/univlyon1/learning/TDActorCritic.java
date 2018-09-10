@@ -43,11 +43,12 @@ public class TDActorCritic<A> extends TDBatch<A> {
 
     @Override
     public void learn(){
+        this.informations.setModified(true);
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         int sizeObservation ;
         if(this.lastInteraction != null && this.lastInteraction.getSecondObservation() != null ) {
             INDArray inputAction1 = Nd4j.concat(1, this.lastInteraction.getObservation(), (INDArray) this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
-            this.scoreI = this.criticApproximator.getOneResult(inputAction1).getDouble(0) - this.labelize(this.lastInteraction).getDouble(0);
+            this.informations.setScore(this.criticApproximator.getOneResult(inputAction1).getDouble(0) - this.labelize(this.lastInteraction).getDouble(0));
             sizeObservation = this.lastInteraction.getObservation().size(1);
         }else{
             sizeObservation = this.learning.getObservationSpace().getShape()[0];
@@ -103,6 +104,8 @@ public class TDActorCritic<A> extends TDBatch<A> {
 
     protected INDArray learn_actor(INDArray observations, int sizeObservation, int numColumns, int numRows){
         INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
+        this.informations.setEvaluatedActions(action);
+        this.informations.setEvaluatedInputs(observations);
         INDArray inputAction = Nd4j.concat(1, observations, action);
         INDArray epsilonObsAct = this.cloneCriticApproximator.error(inputAction, Nd4j.create(new double[]{0}), numRows); // erreur
         INDArray epsilonAction = epsilonObsAct.get(NDArrayIndex.all(), NDArrayIndex.interval(sizeObservation, numColumns));
@@ -157,23 +160,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         double alpha = 0.01 ;
         targetActorApproximator.getParams().muli(1.-alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
         targetCriticApproximator.getParams().muli(1.-alpha).addi(this.criticApproximator.getParams().mul(alpha));
-
-        /*System.out.println("here");
-        System.out.println(targetCriticApproximator.getParams().mul(1-alpha));
-        System.out.println(this.criticApproximator.getParams().mul(alpha));
-        //System.out.println(p);
-        //this.targetCriticApproximator.setParams(p2);
-        //this.targetActorApproximator.setParams(p);
-        System.out.println(this.targetCriticApproximator.getParams());*/
         this.epochOne = false;
-        //this.criticApproximator.epoch();
-        //this.learning.getApproximator().epoch();
-        /*
-        this.targetCriticApproximator.setParams(this.criticApproximator.getParams().dup());
-        this.targetActorApproximator.setParams(this.learning.getApproximator().getParams().dup());
-        */
-        //this.cpt_time =0 ;
-        //this.targetActorApproximator = this.learning.getApproximator().clone(false);
     }
 
 

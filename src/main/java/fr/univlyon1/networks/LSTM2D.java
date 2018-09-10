@@ -104,11 +104,12 @@ public class LSTM2D extends LSTM {
         /*int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         builder.layer(cursor, new DenseLayer.Builder()
                 .weightInit(WeightInit.XAVIER)
-                .activation(Activation.TANH)
+                .activation(Activation.LEAKYRELU)
                 .nIn(previousNode).nOut(output)
                 .build()
         );
-        cursor++;*/
+        cursor++;
+        */
         //---
         builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
 

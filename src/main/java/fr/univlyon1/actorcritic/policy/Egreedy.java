@@ -17,6 +17,7 @@ public class Egreedy<A> implements Policy<A>{
         this.greedyPolicy = greedyPolicy ;
         this.actionSpace = actionSpace;
     }
+
     @Override
     public Object getAction(INDArray results) {
         if (this.random.nextDouble() < this.epsilon) {

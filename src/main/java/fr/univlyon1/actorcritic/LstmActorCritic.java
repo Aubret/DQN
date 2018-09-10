@@ -2,6 +2,7 @@ package fr.univlyon1.actorcritic;
 
 import akka.actor.dsl.Creators;
 import fr.univlyon1.actorcritic.policy.*;
+import fr.univlyon1.actorcritic.policy.correlated_policy.ParameterNoise;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.configurations.SavesLearning;
@@ -56,7 +57,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this.observationApproximator,
                 this.cloneObservationApproximator
         );
-        this.policy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
+        //this.policy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
         //Policy mixtePolicy = new NoisyGreedyDecremental(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),conf.getInitStdEpsilon(),conf.getStepEpsilon(),seed,this.getPolicyApproximator());
 
         /*Policy mixtePolicy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,this.getPolicyApproximator());
@@ -68,6 +69,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 conf.getInitStdEpsilon());
         //this.policy = mixtePolicy2;
         this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));*/
+        this.policy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
 
     }
 
@@ -79,7 +81,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             if(AgentDRL.getCount()%this.learn_step== 0) {
@@ -147,8 +149,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
         //this.policyApproximator.setL2(0.0002);
         //this.policyApproximator.setDropout(true);
-        //this.policyApproximator.setBatchNormalization(true);
-        //this.policyApproximator.setFinalBatchNormalization(true);
+        this.policyApproximator.setBatchNormalization(false);
+        this.policyApproximator.setFinalBatchNormalization(false);
         //this.policyApproximator.setLossFunction(new LossError());
 
         this.policyApproximator.init() ; // A la fin
@@ -166,8 +168,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //  this.criticApproximator.setL2(0.000001);
-        //this.criticApproximator.setBatchNormalization(true);
-        //this.criticApproximator.setFinalBatchNormalization(true);
+        this.criticApproximator.setBatchNormalization(false);
+        this.criticApproximator.setFinalBatchNormalization(false);
         this.criticApproximator.init() ;
 
         this.cloneMaximizeCriticApproximator = new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, this.seed);
@@ -183,8 +185,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //this.cloneMaximizeCriticApproximator.setL2(0.001);
         //this.cloneMaximizeCriticApproximator.setListener(true);
-        //this.cloneMaximizeCriticApproximator.setBatchNormalization(true);
-        //this.cloneMaximizeCriticApproximator.setFinalBatchNormalization(true);
+        this.cloneMaximizeCriticApproximator.setBatchNormalization(false);
+        this.cloneMaximizeCriticApproximator.setFinalBatchNormalization(false);
         this.cloneMaximizeCriticApproximator.init();
         this.cloneMaximizeCriticApproximator.setParams(this.criticApproximator.getParams());
     }

@@ -1,6 +1,7 @@
 package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.Learning;
+import fr.univlyon1.actorcritic.policy.correlated_policy.CorrelatedPolicy;
 import fr.univlyon1.environment.HiddenState;
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.memory.ExperienceReplay;
@@ -45,7 +46,6 @@ public class TDLstm<A> extends TD<A> {
     protected int cpt_time = 0 ;
     protected boolean t = true ;
 
-    protected Double scoreI ;
     protected SequentialExperienceReplay<A> experienceReplay;
     protected int iterations ;
     protected int batchSize ;
@@ -73,9 +73,10 @@ public class TDLstm<A> extends TD<A> {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
             INDArray actualState= this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
-            INDArray action = (INDArray)this.learning.getPolicy().getAction(state_observation);
-
-            return action ;
+            if(this.learning.getPolicy() instanceof CorrelatedPolicy)
+                return (INDArray)((CorrelatedPolicy)this.learning.getPolicy()).getAction(state_observation,this.informations);
+            else
+                return (INDArray)this.learning.getPolicy().getAction(state_observation);
         }else{
             System.out.println("behave pas bon ! faut au moins une action random");
             return null ;
@@ -107,10 +108,12 @@ public class TDLstm<A> extends TD<A> {
         this.state = this.observationApproximator.getMemory();
         if(this.replay)
             this.learn_replay();
+        this.informations.setModified(true);
         this.observationApproximator.setMemory(this.state);
         this.cloneObservationApproximator.setMemory(state2);
     }
 
+    // Désuete et non mis à jour
     protected void learn_replay(){
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         int size = this.learning.getObservationSpace().getShape()[0];
@@ -248,6 +251,8 @@ public class TDLstm<A> extends TD<A> {
 
     protected INDArray learn_actor(INDArray observations, int sizeObservation, int numColumns, int numRows){
         INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
+        this.informations.setEvaluatedInputs(observations);
+        this.informations.setEvaluatedActions(action);
         INDArray inputAction = Nd4j.concat(1, observations, action);
         this.cloneCriticApproximator.setParams(this.criticApproximator.getParams()); // Dupliquer les paramètres
         INDArray epsilonObsAct = this.cloneCriticApproximator.error(inputAction, Nd4j.create(new double[]{0}), numRows); // erreur
