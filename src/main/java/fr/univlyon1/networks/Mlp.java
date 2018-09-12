@@ -318,8 +318,8 @@ public class Mlp implements Approximator{
     @Override
     public Approximator clone(boolean listener) {
         Mlp m = new Mlp(this,listener);
-        this.init();
-        this.setParams(m.getParams());
+        m.init();
+        m.setParams(this.getParams());
         return m ;
     }
 

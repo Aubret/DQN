@@ -221,8 +221,8 @@ public class LSTM2D extends LSTM {
     public StateApproximator clone(boolean listener) {
         LSTM2D m = new LSTM2D(this,listener);
         m.setHiddenActivation(Activation.TANH);
-        this.init();
-        this.setParams(m.getParams());
+        m.init();
+        m.setParams(this.getParams());
         return m ;
     }
 }

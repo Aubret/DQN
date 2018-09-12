@@ -122,8 +122,8 @@ public class NormalizedMlp extends Mlp {
         NormalizedMlp m = new NormalizedMlp(this,listener);
         m.setBatchNormalization(this.batchNormalization);
         m.setLayerNormalization(this.layerNormalization);
-        this.init();
-        this.setParams(m.getParams());
+        m.init();
+        m.setParams(this.getParams());
         return m ;
     }
 }

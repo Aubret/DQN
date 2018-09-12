@@ -139,7 +139,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.policyApproximator.setL2(0.0002);
         //this.policyApproximator.setDropout(true);
         ((NormalizedMlp)this.policyApproximator).setLayerNormalization(true);
-        ((NormalizedMlp)this.policyApproximator).setLayerNormalization(false);
+        ((NormalizedMlp)this.policyApproximator).setBatchNormalization(false);
         //this.policyApproximator.setLossFunction(new LossError());
 
         this.policyApproximator.init() ; // A la fin
