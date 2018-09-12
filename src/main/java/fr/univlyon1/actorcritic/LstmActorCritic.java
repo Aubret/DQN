@@ -1,27 +1,15 @@
 package fr.univlyon1.actorcritic;
 
-import akka.actor.dsl.Creators;
-import fr.univlyon1.actorcritic.policy.*;
 import fr.univlyon1.actorcritic.policy.correlated_policy.ParameterNoise;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.configurations.SavesLearning;
-import fr.univlyon1.environment.HiddenState;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
-import fr.univlyon1.learning.TDActorCritic;
-import fr.univlyon1.learning.TDLstm;
 import fr.univlyon1.learning.TDLstm2D;
 import fr.univlyon1.memory.SequentialExperienceReplay;
-import fr.univlyon1.memory.prioritizedExperienceReplay.SequentialFixedNumber;
-import fr.univlyon1.memory.prioritizedExperienceReplay.SequentialPrioritizedExperienceReplay;
-import fr.univlyon1.networks.Approximator;
-import fr.univlyon1.networks.LSTM;
-import fr.univlyon1.networks.LSTM2D;
-import fr.univlyon1.networks.Mlp;
+import fr.univlyon1.networks.*;
 import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.networks.lossFunctions.LossIdentity;
-import org.deeplearning4j.nn.conf.Updater;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -134,7 +122,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
 
     private void initActor(){
-        this.policyApproximator =new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0],this.actionSpace.getSize(),this.seed);
+        //this.policyApproximator =new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0],this.actionSpace.getSize(),this.seed);
+        this.policyApproximator =new NormalizedMlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0],this.actionSpace.getSize(),this.seed);
         this.policyApproximator.setLearning_rate(conf.getLearning_rate());
         this.policyApproximator.setNumNodes(conf.getNumHiddenNodes());
         this.policyApproximator.setNumLayers(conf.getNumLayers());
@@ -149,8 +138,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
         //this.policyApproximator.setL2(0.0002);
         //this.policyApproximator.setDropout(true);
-        this.policyApproximator.setBatchNormalization(false);
-        this.policyApproximator.setFinalBatchNormalization(false);
+        ((NormalizedMlp)this.policyApproximator).setLayerNormalization(true);
+        ((NormalizedMlp)this.policyApproximator).setLayerNormalization(false);
         //this.policyApproximator.setLossFunction(new LossError());
 
         this.policyApproximator.init() ; // A la fin
@@ -168,8 +157,6 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //  this.criticApproximator.setL2(0.000001);
-        this.criticApproximator.setBatchNormalization(false);
-        this.criticApproximator.setFinalBatchNormalization(false);
         this.criticApproximator.init() ;
 
         this.cloneMaximizeCriticApproximator = new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, this.seed);
@@ -185,8 +172,6 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
         //this.cloneMaximizeCriticApproximator.setL2(0.001);
         //this.cloneMaximizeCriticApproximator.setListener(true);
-        this.cloneMaximizeCriticApproximator.setBatchNormalization(false);
-        this.cloneMaximizeCriticApproximator.setFinalBatchNormalization(false);
         this.cloneMaximizeCriticApproximator.init();
         this.cloneMaximizeCriticApproximator.setParams(this.criticApproximator.getParams());
     }

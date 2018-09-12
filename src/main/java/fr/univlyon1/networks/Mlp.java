@@ -50,8 +50,6 @@ public class Mlp implements Approximator{
     protected IUpdater updater;
 
     protected INDArray gradient;
-    protected boolean batchNormalization;
-    protected boolean finalBatchNormalization ;
 
     protected boolean dropout ;
     protected Double score ;
@@ -78,8 +76,6 @@ public class Mlp implements Approximator{
         this.lossFunction = mlp.getLossFunction() ;
         this.seed = mlp.getSeed() ;
         this.iterations = mlp.getIterations() ;
-        this.batchNormalization = mlp.isBatchNormalization();
-        this.finalBatchNormalization = mlp.isFinalBatchNormalization();
         this.numNodesPerLayer = mlp.getNumNodesPerLayer() ;
         this.dropout = mlp.isDropout() ;
         this.l2 = mlp.getL2();
@@ -110,8 +106,6 @@ public class Mlp implements Approximator{
         this.listener = false ;
         //this.lossFunction = LossFunctions.LossFunction.MSE.getILossFunction() ;
         this.lossFunction = new LossMseSaveScore() ;
-        this.batchNormalization = false ;
-        this.finalBatchNormalization = false ;
         this.minimize = true ;
         this.epsilon = false ;
         this.numNodesPerLayer = new ArrayList<>();
@@ -161,11 +155,6 @@ public class Mlp implements Approximator{
                 .build()
         );
         cursor++ ;
-        if(this.batchNormalization) {
-            builder.layer(cursor, new BatchNormalization.Builder().activation(this.hiddenActivation).build());
-            cursor++ ;
-        }
-
 
         for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
@@ -175,15 +164,6 @@ public class Mlp implements Approximator{
                     .nIn(previousNode).nOut(node)
                     .build()
             );
-            cursor++ ;
-            if(i != numLayers-1 && this.batchNormalization) {
-                builder.layer(cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
-                cursor++ ;
-            }
-        }
-
-        if(this.finalBatchNormalization){
-            builder.layer(cursor, new BatchNormalization.Builder().activation(this.hiddenActivation).build());
             cursor++ ;
         }
         node = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
