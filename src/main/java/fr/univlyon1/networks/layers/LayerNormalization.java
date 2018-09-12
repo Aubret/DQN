@@ -153,4 +153,8 @@ public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
     public INDArray activate(boolean training) {
         return this.preOutput(this.input, training?TrainingMode.TRAIN:TrainingMode.TEST);
     }
+
+    public void fit(INDArray data) {
+    }
+
 }

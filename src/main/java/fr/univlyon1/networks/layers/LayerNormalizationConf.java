@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.api.ParamInitializer;
 import org.deeplearning4j.nn.conf.InputPreProcessor;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.BatchNormalization;
 import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
 import org.deeplearning4j.nn.conf.layers.Layer;
 import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
@@ -38,6 +39,12 @@ public class LayerNormalizationConf extends FeedForwardLayer {
         this.isLockGammaBeta = builder.isLockGammaBeta;
     }
 
+    public LayerNormalizationConf() {
+        this.eps = 1.0E-5D;
+        this.gamma = 1.0D;
+        this.beta = 0.0D;
+        this.isLockGammaBeta = false;
+    }
 
     @Override
     public org.deeplearning4j.nn.api.Layer instantiate(NeuralNetConfiguration neuralNetConfiguration, Collection<IterationListener> iterationListeners, int layerIndex, INDArray layerParamsView, boolean initializeParams) {
@@ -84,7 +91,7 @@ public class LayerNormalizationConf extends FeedForwardLayer {
     //Note that we are inheriting all of the FeedForwardLayer.Builder options: things like n
     public static class Builder extends FeedForwardLayer.Builder<Builder> {
 
-        protected double eps=1E-5;
+        protected double eps=1.0E-5D;
         protected double gamma=1.;
         protected double beta=0.;
         protected boolean isLockGammaBeta=false;
@@ -167,4 +174,41 @@ public class LayerNormalizationConf extends FeedForwardLayer {
         return 0.0D;
     }
 
+    public String toString() {
+        return "LayerNormalization(super=" + super.toString() + ", eps=" + this.getEps()  + ", gamma=" + this.getGamma() + ", beta=" + this.getBeta() + ", lockGammaBeta=" + this.isLockGammaBeta() + ")";
+    }
+
+    protected boolean canEqual(Object other) {
+        return other instanceof LayerNormalizationConf;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        LayerNormalizationConf that = (LayerNormalizationConf) o;
+
+        if (Double.compare(that.eps, eps) != 0) return false;
+        if (Double.compare(that.gamma, gamma) != 0) return false;
+        if (Double.compare(that.beta, beta) != 0) return false;
+        return isLockGammaBeta == that.isLockGammaBeta;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        long temp;
+        temp = Double.doubleToLongBits(eps);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(gamma);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(beta);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (isLockGammaBeta ? 1 : 0);
+        return result;
+    }
 }

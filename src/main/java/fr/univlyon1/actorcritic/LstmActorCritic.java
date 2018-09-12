@@ -69,7 +69,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             if(AgentDRL.getCount()%this.learn_step== 0) {

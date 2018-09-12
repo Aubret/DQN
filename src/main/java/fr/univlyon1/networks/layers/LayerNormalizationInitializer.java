@@ -15,11 +15,9 @@ public class LayerNormalizationInitializer implements ParamInitializer {
     private static final LayerNormalizationInitializer INSTANCE = new LayerNormalizationInitializer();
     public static final String GAMMA = "gamma";
     public static final String BETA = "beta";
-    public static final String GLOBAL_MEAN = "mean";
-    public static final String GLOBAL_VAR = "var";
 
     public static List<String> keys() {
-        return Arrays.asList(new String[]{"gamma", "beta", "mean", "var"});
+        return Arrays.asList(new String[]{"gamma", "beta"});
     }
 
 
