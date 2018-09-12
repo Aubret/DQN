@@ -9,6 +9,7 @@ import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.learning.config.Sgd;
 
 @Getter
@@ -27,6 +28,20 @@ public class NormalizedMlp extends Mlp {
         super(input,output,seed);
         this.batchNormalization = false ;
         this.layerNormalization = true ;
+    }
+
+    // training arg is important because it decides wether ornot we use global variables mean and variance
+    public INDArray getOneResult(INDArray data){
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
+        INDArray res = this.model.output(data,true) ;
+        return res ;
+    }
+
+    public INDArray getOneTrainingResult(INDArray data){
+        //this.model.setInputMiniBatchSize(data.shape()[0]);
+        //double[] datas =  new double[]{-0.74,  -0.91,  -0.76,  -0.91,  -0.68,  -0.84,  -0.74,  -0.91,  -0.74,  -0.91,  -0.68,  -0.84,  -0.78,  -0.91,  -0.68,  -0.91,  -0.68,  -0.84,  -0.43,  -0.74,  -0.90,  -0.74,  -0.91,  -0.70,  -0.84,  -0.76,  -0.91,  -0.74,  -0.91,  -0.70,  -0.84,  -0.76,  -0.94,  -0.76,  -0.94,  -0.68,  -0.83,  -0.44};
+        INDArray res = this.model.output(data,true);
+        return res;
     }
 
     public void init() {

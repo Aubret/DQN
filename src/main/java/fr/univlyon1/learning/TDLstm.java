@@ -42,7 +42,7 @@ public class TDLstm<A> extends TD<A> {
     protected double cumulObservation= 0;
     protected double cumulOnlyObservation= 0;
 
-    protected int time =10;
+    protected int time =20;
     protected int cpt_time = 0 ;
     protected boolean t = true ;
 
