@@ -45,10 +45,6 @@ public class GraphMlp extends Mlp{
                 .build()
         );
         cursor++ ;
-        if(this.batchNormalization) {
-            graphBuilder.addLayer("L"+cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
-            cursor++ ;
-        }
         for (int i = 1; i < numLayers; i++){
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
@@ -58,16 +54,8 @@ public class GraphMlp extends Mlp{
                     .build()
             );
             cursor++ ;
-            if(i != numLayers-1 && this.batchNormalization) {
-                graphBuilder.addLayer("L"+cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
-                cursor++ ;
-            }
         }
 
-        if(this.finalBatchNormalization){
-            graphBuilder.addLayer("L"+cursor, new BatchNormalization.Builder().activation(Activation.RELU).build());
-            cursor++ ;
-        }
         node = this.numNodesPerLayer.size() == numLayers ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         Layer.Builder l = new DenseLayer.Builder()
                 .biasInit(0.01)

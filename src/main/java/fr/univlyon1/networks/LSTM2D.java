@@ -34,7 +34,6 @@ public class LSTM2D extends LSTM {
 
     public LSTM2D(int input, int output, long seed){
         super(input,output,seed);
-        this.hiddenActivation = Activation.TANH ;
     }
 
     public void init(){
@@ -221,6 +220,9 @@ public class LSTM2D extends LSTM {
     @Override
     public StateApproximator clone(boolean listener) {
         LSTM2D m = new LSTM2D(this,listener);
+        m.setHiddenActivation(Activation.TANH);
+        this.init();
+        this.setParams(m.getParams());
         return m ;
     }
 }

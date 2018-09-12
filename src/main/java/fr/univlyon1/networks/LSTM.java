@@ -39,7 +39,6 @@ public class LSTM extends Mlp implements StateApproximator{
 
     public LSTM(int input, int output, long seed){
         super(input,output,seed);
-        this.hiddenActivation = Activation.TANH ;
     }
 
     public void init(){
@@ -214,6 +213,9 @@ public class LSTM extends Mlp implements StateApproximator{
     @Override
     public StateApproximator clone(boolean listener) {
         LSTM m = new LSTM(this,listener);
+        m.setHiddenActivation( Activation.TANH);
+
+
         return m ;
     }
 

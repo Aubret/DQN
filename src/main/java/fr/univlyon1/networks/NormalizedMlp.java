@@ -21,8 +21,6 @@ public class NormalizedMlp extends Mlp {
 
     public NormalizedMlp(NormalizedMlp mlp, boolean listener) {
         super(mlp, listener);
-        mlp.setBatchNormalization(this.batchNormalization);
-        mlp.setLayerNormalization(this.layerNormalization);
     }
 
     public NormalizedMlp(int input, int output, long seed){
@@ -122,6 +120,10 @@ public class NormalizedMlp extends Mlp {
     @Override
     public Approximator clone(boolean listener) {
         NormalizedMlp m = new NormalizedMlp(this,listener);
+        m.setBatchNormalization(this.batchNormalization);
+        m.setLayerNormalization(this.layerNormalization);
+        this.init();
+        this.setParams(m.getParams());
         return m ;
     }
 }
