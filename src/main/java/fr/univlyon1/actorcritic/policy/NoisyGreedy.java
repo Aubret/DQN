@@ -1,5 +1,6 @@
 package fr.univlyon1.actorcritic.policy;
 
+import fr.univlyon1.learning.Informations;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Random;
@@ -18,8 +19,8 @@ public class NoisyGreedy implements Policy {
     }
 
     @Override
-    public INDArray getAction(INDArray inputs) {
-        INDArray results = (INDArray)this.greedy.getAction(inputs);
+    public INDArray getAction(INDArray inputs,Informations information) {
+        INDArray results = (INDArray)this.greedy.getAction(inputs,information);
         for(int i = 0 ; i < results.size(1) ; i++){
             Double newVal =null ;
             newVal = results.getDouble(i) + random.nextGaussian() * this.std + this.mean;

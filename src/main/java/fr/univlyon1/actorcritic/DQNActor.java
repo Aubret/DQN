@@ -80,7 +80,7 @@ public class DQNActor<A> implements Learning<A> {
             }
         }
         INDArray results  = this.td.behave(input); // get action behavioure
-        int indiceBehaviore = (Integer)this.policy.getAction(results);
+        int indiceBehaviore = (Integer)this.policy.getAction(results,null);
         A actionBehaviore = this.actionSpace.mapNumberToAction(indiceBehaviore);
 
         this.td.step(input,actionBehaviore,time); // step learning algorithm

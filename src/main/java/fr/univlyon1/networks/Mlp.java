@@ -1,5 +1,6 @@
 package fr.univlyon1.networks;
 
+import fr.univlyon1.learning.Informations;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
 import org.deeplearning4j.api.storage.StatsStorage;
@@ -363,7 +364,7 @@ public class Mlp implements Approximator{
     }
 
     @Override
-    public Object getAction(INDArray inputs) {
+    public Object getAction(INDArray inputs,Informations information) {
         return this.getOneTrainingResult(inputs);
     }
 

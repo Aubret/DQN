@@ -1,6 +1,8 @@
 package fr.univlyon1.actorcritic;
 
-import fr.univlyon1.actorcritic.policy.correlated_policy.ParameterNoise;
+import fr.univlyon1.actorcritic.policy.Egreedy;
+import fr.univlyon1.actorcritic.policy.ParameterNoise;
+import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
@@ -58,6 +60,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.policy = mixtePolicy2;
         this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));*/
         this.policy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
+        //Policy mixtePolicy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
+        //this.policy = new Egreedy<A>(conf.getMinEpsilon(),this.seed,this.actionSpace,mixtePolicy);
 
     }
 
@@ -69,7 +73,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
         this.td.evaluate(input, this.reward); //Evaluation
-        if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             if(AgentDRL.getCount()%this.learn_step== 0) {
@@ -156,7 +160,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //  this.criticApproximator.setL2(0.000001);
+        //this.criticApproximator.setL2(0.00001);
         this.criticApproximator.init() ;
 
         this.cloneMaximizeCriticApproximator = new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0]+this.actionSpace.getSize(), 1, this.seed);
@@ -170,7 +174,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.cloneMaximizeCriticApproximator.setLossFunction(new LossIdentity());
         this.cloneMaximizeCriticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
-        //this.cloneMaximizeCriticApproximator.setL2(0.001);
+        //this.cloneMaximizeCriticApproximator.setL2(0.00001);
         //this.cloneMaximizeCriticApproximator.setListener(true);
         this.cloneMaximizeCriticApproximator.init();
         this.cloneMaximizeCriticApproximator.setParams(this.criticApproximator.getParams());

@@ -105,7 +105,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         A actionBehaviore;
         this.td.evaluate(input, this.reward); //Evaluation
         if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
-            INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
+            INDArray resultBehaviore = this.td.behave(input);//(INDArray)this.policy.getAction(input);
             this.td.learn();
             this.countStep++;
             if (this.countStep == this.epoch) {

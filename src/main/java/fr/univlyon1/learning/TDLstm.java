@@ -1,7 +1,6 @@
 package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.Learning;
-import fr.univlyon1.actorcritic.policy.correlated_policy.CorrelatedPolicy;
 import fr.univlyon1.environment.HiddenState;
 import fr.univlyon1.environment.Interaction;
 import fr.univlyon1.memory.ExperienceReplay;
@@ -73,10 +72,7 @@ public class TDLstm<A> extends TD<A> {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
             INDArray actualState= this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
-            if(this.learning.getPolicy() instanceof CorrelatedPolicy)
-                return (INDArray)((CorrelatedPolicy)this.learning.getPolicy()).getAction(state_observation,this.informations);
-            else
-                return (INDArray)this.learning.getPolicy().getAction(state_observation);
+            return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
         }else{
             System.out.println("behave pas bon ! faut au moins une action random");
             return null ;
@@ -250,7 +246,7 @@ public class TDLstm<A> extends TD<A> {
     }
 
     protected INDArray learn_actor(INDArray observations, int sizeObservation, int numColumns, int numRows){
-        INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
+        INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy networks
         this.informations.setEvaluatedInputs(observations);
         this.informations.setEvaluatedActions(action);
         INDArray inputAction = Nd4j.concat(1, observations, action);
@@ -262,7 +258,6 @@ public class TDLstm<A> extends TD<A> {
             old = this.cloneCriticApproximator.getOneResult(inputAction);
         }
         INDArray eps = (INDArray) this.learning.getApproximator().learn(observations, epsilonAction, numRows); //Policy learning
-
         if(this.cpt_time%this.time == 0 ) {
             action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
             inputAction = Nd4j.concat(1, observations, action);

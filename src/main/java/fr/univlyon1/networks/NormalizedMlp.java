@@ -98,7 +98,8 @@ public class NormalizedMlp extends Mlp {
                 builder.layer(cursor, new BatchNormalization.Builder().build());
             }else{
                 builder.layer(cursor, new LayerNormalizationConf.Builder().build());
-            }            cursor++ ;
+            }
+            cursor++ ;
             builder.layer(cursor, new ActivationLayer.Builder()
                     .activation(this.hiddenActivation)
                     .build()

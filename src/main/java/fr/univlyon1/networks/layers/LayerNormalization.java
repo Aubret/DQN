@@ -12,6 +12,8 @@ import org.deeplearning4j.nn.layers.BaseLayer;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.conditions.ConditionEquals;
+import org.nd4j.linalg.indexing.conditions.EqualsCondition;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
 
@@ -48,14 +50,13 @@ public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
 
         switch(x.rank()) {
             case 2:
-                mean = x.mean(1 );
-                var = x.var(false, 1);
+                mean = x.mean(1);
+                var = x.var(false, 1).addi(((LayerNormalizationConf)this.layerConf()).getEps());
                 break;
             default:
                 throw new IllegalStateException("Layer normalization on activations of rank " + x.rank() + " not supported " + this.layerId());
         }
         this.std = Transforms.sqrt(var,true );
-
         this.xMu = x.subColumnVector(mean).leverageTo("LOOP_EXTERNAL");
         this.xHat = this.xMu.divColumnVector(this.std).leverageTo("LOOP_EXTERNAL");
 

@@ -3,6 +3,7 @@ package fr.univlyon1.networks;
 import fr.univlyon1.environment.AllHiddenState;
 import fr.univlyon1.networks.layers.LSTMLayer;
 import fr.univlyon1.networks.layers.LSTMLayerConf;
+import fr.univlyon1.networks.layers.LayerNormalizationConf;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -103,12 +104,26 @@ public class LSTM2D extends LSTM {
         /*int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         builder.layer(cursor, new DenseLayer.Builder()
                 .weightInit(WeightInit.XAVIER)
-                .activation(Activation.LEAKYRELU)
+                .activation(Activation.TANH)
+                .nIn(previousNode).nOut(output)
+                .build()
+        );
+        cursor++;*/
+        /*int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
+        builder.layer(cursor, new DenseLayer.Builder()
+                .weightInit(WeightInit.XAVIER)
+                .activation(Activation.IDENTITY)
                 .nIn(previousNode).nOut(output)
                 .build()
         );
         cursor++;
-        */
+        builder.layer(cursor, new LayerNormalizationConf.Builder().build());
+        cursor++ ;
+        builder.layer(cursor, new ActivationLayer.Builder()
+                .activation(Activation.TANH)
+                .build()
+        );
+        cursor++;*/
         //---
         builder.layer(cursor, new LossLayer.Builder().lossFunction(this.lossFunction).build());
 
@@ -197,7 +212,6 @@ public class LSTM2D extends LSTM {
             Double ind = this.indices.getDouble(i);
             newLabels.put(new INDArrayIndex[]{NDArrayIndex.point(ind.intValue()),NDArrayIndex.all()},lab);
         }
-        //System.out.println(newLabels);
         return newLabels ;
 
     }

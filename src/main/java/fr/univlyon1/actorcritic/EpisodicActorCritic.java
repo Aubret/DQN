@@ -41,7 +41,8 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
         this.td.evaluate(input, this.reward); //Evaluation
 
         //actionBehaviore = this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
-        INDArray resultBehaviore = (INDArray)this.policy.getAction(input);
+        //INDArray resultBehaviore = (INDArray)this.policy.getAction(input);modif après
+        INDArray resultBehaviore = this.td.behave(input);
         A actionBehaviore ;
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         if (this.countStep == 120) {

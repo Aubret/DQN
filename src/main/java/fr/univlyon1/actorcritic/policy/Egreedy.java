@@ -1,6 +1,7 @@
 package fr.univlyon1.actorcritic.policy;
 
 import fr.univlyon1.environment.space.ActionSpace;
+import fr.univlyon1.learning.Informations;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Random;
@@ -19,12 +20,12 @@ public class Egreedy<A> implements Policy<A>{
     }
 
     @Override
-    public Object getAction(INDArray results) {
+    public Object getAction(INDArray results,Informations information) {
         if (this.random.nextDouble() < this.epsilon) {
             //indice = random.nextInt(results.size(1));
             return actionSpace.randomAction();
         } else{
-            return this.greedyPolicy.getAction(results);
+            return this.greedyPolicy.getAction(results,information);
             //return Nd4j.argMax(results).getInt(0);
         }
     }

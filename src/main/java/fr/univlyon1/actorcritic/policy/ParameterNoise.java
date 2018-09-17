@@ -1,4 +1,4 @@
-package fr.univlyon1.actorcritic.policy.correlated_policy;
+package fr.univlyon1.actorcritic.policy;
 
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.environment.space.ActionSpace;
@@ -15,7 +15,7 @@ import org.nd4j.linalg.ops.transforms.Transforms;
  * From paper "Parameter space Noise for exploration"
  * @param <A>
  */
-public class ParameterNoise<A> implements CorrelatedPolicy<A>{
+public class ParameterNoise<A> implements Policy<A> {
 
     // Must have weights
     protected Approximator greedyPolicy ;
@@ -33,14 +33,9 @@ public class ParameterNoise<A> implements CorrelatedPolicy<A>{
         this.seed = seed ;
         this.schedule = schedule ;
         this.timer = 0 ;
-        this.variance = 0.02 ;
+        this.variance = 0.01 ;
         this.alpha = 1.01 ;
         thresholdDistance = 0.2;
-    }
-
-    @Override
-    public Object getAction(INDArray results) {
-        return this.greedyPolicy.getAction(results);
     }
 
     @Override
@@ -54,7 +49,7 @@ public class ParameterNoise<A> implements CorrelatedPolicy<A>{
             this.modifiedPolicy.setParams(weights);
             this.changeVariance(informations);
         }
-        INDArray res =(INDArray) this.modifiedPolicy.getAction(results);
+        INDArray res =(INDArray) this.modifiedPolicy.getAction(results,informations);
         return res;
     }
 
@@ -63,7 +58,7 @@ public class ParameterNoise<A> implements CorrelatedPolicy<A>{
             return ;
         informations.setModified(false);
 
-        INDArray actions = (INDArray)this.modifiedPolicy.getAction(informations.getEvaluatedInputs());
+        INDArray actions = (INDArray)this.modifiedPolicy.getAction(informations.getEvaluatedInputs(),informations);
         int N = actions.columns();
         int statesN = actions.rows();
         INDArray diff = actions.sub(informations.getEvaluatedActions());

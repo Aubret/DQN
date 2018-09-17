@@ -1,6 +1,7 @@
 package fr.univlyon1.actorcritic.policy;
 
 import fr.univlyon1.environment.space.ActionSpace;
+import fr.univlyon1.learning.Informations;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Random;
@@ -22,9 +23,9 @@ public class EgreedyDecrement<A> extends Egreedy<A> {
     }
 
     @Override
-    public Object getAction(INDArray results) {
+    public Object getAction(INDArray results,Informations information) {
         this.modifyEpsilon();
-        return super.getAction(results);
+        return super.getAction(results,information);
     }
 
     private void modifyEpsilon(){

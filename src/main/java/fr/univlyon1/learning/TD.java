@@ -76,7 +76,7 @@ public class TD<A> implements Algorithm<A> {
 
         INDArray res = this.learning.getApproximator().getOneResult(interaction.getObservation())/*.dup()*/; // résultat précédent dans lequel on change une seule qvalue
         //System.out.println(interaction.getReward() + this.gamma * results.getDouble(this.policy.getAction(results)));
-        Double newValue = interaction.getReward() + this.gamma * results.getDouble(this.policy.getAction(results));
+        Double newValue = interaction.getReward() + this.gamma * results.getDouble(this.policy.getAction(results,this.informations));
         //newValue = res.getDouble(indice)+ (new Tanh()).value(newValue - res.getDouble(indice));
         res.putScalar(indice,newValue );
         return res ;

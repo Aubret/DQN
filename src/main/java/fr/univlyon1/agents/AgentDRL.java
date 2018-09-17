@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AgentDRL<A> implements AgentRL<A> {
     private static int count = 0 ;
-    private static String filename = "a6_rewards61";
+    private static String filename = "a6_rewards62";
     private Double previousTime ;
     private A action ;
 

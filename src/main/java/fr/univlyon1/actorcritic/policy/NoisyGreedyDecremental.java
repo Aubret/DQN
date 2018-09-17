@@ -1,5 +1,6 @@
 package fr.univlyon1.actorcritic.policy;
 
+import fr.univlyon1.learning.Informations;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Random;
@@ -22,9 +23,9 @@ public class NoisyGreedyDecremental extends NoisyGreedy{
         this.std = Math.min(1.f, Math.max(this.minStd, 0.5-0.05*this.stepStd));
     }
     @Override
-    public INDArray getAction(INDArray results) {
+    public INDArray getAction(INDArray results,Informations information) {
         this.modifyStd();
-        return super.getAction(results);
+        return super.getAction(results,information);
     }
 
     private void modifyStd(){

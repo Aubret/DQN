@@ -156,8 +156,8 @@ public class TDLstm2D<A> extends TDLstm<A> {
             //Commencement de l'apprentissage, labellisation
             //this.targetObservationApproximator.setMaskLabel(maskLabel);
             INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));
-            INDArray labels = this.multistepLabelize(secondObservations3,rewards,secondObservations2,gammas, forwardInputs,totalBatchs,masks,maskLabel); // A faire après le forard learn pour avoir la bonne mémoire
-            //INDArray labels2 = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
+            //INDArray labels = this.multistepLabelize(secondObservations3,rewards,secondObservations2,gammas, forwardInputs,totalBatchs,masks,maskLabel); // A faire après le forard learn pour avoir la bonne mémoire
+            INDArray labels = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);
