@@ -1,13 +1,9 @@
 package fr.univlyon1.networks;
 
-import fr.univlyon1.environment.HiddenState;
-import fr.univlyon1.networks.layers.LSTMLayer;
-import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
+import fr.univlyon1.environment.states.HiddenState;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
 import lombok.Getter;
 import lombok.Setter;
-import org.deeplearning4j.nn.api.*;
-import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;

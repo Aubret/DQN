@@ -2,8 +2,9 @@ package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.policy.GreedyDiscrete;
 import fr.univlyon1.actorcritic.Learning;
-import fr.univlyon1.environment.GammaInteraction;
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.BetaInteraction;
+import fr.univlyon1.environment.interactions.GammaInteraction;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 

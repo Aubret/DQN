@@ -5,23 +5,20 @@ import fr.univlyon1.actorcritic.policy.RandomPolicy;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.configurations.ListPojo;
 import fr.univlyon1.configurations.PojoInteraction;
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TD;
 import fr.univlyon1.learning.TDBatch;
-import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

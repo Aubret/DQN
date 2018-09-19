@@ -1,6 +1,6 @@
 package fr.univlyon1.memory;
 
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.ArrayList;

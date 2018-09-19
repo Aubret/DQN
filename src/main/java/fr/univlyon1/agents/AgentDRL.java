@@ -9,6 +9,7 @@ import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.learning.TD;
 import fr.univlyon1.learning.TDActorCritic;
 import fr.univlyon1.reward.NstepTime;
+import fr.univlyon1.reward.RewardSMDP;
 import fr.univlyon1.reward.RewardShaping;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -91,6 +92,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 55-56-57 sans cheat fonctionne bien du monis normalement
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.rewardShaping = new NstepTime(this.configuration);
         this.rewardShaping = new NstepTime(this.configuration);
         this.learning.init();
         if(this.print) {
@@ -163,7 +165,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         count++ ;
         Double reward=null;
         if(rewardTime != null) {
-            reward = this.rewardShaping.constructReward(rewardTime,this.previousTime);
+            reward = this.rewardShaping.constructReward(rewardTime,this.previousTime,time);
             this.learning.putReward(reward);
         }
         INDArray data = observation.getData();
@@ -193,7 +195,7 @@ public class AgentDRL<A> implements AgentRL<A> {
                         inputs = inputs.concat(";" + evaluation.get(i));
                     }
 
-                    this.rewardResults.println(count +";"+reward+str+inputs);
+                    this.rewardResults.println(count +";"+evaluation.get(0)+str+inputs);
                     //------------Inputs-----------------------
 
 

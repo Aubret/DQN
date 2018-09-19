@@ -3,16 +3,12 @@ package fr.univlyon1.learning;
 
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.actorcritic.Learning;
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.networks.Approximator;
-import fr.univlyon1.networks.EpsilonMultiLayerNetwork;
 import fr.univlyon1.networks.Mlp;
-import org.agrona.concurrent.Agent;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-
-import java.util.ArrayList;
 
 public class TDActorCritic<A> extends TDBatch<A> {
 

@@ -1,11 +1,8 @@
-package fr.univlyon1.environment;
+package fr.univlyon1.environment.interactions;
 
-import fr.univlyon1.environment.space.ContinuousAction;
 import lombok.Getter;
 import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.util.Map;
 
 @Setter
 @Getter
@@ -27,6 +24,15 @@ public class Interaction <A>{
     protected double reward ;
     protected double gamma ;
     protected int id ;
+
+
+    public Interaction(A action, INDArray observation){
+        this.action = action ;
+        this.observation = observation ;
+        this.id = count ;
+        count++;
+        this.state = null ;
+    }
 
     public Interaction(A action, INDArray observation,double gamma){
         this.action = action ;

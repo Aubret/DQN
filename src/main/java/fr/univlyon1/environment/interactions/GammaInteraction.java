@@ -1,21 +1,20 @@
-package fr.univlyon1.environment;
+package fr.univlyon1.environment.interactions;
 
 import org.apache.commons.math3.analysis.function.Sigmoid;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class GammaInteraction<A> extends Interaction<A> {
-    public static Sigmoid sigmo = new Sigmoid();
+    //public static Sigmoid sigmo = new Sigmoid();
 ;
     public double gamma ;
 
 
     public GammaInteraction(A action, INDArray observation, double gamma) {
         super(action, observation,gamma);
-        this.gamma = gamma ;
+    }
 
+    public GammaInteraction(A action, INDArray observation) {
+        super(action, observation);
     }
 
     public Interaction<A> clone(){

@@ -2,8 +2,7 @@ package fr.univlyon1.learning;
 
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.actorcritic.Learning;
-import fr.univlyon1.environment.Interaction;
-import fr.univlyon1.memory.prioritizedExperienceReplay.StochasticPrioritizedExperienceReplay;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;

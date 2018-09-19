@@ -1,12 +1,9 @@
 package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.Learning;
-import fr.univlyon1.environment.HiddenState;
-import fr.univlyon1.environment.Interaction;
-import fr.univlyon1.memory.ExperienceReplay;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
-import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.Mlp;
 import fr.univlyon1.networks.StateApproximator;
 import lombok.Getter;

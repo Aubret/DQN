@@ -1,4 +1,4 @@
-package fr.univlyon1.environment;
+package fr.univlyon1.environment.states;
 
 import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;

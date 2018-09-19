@@ -1,18 +1,10 @@
 package fr.univlyon1.memory;
 
-import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.configurations.ListPojo;
-import fr.univlyon1.configurations.PojoInteraction;
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.space.ActionSpace;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ExperienceReplay<A> {
     protected ArrayList<String> file ;

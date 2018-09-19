@@ -1,10 +1,9 @@
 package fr.univlyon1.memory.prioritizedExperienceReplay;
 
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.sumTree.SumTree;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.accum.Sum;
 
 import java.util.*;
 

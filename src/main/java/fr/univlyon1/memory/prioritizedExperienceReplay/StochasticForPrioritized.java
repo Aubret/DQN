@@ -1,6 +1,6 @@
 package fr.univlyon1.memory.prioritizedExperienceReplay;
 
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

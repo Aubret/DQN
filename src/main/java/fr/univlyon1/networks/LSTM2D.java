@@ -1,11 +1,9 @@
 package fr.univlyon1.networks;
 
-import fr.univlyon1.environment.AllHiddenState;
+import fr.univlyon1.environment.states.AllHiddenState;
 import fr.univlyon1.networks.layers.LSTMLayer;
 import fr.univlyon1.networks.layers.LSTMLayerConf;
-import fr.univlyon1.networks.layers.LayerNormalizationConf;
 import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;

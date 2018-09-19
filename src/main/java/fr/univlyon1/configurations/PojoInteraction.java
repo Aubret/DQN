@@ -1,6 +1,6 @@
 package fr.univlyon1.configurations;
 
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.space.ActionSpace;
 import lombok.Getter;
 import lombok.Setter;

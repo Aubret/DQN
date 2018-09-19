@@ -1,6 +1,6 @@
 package fr.univlyon1.memory.prioritizedExperienceReplay;
 
-import fr.univlyon1.environment.Interaction;
+import fr.univlyon1.environment.interactions.Interaction;
 import lombok.Getter;
 import lombok.Setter;
 
