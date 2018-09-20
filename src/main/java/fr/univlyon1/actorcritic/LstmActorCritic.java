@@ -62,6 +62,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.policy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
         Policy mixtePolicy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
         this.policy = new Egreedy<A>(conf.getMinEpsilon(),this.seed,this.actionSpace,mixtePolicy);
+        //this.policy = new Egreedy<A>(conf.getMinEpsilon(),this.seed,this.actionSpace,this.getPolicyApproximator());
 
     }
 

@@ -33,8 +33,8 @@ public class ParameterNoise<A> implements Policy<A> {
         this.seed = seed ;
         this.schedule = schedule ;
         this.timer = 0 ;
-        this.variance = 0.01 ;
-        this.alpha = 1.01 ;
+        this.variance = 0.02 ;
+        this.alpha = 1.02 ;
         thresholdDistance = 0.2;
     }
 

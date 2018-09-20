@@ -9,6 +9,8 @@ public interface Approximator extends Policy{
     INDArray getOneTrainingResult(INDArray data); // Obtenir un résultat de training
 
     int numOutput(); // taille de l'INDArray résultant
+    int numInput(); // taille de l'indarray en input
+
     Object learn(INDArray input,INDArray labels,int number); // Apprentissage supervisé
     INDArray error(INDArray input,INDArray labels,int number); // retourne l'erreur sur l'entrée sans apprentissage
     INDArray getScoreArray();

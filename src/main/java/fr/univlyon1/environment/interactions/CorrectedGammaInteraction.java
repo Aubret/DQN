@@ -1,26 +1,26 @@
 package fr.univlyon1.environment.interactions;
 
-import org.apache.commons.math3.analysis.function.Sigmoid;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-public class GammaInteraction<A> extends Interaction<A> {
-    public double gamma ;
+public class CorrectedGammaInteraction<A> extends Interaction<A> {
+
+    public double gamma;
 
 
-    public GammaInteraction(A action, INDArray observation, double gamma) {
-        super(action, observation,gamma);
+    public CorrectedGammaInteraction(A action, INDArray observation, double gamma) {
+        super(action, observation, gamma);
     }
 
-    public GammaInteraction(A action, INDArray observation) {
+    public CorrectedGammaInteraction(A action, INDArray observation) {
         super(action, observation);
     }
 
-    public GammaInteraction<A> clone(){
-        GammaInteraction<A> i = new GammaInteraction<A>(this.getAction(),this.getObservation(),this.gamma);
+    public CorrectedGammaInteraction<A> clone() {
+        CorrectedGammaInteraction<A> i = new CorrectedGammaInteraction<A>(this.getAction(), this.getObservation(), this.gamma);
         i.setSecondObservation(this.getSecondObservation());
         i.setReward(this.getReward());
         i.setId(this.getId());
-        return i ;
+        return i;
     }
 
     public double getGamma() {
@@ -36,16 +36,14 @@ public class GammaInteraction<A> extends Interaction<A> {
         //ouble reward = sigmo.value(3*this.secondObservation.getDouble(6));
         //double reward = this.reward * Math.max(0,Math.min(1,(this.secondObservation.getDouble(6)+1)/2));
         //System.out.println(this.secondObservation.getDouble(6)+" -> "+dt);
-        double reward =  Math.pow(this.gamma,this.dt);
+        double reward = this.reward * (1 - Math.pow(this.gamma, this.dt));
         return reward;
     }
 
     public double computeGamma() {
         //this.timefactor = sigmo.value(3*this.secondObservation.getDouble(6));
         //double gam =this.gamma+(1-this.gamma)*(1- Math.max(0,Math.min(1,(this.secondObservation.getDouble(6)+1)/2)));
-        double gam = Math.pow(this.gamma,this.dt);
-        return gam ;
+        double gam = Math.pow(this.gamma, this.dt);
+        return gam;
     }
-
-
 }

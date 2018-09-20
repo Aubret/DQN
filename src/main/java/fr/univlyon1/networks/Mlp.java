@@ -213,6 +213,11 @@ public class Mlp implements Approximator{
     }
 
     @Override
+    public int numInput() {
+        return this.input;
+    }
+
+    @Override
     public Object learn(INDArray input,INDArray labels,int number) {
         //System.out.println(this.model.getUpdater().getStateViewArray().getDouble(0));
         //this.model.clear();

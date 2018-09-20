@@ -46,7 +46,6 @@ public class TDLstm<A> extends TD<A> {
     protected int iterations ;
     protected int batchSize ;
 
-
     public TDLstm(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize,Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator,StateApproximator cloneObservationApproximator) {
         super(gamma, learning);
         this.iterations = iterations ;
