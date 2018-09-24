@@ -37,6 +37,9 @@ public class TDLstm2D<A> extends TDLstm<A> {
         }
             //Récupération de toutes les interactions
         for(int i = 0;i < this.iterations ; i++){
+            if(i > 0){
+                this.epoch() ;
+            }
             ArrayList<ArrayList<Interaction<A>>> total = new ArrayList<>();
             ArrayList<Integer> backwardsNumber = new ArrayList<>(); // nombre de backward pour chaque batch
             int forward = 0 ; // Maximum de taille de séquence temporelle
