@@ -11,16 +11,8 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Setter
 @Getter
-public class PojoInteraction<A> {
+public class PojoInteraction<A> implements PojoReplayable<A>{
 
-    public PojoInteraction(){}
-
-    public PojoInteraction(Interaction interaction, ActionSpace<A> as){
-        this.observation = interaction.getObservation().data().asDouble();
-        this.secondObservation = interaction.getSecondObservation().data().asDouble();
-        this.action = ((INDArray)as.mapActionToNumber((A)interaction.getAction())).data().asDouble();
-        this.reward = interaction.getReward();
-    }
 
     @XmlElement(name="observation")
     @XmlList
@@ -33,4 +25,22 @@ public class PojoInteraction<A> {
     private double[] action;
     @XmlElement(name="reward")
     private double reward;
+
+    @XmlElement(name="dt")
+    private double dt;
+
+    @XmlElement(name="time")
+    private double time;
+
+    public PojoInteraction(){}
+
+    public PojoInteraction(Interaction interaction, ActionSpace<A> as){
+        this.observation = interaction.getObservation().data().asDouble();
+        this.secondObservation = interaction.getSecondObservation().data().asDouble();
+        this.action = ((INDArray)as.mapActionToNumber((A)interaction.getAction())).data().asDouble();
+        this.reward = interaction.getReward();
+        this.time = interaction.getTime();
+        this.dt = interaction.getDt();
+    }
+
 }

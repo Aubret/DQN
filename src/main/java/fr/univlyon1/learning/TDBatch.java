@@ -48,7 +48,7 @@ public class TDBatch<A> extends TD<A> {
             INDArray inputs = Nd4j.zeros(numRows, numColumns);
             INDArray labels = Nd4j.zeros(numRows, numColumnsLabels);
             for (int i = 0; i < numRows; i++) {
-                Interaction<A> interaction = experienceReplay.chooseInteraction();
+                Interaction<A> interaction = (Interaction<A>)experienceReplay.chooseInteraction();
                 inputs.putRow(i, interaction.getObservation());
                 labels.putRow(i, this.labelize(interaction));
             }

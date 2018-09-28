@@ -1,6 +1,7 @@
 package fr.univlyon1.memory.prioritizedExperienceReplay;
 
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -21,7 +22,8 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
     }
 
     @Override
-    public void addInteraction(Interaction<A> interaction) {
+    public void addInteraction(Replayable<A> interaction) {
+        assert(interaction instanceof Interaction);
         if (this.interactions.size() == this.maxSize) {
             Interaction<A> remove = this.interactions.get(0);
             this.prioritized.removeInteraction(remove);
@@ -29,13 +31,13 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
         }
         if(this.num == 3) {
             if(! (this.prioritized instanceof StochasticForPrioritized)) {
-                this.prioritized.addInteractionNotTaken(interaction);
+                this.prioritized.addInteractionNotTaken((Interaction<A>)interaction);
             }else {
                 this.prioritized.addInteraction(interaction);
             }
             this.num = 0 ;
         }
-        this.interactions.add(interaction);
+        this.interactions.add((Interaction<A>)interaction);
         this.num++ ;
     }
 

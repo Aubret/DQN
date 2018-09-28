@@ -83,7 +83,7 @@ public class Configuration {
 
     @XmlElement(name="file")//Fichier de stockage mémoire experience replay
     @XmlList
-    ArrayList<String> file ;
+    ArrayList<String> file = new ArrayList<>() ;
 
     public Configuration(){
     }

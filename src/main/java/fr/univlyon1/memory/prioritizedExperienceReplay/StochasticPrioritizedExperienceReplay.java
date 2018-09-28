@@ -1,6 +1,7 @@
 package fr.univlyon1.memory.prioritizedExperienceReplay;
 
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.sumTree.SumTree;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -23,7 +24,8 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
         this.num = 0 ;
     }
     @Override
-    public void addInteraction(Interaction<A> interaction) {
+    public void addInteraction(Replayable<A> replayable) {
+        Interaction<A> interaction = (Interaction)replayable ;
         /*if(this.num != 5) {
             this.num++ ;
             return;

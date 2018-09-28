@@ -1,29 +1,25 @@
 package fr.univlyon1.environment.interactions;
 
+import fr.univlyon1.environment.space.SpecificObservation;
 import lombok.Getter;
 import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Setter
 @Getter
-public class Interaction <A>{
+public class Interaction <A> implements Replayable<A>{
     protected static int count = 0 ;
     protected Double time ;
     protected Double dt ;
     protected INDArray observation ;
     protected INDArray secondObservation ;
 
-    protected INDArray state ;
-    protected INDArray secondState ;
-    protected Object memoryBefore ;
-    protected Object memoryAfter ;
-
-
     protected A action ;
     protected A secondAction ;
     protected double reward ;
     protected double gamma ;
     protected int id ;
+    protected long idObserver ;
 
 
     public Interaction(A action, INDArray observation){
@@ -31,7 +27,6 @@ public class Interaction <A>{
         this.observation = observation ;
         this.id = count ;
         count++;
-        this.state = null ;
     }
 
     public Interaction(A action, INDArray observation,double gamma){
@@ -40,7 +35,6 @@ public class Interaction <A>{
         this.id = count ;
         this.gamma = gamma ;
         count++;
-        this.state = null ;
     }
 
     public Interaction<A> clone(){
@@ -57,5 +51,8 @@ public class Interaction <A>{
     }
     public double computeGamma() {
         return this.gamma;
+    }
+    public SpecificObservation emitObs(){
+        return new MiniObs(this);
     }
 }

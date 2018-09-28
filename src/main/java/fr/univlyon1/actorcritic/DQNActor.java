@@ -6,6 +6,7 @@ import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDBatch;
+import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.environment.space.ActionSpace;
@@ -58,6 +59,11 @@ public class DQNActor<A> implements Learning<A> {
     }
 
     @Override
+    public Approximator getModelApproximator() {
+        return null;
+    }
+
+    @Override
     public ActionSpace<A> getActionSpace() {
         return this.actionSpace ;
     }
@@ -90,6 +96,11 @@ public class DQNActor<A> implements Learning<A> {
     @Override
     public ObservationSpace getObservationSpace() {
         return this.observationSpace;
+    }
+
+    @Override
+    public ExperienceReplay<A> getExperienceReplay() {
+        return null;
     }
 
     @Override

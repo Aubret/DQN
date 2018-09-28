@@ -150,7 +150,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
                     cursorForward++ ;
                 }
             }
-
+            this.experienceReplay.setConstructedData(inputs); // save for self supervised learning
             // Apprentissage : besoin de l'état
             INDArray state = this.observationApproximator.forwardLearn(inputs, null, totalBatchs,masks,maskLabel);
             INDArray state_label = Nd4j.concat(1,state,inputs2);
@@ -163,7 +163,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);
-            INDArray epsilon = this.learn_critic(inputCritics, labels, totalBatchs*forwardInputs,sizeObservation);
+            INDArray epsilon = this.learn_critic(inputCritics, labels, totalBatchs,sizeObservation);
             this.savelearning.add(this.criticApproximator.getScore());
             INDArray score = this.criticApproximator.getScoreArray();
             this.experienceReplay.setError(score, backwardsNumber, backward, total);
@@ -174,7 +174,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
             //Apprentissage politique
             int sizeAction = this.learning.getActionSpace().getSize();
-            this.learn_actor(state_label, sizeObservation, sizeAction, totalBatchs*forwardInputs); // Important entre la propagation de l'observation et la backpropagation du gradient
+            this.learn_actor(state_label, sizeObservation, sizeAction, totalBatchs); // Important entre la propagation de l'observation et la backpropagation du gradient
 
             //INDArray epsilonObservationCrit = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.observationApproximator.numOutput()));
             INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.observationApproximator.numOutput()));

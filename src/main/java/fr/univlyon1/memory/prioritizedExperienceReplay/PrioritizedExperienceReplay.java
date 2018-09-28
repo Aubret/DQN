@@ -1,6 +1,7 @@
 package fr.univlyon1.memory.prioritizedExperienceReplay;
 
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.memory.ExperienceReplay;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -22,7 +23,8 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
     }
 
     @Override
-    public void addInteraction(Interaction<A> interaction) {
+    public void addInteraction(Replayable<A> replayable) {
+        Interaction<A> interaction = (Interaction)replayable ;
         if(this.interactions.size() == this.maxSize) {
             InteractionHistory ih = history.pollFirst();
             this.interactions.remove(ih.getInteraction());
@@ -75,6 +77,11 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
     @Override
     public int getSize() {
         return this.history.size();
+    }
+
+    @Override
+    public List<? extends Replayable<A>> getMemory() {
+        return null ;
     }
 
     public void print(){

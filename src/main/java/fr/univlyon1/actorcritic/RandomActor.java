@@ -6,10 +6,12 @@ import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.configurations.ListPojo;
 import fr.univlyon1.configurations.PojoInteraction;
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TD;
 import fr.univlyon1.learning.TDBatch;
+import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import lombok.Getter;
@@ -19,6 +21,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -64,12 +67,22 @@ public class RandomActor<A> implements Learning<A> {
     }
 
     @Override
+    public ExperienceReplay<A> getExperienceReplay() {
+        return null;
+    }
+
+    @Override
     public void putReward(Double reward) {
         this.reward = reward ;
     }
 
     @Override
     public Approximator getApproximator() {
+        return null;
+    }
+
+    @Override
+    public Approximator getModelApproximator() {
         return null;
     }
 
@@ -82,11 +95,13 @@ public class RandomActor<A> implements Learning<A> {
     @Override
     public void stop(){
         ListPojo<A> point = new ListPojo<A>();
-        List<Interaction<A>> memory = this.ep.getMemory() ;
-        for(Interaction<A> interaction : memory){
-            point.add(new PojoInteraction<A>(interaction,this.actionSpace));
+        Collection<? extends Replayable<A>> memory = this.ep.getMemory();
+        for(Replayable<A> replayable : memory){
+            if(replayable instanceof Interaction) {
+                Interaction<A> interaction = (Interaction<A>)replayable ;
+                point.add(new PojoInteraction<A>(interaction, this.actionSpace));
+            }
         }
-
         try {
             JAXBContext context = JAXBContext.newInstance(ListPojo.class);
             Marshaller m = context.createMarshaller();

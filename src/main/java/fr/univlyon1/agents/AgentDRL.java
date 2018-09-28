@@ -2,15 +2,13 @@ package fr.univlyon1.agents;
 
 import fr.univlyon1.actorcritic.*;
 import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.environment.space.ActionSpace;
-import fr.univlyon1.environment.space.ContinuousAction;
-import fr.univlyon1.environment.space.ObservationSpace;
-import fr.univlyon1.environment.space.Observation;
+import fr.univlyon1.environment.space.*;
 import fr.univlyon1.learning.TD;
 import fr.univlyon1.learning.TDActorCritic;
 import fr.univlyon1.reward.NstepTime;
 import fr.univlyon1.reward.RewardSMDP;
 import fr.univlyon1.reward.RewardShaping;
+import fr.univlyon1.selfsupervised.PomdpLearner;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -28,26 +26,32 @@ import java.util.concurrent.TimeUnit;
  * @param <A>
  */
 public class AgentDRL<A> implements AgentRL<A> {
-    private static int count = 0 ;
-    private static String filename = "a6_rewards63";
-    private Double previousTime ;
-    private A action ;
+    protected static int count = 0 ;
+    protected static String filename = "a6_rewards63";
+    protected static boolean writeFile = true ;
 
-    private ActionSpace<A> actionSpace ;
-    private Learning<A> learning;
-    private PrintWriter rewardResults ;
-    private double totalReward = 0 ;
-    private boolean print =true ;
-    private Configuration configuration ;
-    private RewardShaping rewardShaping;
 
-    private long time ;
+    protected Double previousTime ;
+    protected A action ;
+
+    protected ActionSpace<A> actionSpace ;
+    protected Learning<A> learning;
+    protected PrintWriter rewardResults ;
+    protected double totalReward = 0 ;
+    protected boolean print =true ;
+    protected Configuration configuration ;
+    protected RewardShaping rewardShaping;
+
+    protected ArrayList<PomdpLearner<A>> pomdpLearners ;
+
+    protected long time ;
 
     public AgentDRL(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
         this.time = System.currentTimeMillis();
         //Nd4j.getMemoryManager().setAutoGcWindow(5000);
         //Nd4j.getMemoryManager().togglePeriodicGc(false);
         this.actionSpace = actionSpace ;
+        this.pomdpLearners = new ArrayList<>();
         Nd4j.getRandom().setSeed(seed);
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
@@ -170,6 +174,9 @@ public class AgentDRL<A> implements AgentRL<A> {
         }
         INDArray data = observation.getData();
         A action = this.learning.getAction(data,time);
+        for(PomdpLearner pomdpLearner : this.pomdpLearners){
+            pomdpLearner.step();
+        }
         //A action = this.actionSpace.mapNumberToAction(Nd4j.create(new double[]{-1.,1.}));
         //A action = this.learning.getActionSpace().mapNumberToAction(0);
         this.action = action ;
@@ -215,6 +222,11 @@ public class AgentDRL<A> implements AgentRL<A> {
         return action ;
     }
 
+    public void notify(Observation observation){
+        for(int i = 0 ; i < this.pomdpLearners.size(); i++){
+            this.pomdpLearners.get(i).notify(observation);
+        }
+    }
 
     @Override
     public void stop() {
@@ -242,5 +254,9 @@ public class AgentDRL<A> implements AgentRL<A> {
 
     public static void setFilename(String filename) {
         AgentDRL.filename = filename;
+    }
+
+    public static boolean isWriteFile() {
+        return writeFile;
     }
 }

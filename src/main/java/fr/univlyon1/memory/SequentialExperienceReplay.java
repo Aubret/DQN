@@ -1,15 +1,19 @@
 package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
 public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     protected ArrayList<Interaction<A>> interactions ;
     protected ArrayList<Interaction<A>> tmp ;
+    protected INDArray constructedData ;
     protected Integer cursor=0;
     protected int sequenceSize ;
     protected int backpropSize ;
@@ -31,7 +35,8 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     }
 
     @Override
-    public void addInteraction(Interaction<A> interaction) {
+    public void addInteraction(Replayable<A> replayable) {
+        Interaction<A> interaction = (Interaction)replayable ;
         if(this.interactions.size() == this.maxSize)
             this.interactions.remove(this.interactions.get(0));
         this.interactions.add(interaction);
@@ -99,6 +104,11 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     }
 
     @Override
+    public AbstractCollection<? extends Replayable<A>> getMemory() {
+        return this.interactions ;
+    }
+
+    @Override
     public void setError(INDArray errors) {
 
     }
@@ -125,4 +135,27 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         //return this.backpropNumber;
     }
 
+    public int getSequenceSize() {
+        return sequenceSize;
+    }
+
+    public void setSequenceSize(int sequenceSize) {
+        this.sequenceSize = sequenceSize;
+    }
+
+    public int getBackpropSize() {
+        return backpropSize;
+    }
+
+    public void setBackpropSize(int backpropSize) {
+        this.backpropSize = backpropSize;
+    }
+
+    public INDArray getConstructedData() {
+        return constructedData;
+    }
+
+    public void setConstructedData(INDArray constructedData) {
+        this.constructedData = constructedData;
+    }
 }

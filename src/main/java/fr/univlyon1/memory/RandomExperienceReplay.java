@@ -1,12 +1,10 @@
 package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     protected List<Interaction<A>> memory ;
@@ -18,7 +16,8 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     }
 
     @Override
-    public void addInteraction(Interaction<A> interaction) {
+    public void addInteraction(Replayable<A> replayable) {
+        Interaction<A> interaction = (Interaction<A>)replayable ;
         LinkedList<Interaction<A>> memory = (LinkedList<Interaction<A>>)this.memory ;
         if(memory.size() == this.maxSize)
             memory.removeLast();
@@ -29,11 +28,11 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
 
     @Override
     public Interaction<A> chooseInteraction() {
-        Interaction<A> i = this.memory.get(random.nextInt(this.memory.size()));
+        Interaction<A> i = (Interaction<A>)this.memory.get(random.nextInt(this.memory.size()));
         return i;
     }
 
-    public List<Interaction<A>> getMemory() {
+    public Collection<Interaction<A>> getMemory() {
         return this.memory ;
     }
 

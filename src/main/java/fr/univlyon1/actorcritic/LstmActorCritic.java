@@ -5,6 +5,10 @@ import fr.univlyon1.actorcritic.policy.ParameterNoise;
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
+import fr.univlyon1.configurations.ListPojo;
+import fr.univlyon1.configurations.PojoInteraction;
+import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDLstm2D;
@@ -16,6 +20,13 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
 
 public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
@@ -35,9 +46,10 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initActor();
         this.initCritic();
         this.initLstm();
+        this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed);
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
-                new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed),
+                (SequentialExperienceReplay<A>)this.ep,
                 //new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 //new SequentialFixedNumber<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
                 conf.getIterations(),
@@ -189,7 +201,31 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.criticApproximator.stop();
         System.out.println("observation approximator");
         this.observationApproximator.stop();
+        if(AgentDRL.isWriteFile()){
+            ListPojo<A> point = new ListPojo<A>();
+            Collection<? extends Replayable<A>> memory = this.ep.getMemory();
+            for(Replayable<A> replayable : memory){
+                if(replayable instanceof Interaction) {
+                    Interaction<A> interaction = (Interaction<A>)replayable ;
+                    point.add(new PojoInteraction<A>(interaction, this.actionSpace));
+                }
+            }
+
+            try {
+                JAXBContext context = JAXBContext.newInstance(ListPojo.class);
+                Marshaller m = context.createMarshaller();
+                m.marshal(point,new File(getConf().getFile().get(0)));
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
+        }
     }
+
+    @Override
+    public Approximator getModelApproximator() {
+        return this.observationApproximator;
+    }
+
 
 
 }

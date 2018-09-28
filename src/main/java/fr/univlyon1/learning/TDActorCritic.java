@@ -62,7 +62,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
             INDArray inputs = Nd4j.zeros(numRows, numColumns);
             INDArray labels = Nd4j.zeros(numRows, numColumnsLabels);
             for (int i = 0; i < numRows; i++) {
-                Interaction<A> interaction = experienceReplay.chooseInteraction();
+                Interaction<A> interaction = (Interaction<A>)experienceReplay.chooseInteraction();
                 INDArray inputAction = Nd4j.concat(1,interaction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction()));
                 inputs.putRow(i, inputAction);
                 observations.putRow(i, interaction.getObservation());

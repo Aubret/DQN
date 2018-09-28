@@ -14,13 +14,13 @@ import java.util.ArrayList;
 public class ListPojo<A> {
     @XmlElement(name="interaction")
     @XmlElementWrapper(name="interactions")
-    ArrayList<PojoInteraction<A>> pojos;
+    ArrayList<PojoReplayable<A>> pojos;
 
     public ListPojo(){
         this.pojos = new ArrayList<>();
     }
 
-    public void add(PojoInteraction<A> pojo){
+    public void add(PojoReplayable<A> pojo){
         this.pojos.add(pojo);
     }
 

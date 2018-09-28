@@ -37,6 +37,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     protected int epoch ;
     protected int countStep ;
     protected ObservationSpace observationSpace;
+    protected ExperienceReplay<A> ep ;
     protected long seed ;
 
     public ContinuousActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed){
@@ -53,11 +54,11 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.initCritic(seed);
         //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
         //ExperienceReplay<A> ep = new PrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay());
-        ExperienceReplay<A> ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
-        ep.load(actionSpace);
+        this.ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
+        this.ep.load(actionSpace);
         this.td = new TDActorCritic<A>(conf.getGamma(),
                 this,
-                ep,
+                this.ep,
                 conf.getBatchSize(),
                 conf.getIterations(),
                 this.criticApproximator,
@@ -121,6 +122,11 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     @Override
+    public ExperienceReplay<A> getExperienceReplay() {
+        return this.ep ;
+    }
+
+    @Override
     public void putReward(Double reward) {
         this.reward = reward;
     }
@@ -128,6 +134,11 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     @Override
     public Approximator getApproximator() {
         return this.policyApproximator;
+    }
+
+    @Override
+    public Approximator getModelApproximator() {
+        return null;
     }
 
     @Override
@@ -203,7 +214,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     public Approximator getPolicyApproximator() {
-        return policyApproximator;
+        return this.policyApproximator;
     }
 
     public void setPolicyApproximator(Approximator policyApproximator) {
