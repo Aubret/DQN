@@ -3,7 +3,6 @@ package fr.univlyon1.memory;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.ListPojo;
 import fr.univlyon1.configurations.PojoInteraction;
-import fr.univlyon1.configurations.PojoReplayable;
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
@@ -58,16 +57,15 @@ public abstract class ExperienceReplay<A> {
                     JAXBContext context = newInstance(ListPojo.class);
                     Unmarshaller unmarshaller = context.createUnmarshaller();
                     ListPojo<A> lp = (ListPojo<A>) unmarshaller.unmarshal(new File(f));
-                    for (PojoReplayable<A> pi1 : lp.getPojos()) {
-                        if(pi1 instanceof PojoInteraction) {
-                            PojoInteraction<A> pi = (PojoInteraction<A>) pi1;
-                            Interaction<A> i = new Interaction<A>(as.mapNumberToAction(Nd4j.create(pi.getAction())), Nd4j.create(pi.getObservation()));
-                            i.setReward(pi.getReward());
-                            i.setSecondObservation(Nd4j.create(pi.getSecondObservation()));
-                            this.addInteraction(i);
-                            if (this.getSize() == this.maxSize - 1)
-                                return;
-                        }
+                    for (PojoInteraction<A> pi : lp.getPojos()) {
+                        Interaction<A> i = new Interaction<A>(as.mapNumberToAction(Nd4j.create(pi.getAction())), Nd4j.create(pi.getObservation()));
+                        i.setReward(pi.getReward());
+                        i.setSecondObservation(Nd4j.create(pi.getSecondObservation()));
+                        i.setDt(pi.getDt());
+                        i.setTime(pi.getTime());
+                        this.addInteraction(i);
+                        if (this.getSize() == this.maxSize - 1)
+                            return;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Setter
 @Getter
-public class PojoSpecificObservation<A> implements PojoReplayable<A>{
+public class PojoSpecificObservation<A>{
 
     @XmlElement(name="time")
     private Double time ;

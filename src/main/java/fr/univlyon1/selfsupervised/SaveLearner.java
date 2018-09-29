@@ -1,11 +1,9 @@
 package fr.univlyon1.selfsupervised;
 
 import fr.univlyon1.agents.AgentDRL;
-import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.configurations.ListPojo;
-import fr.univlyon1.configurations.PojoInteraction;
-import fr.univlyon1.configurations.SupervisedConfiguration;
+import fr.univlyon1.configurations.*;
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.MiniObs;
 import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.Observation;
@@ -45,17 +43,18 @@ public class SaveLearner<A> implements PomdpLearner<A> {
     public void stop() {
         if(AgentDRL.isWriteFile()){
             System.out.println("Saving notifications");
-            ListPojo<A> point = new ListPojo<A>();
+            ListPojoObs<A> point = new ListPojoObs<A>();
             Collection<? extends Replayable<A>> memory = this.notifications.getMemory();
             for(Replayable<A> replayable : memory){
-                if(replayable instanceof Interaction) {
-                    Interaction<A> interaction = (Interaction<A>)replayable ;
-                    point.add(new PojoInteraction<A>(interaction, this.actionSpace));
+                if(replayable instanceof SpecificObservation) {
+                    SpecificObservation<A> spo = (SpecificObservation<A>)replayable ;
+                    MiniObs miniObs =new MiniObs(spo);
+                    point.add(new PojoSpecificObservation<A>(miniObs));
                 }
             }
 
             try {
-                JAXBContext context = JAXBContext.newInstance(ListPojo.class);
+                JAXBContext context = JAXBContext.newInstance(ListPojoObs.class);
                 Marshaller m = context.createMarshaller();
                 m.marshal(point,new File(this.supervisedConfiguration.getFile().get(0)));
             } catch (JAXBException e) {

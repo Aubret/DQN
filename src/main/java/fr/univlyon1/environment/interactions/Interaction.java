@@ -43,6 +43,9 @@ public class Interaction <A> implements Replayable<A>{
         i.setSecondObservation(this.getSecondObservation());
         i.setReward(this.getReward());
         i.setId(this.getId());
+        i.setIdObserver(this.getIdObserver());
+        i.setTime(this.time);
+        i.setDt(this.dt);
         return i ;
     }
 

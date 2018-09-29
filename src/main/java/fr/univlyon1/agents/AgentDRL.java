@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class AgentDRL<A> implements AgentRL<A> {
     protected static int count = 0 ;
     protected static String filename = "a6_rewards63";
-    protected static boolean writeFile = true ;
+    protected static boolean writeFile = true;
 
 
     protected Double previousTime ;
@@ -231,6 +231,9 @@ public class AgentDRL<A> implements AgentRL<A> {
     @Override
     public void stop() {
         this.learning.stop();
+        for(int i = 0 ; i < this.pomdpLearners.size(); i++){
+            this.pomdpLearners.get(i).stop();
+        }
         System.out.println("Nombre de décisions : "+count);
         System.out.println("Total reward : "+this.totalReward);
         System.out.println("Last action : "+this.action);

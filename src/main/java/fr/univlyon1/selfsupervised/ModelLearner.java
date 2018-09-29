@@ -41,6 +41,9 @@ public class ModelLearner<A> implements PomdpLearner<A> {
     public ModelLearner(Approximator commonApproximator, Configuration configuration, SupervisedConfiguration supervisedConfiguration, ExperienceReplay<A> ep, ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
         this.experienceReplay = ep ;
         this.notifications = new SpecificObservationReplay<A>(configuration.getSizeExperienceReplay(),supervisedConfiguration.getFile());
+        this.experienceReplay.load(actionSpace);
+        this.notifications.load(actionSpace);
+
         this.configuration =  configuration ;
         this.iterations = configuration.getIterations() ;
         this.learn = configuration.getLearn() ;
@@ -70,24 +73,6 @@ public class ModelLearner<A> implements PomdpLearner<A> {
     @Override
     public void stop() {
         this.learner.stop();
-        if(AgentDRL.isWriteFile()){
-            ListPojo<A> point = new ListPojo<A>();
-            Collection<? extends Replayable<A>> memory = this.notifications.getMemory();
-            for(Replayable<A> replayable : memory){
-                if(replayable instanceof Interaction) {
-                    Interaction<A> interaction = (Interaction<A>)replayable ;
-                    point.add(new PojoInteraction<A>(interaction, this.actionSpace));
-                }
-            }
-
-            try {
-                JAXBContext context = JAXBContext.newInstance(ListPojo.class);
-                Marshaller m = context.createMarshaller();
-                m.marshal(point,new File(supervisedConfiguration.getFile().get(0)));
-            } catch (JAXBException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 }

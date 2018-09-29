@@ -43,12 +43,12 @@ public class MiniObs implements SpecificObservation{
 
     @Override
     public long getId() {
-        return 0;
+        return this.id;
     }
 
     @Override
     public boolean hasAlreadySent() {
-        return false;
+        return alreadySent;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MiniObs implements SpecificObservation{
 
     @Override
     public INDArray getLabels() {
-        return null;
+        return this.labels;
     }
 
     @Override

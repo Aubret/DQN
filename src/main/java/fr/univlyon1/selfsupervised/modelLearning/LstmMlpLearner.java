@@ -34,6 +34,7 @@ public class LstmMlpLearner<A> implements Learner {
         assert(lstm instanceof LSTM2D);
         assert(timeEp instanceof SequentialExperienceReplay);
         assert(labelEp instanceof SpecificObservationReplay);
+        this.lstm =(LSTM2D)lstm;
         this.conf = supervisedConfiguration ;
         this.actionSpace = actionSpace ;
         this.dataConstructors = new LstmDataConstructors<A>((SequentialExperienceReplay<A>)timeEp,(SpecificObservationReplay<A>)labelEp,configuration,actionSpace,observationSpace,supervisedConfiguration);
@@ -47,6 +48,7 @@ public class LstmMlpLearner<A> implements Learner {
         INDArray epsilon = (INDArray)this.regression.learn(Nd4j.concat(1,result,mbd.getAddings()),mbd.getLabels(),conf.getBatchSize());
         INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.lstm.numOutput()));
         this.lstm.learn(mbd.getInputs(),epsilonObservation,conf.getBatchSize());
+
     }
 
     @Override

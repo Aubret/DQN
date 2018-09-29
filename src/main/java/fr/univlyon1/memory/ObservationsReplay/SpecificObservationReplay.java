@@ -2,8 +2,7 @@ package fr.univlyon1.memory.ObservationsReplay;
 
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.ListPojo;
-import fr.univlyon1.configurations.PojoInteraction;
-import fr.univlyon1.configurations.PojoReplayable;
+import fr.univlyon1.configurations.ListPojoObs;
 import fr.univlyon1.configurations.PojoSpecificObservation;
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.MiniObs;
@@ -82,17 +81,14 @@ public class SpecificObservationReplay<A> extends ExperienceReplay<A> {
         if(file != null && !AgentDRL.isWriteFile()){ // Need to adjust gamma interaction
             for(String f : this.file)
                 try {
-                    JAXBContext context = newInstance(ListPojo.class);
+                    JAXBContext context = newInstance(ListPojoObs.class);
                     Unmarshaller unmarshaller = context.createUnmarshaller();
-                    ListPojo<A> lp = (ListPojo<A>) unmarshaller.unmarshal(new File(f));
-                    for (PojoReplayable<A> pi1 : lp.getPojos()) {
-                        if(pi1 instanceof PojoSpecificObservation) {
-                            PojoSpecificObservation<A> pi = (PojoSpecificObservation<A>)pi1;
-                            MiniObs spo = new MiniObs(pi);
-                            this.addInteraction(spo);
-                            if (this.getSize() == this.maxSize - 1)
-                                return;
-                        }
+                    ListPojoObs<A> lp = (ListPojoObs<A>) unmarshaller.unmarshal(new File(f));
+                    for (PojoSpecificObservation<A> pi : lp.getPojos()) {
+                        MiniObs spo = new MiniObs(pi);
+                        this.addInteraction(spo);
+                        if (this.getSize() == this.maxSize - 1)
+                            return;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

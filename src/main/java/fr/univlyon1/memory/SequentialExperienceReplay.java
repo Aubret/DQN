@@ -50,6 +50,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
         if(this.interactions.size() <= minForward)
             return false ;
+
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
             return false ;
 
