@@ -61,7 +61,7 @@ public class LSTM2D extends LSTM {
 
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
         //node = cursor+1 == this.numLayers ? output : node ;
-        builder.layer(cursor, new LSTMLayerConf.Builder()
+        builder.layer(cursor, new org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                 .activation(this.hiddenActivation)
                 //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
@@ -77,7 +77,7 @@ public class LSTM2D extends LSTM {
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
             //node = cursor+1 == this.numLayers ? output : node ;
             //if(i == numLayers -1)
-            builder.layer(cursor, new LSTMLayerConf.Builder()//new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
+            builder.layer(cursor, new org.deeplearning4j.nn.conf.layers.LSTM.Builder()//new  org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                     .activation(this.hiddenActivation)
                     //.units(node)
                     .gateActivationFunction(Activation.SIGMOID)
