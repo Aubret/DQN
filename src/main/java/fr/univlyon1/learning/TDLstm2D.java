@@ -87,7 +87,11 @@ public class TDLstm2D<A> extends TDLstm<A> {
             //INDArray secondObservations3 = Nd4j.zeros(totalBatchs,size,forward);// On avait besoin de la taille maximale du forward
 
             INDArray masks = Nd4j.zeros(totalBatchs,forwardInputs);
-            INDArray maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
+            INDArray maskLabel ;
+            if(observationApproximator instanceof LSTMMeanPooling){
+                maskLabel = Nd4j.ones(totalBatchs,1);
+            }else
+                maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
             int cursorBackward = 0 ;
             //System.out.println(forward);
             for(int batch = 0 ; batch < total.size() ; batch++){ // Insertion des batchs
@@ -126,7 +130,8 @@ public class TDLstm2D<A> extends TDLstm<A> {
                         //if(temporal == numberObservation-2){
                         //Label du mask
                         //maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(batch*forward + temporal),NDArrayIndex.all()},Nd4j.ones(1));
-                        maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
+                        if(!(observationApproximator instanceof LSTMMeanPooling))
+                            maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
                         //Labellisation des secondes observations
                         secondObservations.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all()/*, NDArrayIndex.point(temporal)*/},Nd4j.concat(1,interact.getSecondObservation(),action2));
 
