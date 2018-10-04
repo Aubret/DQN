@@ -33,7 +33,7 @@ public class PojoInteraction<A>{
     private double time;
 
     @XmlElement(name="idObserver")
-    private double idObserver;
+    private long idObserver;
 
     public PojoInteraction(){}
 

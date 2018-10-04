@@ -8,15 +8,18 @@ import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +41,7 @@ public class LSTM extends Mlp implements StateApproximator{
     }
 
     public void init(){
+
         int cursor = 0 ;
         if(this.updater ==null){
             this.updater = new Sgd(this.learning_rate);
@@ -100,7 +104,16 @@ public class LSTM extends Mlp implements StateApproximator{
         if(this.listener)
             this.attachListener(this.model);
         this.model.init();
+        if(this.importModel != null){
+            try {
+                MultiLayerNetwork m = ModelSerializer.restoreMultiLayerNetwork(this.importModel);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            this.model.setParams(model.params());
+        }
         this.tmp = this.model.params().dup();
+
     }
 
 
@@ -114,6 +127,7 @@ public class LSTM extends Mlp implements StateApproximator{
 
 
     public INDArray getOneTrainingResult(INDArray data){
+        this.model.setLayerMaskArrays(this.mask, this.maskLabel);
         //this.model.rnnClearPreviousState();
         for(int i = 0 ; i < this.model.getnLayers()-1 ; i++) {
             if(this.model.getLayer(i) instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer)
@@ -192,7 +206,7 @@ public class LSTM extends Mlp implements StateApproximator{
                 this.values = lossfn.getValues();
             }
         }
-        this.model.clearLayerMaskArrays();
+        //this.model.clearLayerMaskArrays();
         return this.model.epsilon() ;
     }
 

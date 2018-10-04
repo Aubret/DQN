@@ -24,7 +24,7 @@ public class SaveLearner<A> implements PomdpLearner<A> {
     protected ActionSpace<A> actionSpace ;
 
     public SaveLearner (Configuration configuration, SupervisedConfiguration supervisedConfiguration, ActionSpace<A> actionSpace){
-        this.notifications = new SpecificObservationReplay<A>(configuration.getSizeExperienceReplay(),supervisedConfiguration.getFile());
+        this.notifications = new SpecificObservationReplay<A>(configuration.getSizeExperienceReplay(),supervisedConfiguration.getReadfile());
         this.configuration = configuration ;
         this.supervisedConfiguration = supervisedConfiguration ;
         this.actionSpace = actionSpace ;
@@ -41,7 +41,7 @@ public class SaveLearner<A> implements PomdpLearner<A> {
 
     @Override
     public void stop() {
-        if(AgentDRL.isWriteFile()){
+        if(AgentDRL.isWriteFile() && !this.supervisedConfiguration.equals("")){
             System.out.println("Saving notifications");
             ListPojoObs<A> point = new ListPojoObs<A>();
             Collection<? extends Replayable<A>> memory = this.notifications.getMemory();
@@ -56,7 +56,7 @@ public class SaveLearner<A> implements PomdpLearner<A> {
             try {
                 JAXBContext context = JAXBContext.newInstance(ListPojoObs.class);
                 Marshaller m = context.createMarshaller();
-                m.marshal(point,new File(this.supervisedConfiguration.getFile().get(0)));
+                m.marshal(point,new File(this.supervisedConfiguration.getWritefile()));
             } catch (JAXBException e) {
                 e.printStackTrace();
             }

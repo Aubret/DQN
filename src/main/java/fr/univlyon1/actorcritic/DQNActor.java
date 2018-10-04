@@ -4,6 +4,7 @@ import fr.univlyon1.actorcritic.policy.EgreedyDecrement;
 import fr.univlyon1.actorcritic.policy.GreedyDiscrete;
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.configurations.Configuration;
+import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDBatch;
 import fr.univlyon1.memory.ExperienceReplay;
@@ -43,7 +44,7 @@ public class DQNActor<A> implements Learning<A> {
     public void init(){
         int batchSize = conf.getBatchSize();
         int iterations = conf.getIterations() ;
-        this.td = new TDBatch<A>(conf.getGamma(),this, new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile()),batchSize,iterations) ;// experience can be null
+        this.td = new TDBatch<A>(conf.getGamma(),this, new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getReadfile()),batchSize,iterations) ;// experience can be null
         //this.policy = new Egreedy(0.2,seed);
         this.policy = new EgreedyDecrement<A>(conf.getMinEpsilon(),conf.getStepEpsilon(),seed,this.actionSpace,new GreedyDiscrete(),conf.getInitStdEpsilon());
     }
@@ -74,7 +75,8 @@ public class DQNActor<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input,Double time) {
+    public A getAction(Observation observation, Double time) {
+        INDArray input = observation.getData() ;
         if(AgentDRL.getCount() > 50) { // Ne pas overfitter sur les premières données arrivées
             this.td.evaluate(input, this.reward); //Evaluation
             this.countStep++;

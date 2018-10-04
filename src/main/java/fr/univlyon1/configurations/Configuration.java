@@ -73,6 +73,9 @@ public class Configuration {
     @XmlElement(name="backpropTime")
     int backpropTime = 10 ;
 
+    @XmlElement(name="forward")
+    int forward = 2 ;
+
 
     //expererience replay
     @XmlElement(name="sizeExperienceReplay")
@@ -81,9 +84,12 @@ public class Configuration {
     @XmlElement(name="gamma")
     Double gamma = 0.9 ;
 
-    @XmlElement(name="file")//Fichier de stockage mémoire experience replay
+    @XmlElement(name="readfile")//Fichier de stockage mémoire experience replay
     @XmlList
-    ArrayList<String> file = new ArrayList<>() ;
+    ArrayList<String> readfile = new ArrayList<>() ;
+
+    @XmlElement(name="writefile")
+    String writefile = "";
 
     public Configuration(){
     }

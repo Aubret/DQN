@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class SequentialFixedNumber<A> extends SequentialPrioritizedExperienceReplay<A> {
     protected int endCursor ;
 
-    public SequentialFixedNumber(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed, int learn) {
-        super(maxSize, file, sequenceSize, backpropSize, seed, learn);
+    public SequentialFixedNumber(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed, int learn,int forward) {
+        super(maxSize, file, sequenceSize, backpropSize, seed, learn,forward);
         this.minForward = sequenceSize;
     }
 

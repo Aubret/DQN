@@ -94,7 +94,8 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 43-44avec cheat
         // 50 sans cheat 0.5 learning rate
         // 55-56-57 sans cheat fonctionne bien du monis normalement
-        this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.rewardShaping = new NstepTime(this.configuration);
         this.rewardShaping = new NstepTime(this.configuration);
@@ -122,7 +123,7 @@ public class AgentDRL<A> implements AgentRL<A> {
             this.learning.putReward(reward);
         }
         INDArray data = observation.getData();
-        A action = this.learning.getAction(data,time);
+        A action = this.learning.getAction(observation,time);
         //A action = this.learning.getActionSpace().mapNumberToAction(0);
         this.action = action ;
         if(reward != null ){
@@ -173,7 +174,7 @@ public class AgentDRL<A> implements AgentRL<A> {
             this.learning.putReward(reward);
         }
         INDArray data = observation.getData();
-        A action = this.learning.getAction(data,time);
+        A action = this.learning.getAction(observation,time);
         for(PomdpLearner pomdpLearner : this.pomdpLearners){
             pomdpLearner.step();
         }
@@ -225,6 +226,7 @@ public class AgentDRL<A> implements AgentRL<A> {
     public void notify(Observation observation){
         for(int i = 0 ; i < this.pomdpLearners.size(); i++){
             this.pomdpLearners.get(i).notify(observation);
+            //System.out.println(((SpecificObservation)observation).getLabels());
         }
     }
 

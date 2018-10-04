@@ -5,6 +5,7 @@ import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.interactions.BetaInteraction;
 import fr.univlyon1.environment.interactions.GammaInteraction;
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.SpecificObservation;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -29,7 +30,7 @@ public class TD<A> implements Algorithm<A> {
 
     @Override
     public INDArray behave(INDArray input) {
-        return this.learning.getApproximator().getOneResult(input);
+        return (INDArray)this.learning.getPolicy().getAction(input,null);
     }
 
     @Override
@@ -42,8 +43,24 @@ public class TD<A> implements Algorithm<A> {
             this.previousInteraction = this.lastInteraction;
         }
         this.lastInteraction = new GammaInteraction<A>(action,observation,this.learning.getConf().getGamma());
-        if(observation instanceof SpecificObservation)
-            this.lastInteraction.setIdObserver(((SpecificObservation)observation).getId());
+        this.lastInteraction.setTime(time);
+
+    }
+
+    @Override
+    public void step(Observation observation, A action, Double time) {
+        INDArray input = observation.getData() ;
+        double dt = 0. ;
+        if(this.lastInteraction != null) {
+            this.lastInteraction.setSecondAction(action);
+            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
+            this.informations.setDt(time-this.lastInteraction.getTime());
+            this.previousInteraction = this.lastInteraction;
+        }
+        this.lastInteraction = new GammaInteraction<A>(action,input,this.learning.getConf().getGamma());
+        if(observation instanceof SpecificObservation){
+            this.lastInteraction.setIdObserver(((SpecificObservation) observation).getId());
+        }
         this.lastInteraction.setTime(time);
 
     }

@@ -9,67 +9,84 @@ import fr.univlyon1.environment.space.SpecificObservation;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.ObservationsReplay.SpecificObservationReplay;
 import fr.univlyon1.memory.SequentialExperienceReplay;
+import fr.univlyon1.networks.LSTM;
+import fr.univlyon1.networks.LSTMMeanPooling;
+import fr.univlyon1.selfsupervised.dataTransfer.DataBuilder;
+import fr.univlyon1.selfsupervised.dataTransfer.DataList;
+import fr.univlyon1.selfsupervised.dataTransfer.DataTarget;
 import fr.univlyon1.selfsupervised.dataTransfer.ModelBasedData;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.primitives.Pair;
 
-import java.sql.Array;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.SortedSet;
 
+@Getter
+@Setter
 public class LstmDataConstructors<A> {
-    private SequentialExperienceReplay<A> timeEp;
-    private SpecificObservationReplay<A> labelEp;
-    private Configuration configuration ;
-    private int batchSize ;
-    private ActionSpace<A> actionSpace ;
-    private ObservationSpace observationSpace ;
-    private int timeDifficulty ;
-    private int numberMax ;
-    private int sequenceSize ;
+    protected SequentialExperienceReplay<A> timeEp;
+    protected SpecificObservationReplay<A> labelEp;
+    protected Configuration configuration ;
+    protected SupervisedConfiguration configuration2 ;
+    protected int batchSize ;
+    protected ActionSpace<A> actionSpace ;
+    protected ObservationSpace observationSpace ;
+    protected int numberMax ;
+    protected int sequenceSize ;
+    protected DataBuilder<A> dataBuilder ;
+    protected UniformIntegerDistribution srd ;
+    protected int cursor ;
+    protected LSTM lstm ;
 
 
-    public LstmDataConstructors(SequentialExperienceReplay<A> timeEp, SpecificObservationReplay<A> labelEp, Configuration conf, ActionSpace<A> actionSpace, ObservationSpace observationSpace, SupervisedConfiguration conf2){
+    public LstmDataConstructors(LSTM lstm ,SequentialExperienceReplay<A> timeEp, SpecificObservationReplay<A> labelEp, Configuration conf, ActionSpace<A> actionSpace, ObservationSpace observationSpace, SupervisedConfiguration conf2){
         this.timeEp = timeEp ;
         this.labelEp = labelEp ;
         this.configuration = conf ;
         this.batchSize = conf2.getBatchSize() ;
         this.actionSpace = actionSpace ;
         this.observationSpace = observationSpace ;
-        this.timeDifficulty = conf2.getTimeDifficulty();
         this.numberMax = conf2.getNumberMaxInputs();
         this.sequenceSize = conf.getForwardTime();
+        this.dataBuilder = new DataBuilder<A>(conf2.getDataBuilder(),this);
+        this.srd = new UniformIntegerDistribution(0,conf2.getTimeDifficulty()) ;
+        this.configuration2 = conf2 ;
+        this.lstm = lstm ;
+
 
     }
 
     public ModelBasedData construct(){
         ArrayList<ArrayList<Interaction<A>>> total = new ArrayList<>();
         ArrayList<Integer> backwardsNumber = new ArrayList<>(); // nombre de backward pour chaque batch
-        ArrayList<DataList> labelisation = new ArrayList<>();
+        ArrayList<DataTarget> labelisation = new ArrayList<>();
         int forward = 0 ; // Maximum de taille de séquence temporelle
         int backward = 0 ; // Total de données labellisées, donc total de backpropagation
         int numRows = Math.min(this.timeEp.getSize(),this.batchSize);
         int size = this.observationSpace.getShape()[0]+this.actionSpace.getSize();
 
-        this.timeEp.setSequenceSize(this.sequenceSize + this.timeDifficulty);
+        //double timeDifficulty = this.timeDifficulty ;
         while(backward < numRows) {
+            int timeDifficulty = /*this.configuration2.getTimeDifficulty();*/this.srd.sample();
+            this.timeEp.setSequenceSize(this.sequenceSize);
             if (this.timeEp.initChoose()) {
                 // choix des interactions
                 Interaction<A> interaction = (Interaction<A>)this.timeEp.chooseInteraction();
                 ArrayList<Interaction<A>> observations = new ArrayList<>();
                 while (interaction != null) {
                     observations.add(interaction);
-                    interaction = (Interaction<A>)this.timeEp.chooseInteraction();
+                    interaction = this.timeEp.chooseInteraction();
                 }
-                DataList lab = this.choosePrediction(observations,this.timeDifficulty);
+                DataTarget lab = this.choosePrediction(observations,timeDifficulty);
                 if(lab == null)
                     continue ;
                 labelisation.add(lab);
@@ -93,8 +110,13 @@ public class LstmDataConstructors<A> {
         backward = backward - totalBatchs;
         INDArray inputs = Nd4j.zeros(totalBatchs,size,forwardInputs);// On avait besoin de la taille maximale du forward
         INDArray masks = Nd4j.zeros(totalBatchs,forwardInputs);
-        INDArray maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
-        INDArray labels = Nd4j.zeros(backward,labelisation.get(0).getObservation().getLabels().size(1));
+        INDArray maskLabel  ;
+        if(this.lstm instanceof LSTMMeanPooling){
+            maskLabel = Nd4j.ones(totalBatchs,1);
+        }else
+            maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
+
+        INDArray labels = Nd4j.zeros(backward,labelisation.get(0).getLabels().size(1));
         INDArray secondInputs = Nd4j.zeros(backward,this.numAddings());
 
         int cursorBackward = 0 ;
@@ -111,12 +133,12 @@ public class LstmDataConstructors<A> {
                 INDArray action = (INDArray) this.actionSpace.mapActionToNumber(interact.getAction());
                 int indice = - numberObservation +numBackwards + cursorForward;
                 if(indice > 0) {
-                    labels.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},labelisation.get(cursorBackward).getObservation().getLabels());
+                    labels.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},labelisation.get(cursorBackward).getLabels());
                     secondInputs.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},labelisation.get(cursorBackward).constructAddings());
                     cursorBackward++ ;
                 }
 
-                if(temporal >= forwardInputs-numBackwards+1 && temporal < forwardInputs){
+                if(!(this.lstm instanceof LSTMMeanPooling) && temporal >= forwardInputs-numBackwards+1 && temporal < forwardInputs){
                     maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
                 }
 
@@ -130,60 +152,52 @@ public class LstmDataConstructors<A> {
                 cursorForward++ ;
             }
         }
-        return new ModelBasedData(inputs, secondInputs, labels, masks,maskLabel);
+        return new ModelBasedData(inputs, secondInputs, labels, masks,maskLabel,forwardInputs,totalBatchs);
     }
 
-    public DataList choosePrediction(ArrayList<Interaction<A>> observations,int dt ) {
-        Double tmpT = 0. ;
-        int cursor = observations.size();
-        Interaction<A> last = observations.get(cursor-1);
-        while(tmpT < dt && cursor >=0 && (observations.size() - cursor) < this.numberMax){ // Choix de véhicule qu'on prédit
-            cursor -- ;
-            tmpT += observations.get(cursor).getDt() ;
-        }
-        Interaction<A> chosen = observations.get(cursor);
+    public DataTarget choosePrediction(ArrayList<Interaction<A>> observations, int dt ) {
+        Interaction<A> last = observations.get(observations.size()-1);
+        Interaction<A> chosen = this.chooseStudiedInteraction(observations,dt);
+        if(chosen == null)
+            return null ;
         this.labelEp.setRepere(last);
         SortedSet<SpecificObservation> set = this.labelEp.subset();
         Iterator<SpecificObservation> iterator = set.iterator();
         long id = -1 ;
         SpecificObservation spo = null ;
+        int cpt = 0 ;
         while(id != chosen.getIdObserver()){ // Trouver la première notification du véhicule choisi
-            if(!iterator.hasNext()){
+            if(!iterator.hasNext() || cpt > 50){
+                //System.out.println("not found " + id+ " vs "+chosen.getIdObserver());
                 return null ;
             }
             spo = iterator.next() ;
             id = spo.getId() ;
+            cpt++ ;
         }
-
-        Double numMaxNorm = Integer.valueOf(this.numberMax).doubleValue()/2. ;
-        Double normalizedId = (Integer.valueOf(cursor).doubleValue() - numMaxNorm)/numMaxNorm ;
+        //System.out.println("found "+id+ " vs "+chosen.getIdObserver());
         Double elapseTime = (spo.getOrderedNumber()-observations.get(observations.size()-1).getTime()-30.)/30.;
         this.timeEp.setSequenceSize(this.sequenceSize);
-        return new DataList(spo,chosen,elapseTime,normalizedId);
+        return this.dataBuilder.build(spo,chosen,elapseTime);
+    }
+
+
+    protected Interaction<A> chooseStudiedInteraction(ArrayList<Interaction<A>> observations, int dt){
+        Double tmpT = 0. ;
+        this.cursor = observations.size()-1;
+        while(tmpT < dt && cursor >=0 && (observations.size() - cursor) < this.numberMax){ // Choix de véhicule qu'on prédit
+            tmpT += observations.get(cursor).getDt() ;
+            cursor -- ;
+        }
+        if(cursor==-1)
+            return null ;
+        return observations.get(cursor);
     }
 
 
     public int numAddings(){
-        return 2;
+        return this.dataBuilder.getNumAddings();
     }
-    @Getter
-    @Setter
-    public class DataList {
-        public SpecificObservation observation ;
-        public Interaction<A> predictions ;
-        public Double extratime ;
-        public Double normalizedId ;
 
-        public DataList(SpecificObservation observation, Interaction<A> predictions, Double extratime, Double normalizedId){
-            this.observation = observation ;
-            this.predictions = predictions ;
-            this.extratime = extratime ;
-            this.normalizedId = normalizedId ;
-        }
 
-        public INDArray constructAddings(){
-            return Nd4j.create(new double[]{this.extratime, this.normalizedId});
-        }
-
-    }
 }

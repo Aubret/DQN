@@ -8,11 +8,13 @@ import fr.univlyon1.configurations.PojoInteraction;
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
+import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TD;
 import fr.univlyon1.learning.TDBatch;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.RandomExperienceReplay;
+import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -30,7 +32,7 @@ public class RandomActor<A> implements Learning<A> {
     private ActionSpace<A> actionSpace ;
     private TD<A> td ;
     private double reward ;
-    private RandomExperienceReplay<A> ep ;
+    private ExperienceReplay<A> ep ;
     private Policy<A> policy ;
 
     private Configuration conf ;
@@ -38,7 +40,7 @@ public class RandomActor<A> implements Learning<A> {
     public RandomActor(ObservationSpace os, ActionSpace<A> as, Configuration conf,long seed){
         this.seed = seed ;
         this.actionSpace = as ;
-        this.ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,null);
+        this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),0,0,seed,0);
         this.conf = conf ;
         this.policy = new RandomPolicy<A>(as);
     }
@@ -53,11 +55,12 @@ public class RandomActor<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input, Double time) {
+    public A getAction(Observation observation, Double time) {
+        INDArray input =  observation.getData() ;
         this.td.evaluate(input,this.reward);
         Object o = this.td.behave(input);//this.policy.getAction(input);
         A a = this.actionSpace.mapNumberToAction(o);
-        this.td.step(input,this.actionSpace.mapNumberToAction(o),time);
+        this.td.step(observation,this.actionSpace.mapNumberToAction(o),time);
         return a ;
     }
 
@@ -105,7 +108,7 @@ public class RandomActor<A> implements Learning<A> {
         try {
             JAXBContext context = JAXBContext.newInstance(ListPojo.class);
             Marshaller m = context.createMarshaller();
-            m.marshal(point,new File(getConf().getFile().get(0)));
+            m.marshal(point,new File(getConf().getWritefile()));
         } catch (JAXBException e) {
             e.printStackTrace();
         }

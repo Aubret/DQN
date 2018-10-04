@@ -13,8 +13,8 @@ public class SequentialPrioritizedExperienceReplay<A> extends SequentialExperien
     protected int num ;
     protected int learn ;
 
-    public SequentialPrioritizedExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed,int learn) {
-        super(maxSize, file, sequenceSize, backpropSize, seed);
+    public SequentialPrioritizedExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed,int learn,int forward) {
+        super(maxSize, file, sequenceSize, backpropSize, seed,forward);
         this.prioritized = new StochasticPrioritizedExperienceReplay<A>(maxSize/5,seed,file);
         //this.prioritized = new StochasticForPrioritized<A>(20000,seed,file,this);
         this.learn = learn ;

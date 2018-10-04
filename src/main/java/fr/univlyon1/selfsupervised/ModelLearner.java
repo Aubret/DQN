@@ -40,7 +40,7 @@ public class ModelLearner<A> implements PomdpLearner<A> {
 
     public ModelLearner(Approximator commonApproximator, Configuration configuration, SupervisedConfiguration supervisedConfiguration, ExperienceReplay<A> ep, ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
         this.experienceReplay = ep ;
-        this.notifications = new SpecificObservationReplay<A>(configuration.getSizeExperienceReplay(),supervisedConfiguration.getFile());
+        this.notifications = new SpecificObservationReplay<A>(configuration.getSizeExperienceReplay(),supervisedConfiguration.getReadfile());
         this.experienceReplay.load(actionSpace);
         this.notifications.load(actionSpace);
 

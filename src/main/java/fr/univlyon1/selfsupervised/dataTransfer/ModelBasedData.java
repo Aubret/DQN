@@ -14,12 +14,17 @@ public class ModelBasedData {
     protected INDArray mask;
     protected INDArray maskLabel;
 
+    protected int totalForward ;
+    protected int totalbatchs ;
 
-    public ModelBasedData(INDArray inputs, INDArray addings, INDArray labels,INDArray mask, INDArray maskLabel){
+
+    public ModelBasedData(INDArray inputs, INDArray addings, INDArray labels,INDArray mask, INDArray maskLabel, int totalForward, int totalbatchs){
         this.inputs = inputs;
         this.addings= addings;
         this.labels = labels;
         this.mask = mask ;
         this.maskLabel = maskLabel;
+        this.totalForward = totalForward ;
+        this.totalbatchs = totalbatchs;
     }
 }

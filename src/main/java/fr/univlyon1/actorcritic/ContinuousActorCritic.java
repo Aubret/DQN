@@ -3,6 +3,7 @@ package fr.univlyon1.actorcritic;
 import fr.univlyon1.actorcritic.policy.*;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
+import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.Algorithm;
 import fr.univlyon1.memory.ExperienceReplay;
@@ -54,7 +55,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.initCritic(seed);
         //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
         //ExperienceReplay<A> ep = new PrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay());
-        this.ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getFile());
+        this.ep = new StochasticPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),seed,conf.getReadfile());
         this.ep.load(actionSpace);
         this.td = new TDActorCritic<A>(conf.getGamma(),
                 this,
@@ -100,7 +101,8 @@ public class ContinuousActorCritic<A> implements Learning<A> {
     }
 
     @Override
-    public A getAction(INDArray input, Double time) {
+    public A getAction(Observation observation, Double time) {
+        INDArray input = observation.getData() ;
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
@@ -117,7 +119,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }else
             actionBehaviore= this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
-        this.td.step(input,actionBehaviore,time); // step learning algorithm
+        this.td.step(observation,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 

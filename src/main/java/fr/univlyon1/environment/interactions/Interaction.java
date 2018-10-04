@@ -9,7 +9,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 @Getter
 public class Interaction <A> implements Replayable<A>{
     protected static int count = 0 ;
+    // time of first observation
     protected Double time ;
+    // time between the first and second observation
     protected Double dt ;
     protected INDArray observation ;
     protected INDArray secondObservation ;

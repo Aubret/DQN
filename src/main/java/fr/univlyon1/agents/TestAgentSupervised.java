@@ -10,6 +10,7 @@ import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.LSTM2D;
+import fr.univlyon1.networks.LSTMMeanPooling;
 import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.selfsupervised.ModelLearner;
 import fr.univlyon1.selfsupervised.PomdpLearner;
@@ -23,6 +24,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/*
+ Agent qui load un fichier et qui exerce le lstm dessus
+ */
 public class TestAgentSupervised<A> implements AgentRL<A> {
     private PomdpLearner<A> pomdpLearners;
     private Configuration configuration ;
@@ -32,6 +36,7 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
     private long seed ;
 
     public TestAgentSupervised(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
+        AgentDRL.writeFile = false ;
         this.actionSpace = actionSpace ;
         this.observationSpace = observationSpace;
         this.seed = seed ;
@@ -55,12 +60,13 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
         }
 
         Approximator approx = initLstm();
-        ExperienceReplay<A> ep = new SequentialExperienceReplay<A>(configuration.getSizeExperienceReplay(), configuration.getFile(), configuration.getForwardTime(), configuration.getBackpropTime(),seed);
+        ExperienceReplay<A> ep = new SequentialExperienceReplay<A>(configuration.getSizeExperienceReplay(), configuration.getReadfile(), configuration.getForwardTime(), configuration.getBackpropTime(),seed, configuration.getForward());
         this.pomdpLearners = new ModelLearner<A>(approx,configuration,supervisedConfiguration,ep,actionSpace,observationSpace,seed);
     }
 
     public Approximator initLstm(){
-        LSTM2D lstm = new LSTM2D(observationSpace.getShape()[0]+this.actionSpace.getSize(),this.configuration.getNumLstmOutputNodes(),seed);
+        //LSTM2D lstm = new LSTM2D(observationSpace.getShape()[0]+this.actionSpace.getSize(),this.configuration.getNumLstmOutputNodes(),seed);
+        LSTMMeanPooling lstm = new LSTMMeanPooling(observationSpace.getShape()[0]+this.actionSpace.getSize(),this.configuration.getNumLstmOutputNodes(),seed);
         lstm.setLearning_rate(configuration.getLearning_rateLstm());
         lstm.setListener(true);
         lstm.setNumNodesPerLayer(configuration.getLayersLstmHiddenNodes());
@@ -72,6 +78,7 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
         lstm.setLossFunction(new LossError());
         lstm.setHiddenActivation(Activation.TANH);
         lstm.setLastActivation(Activation.TANH);
+        lstm.setExportModel("resources/models/lstm");
         //this.observationApproximator.setL2(0.001);
         lstm.init() ;
         return lstm ;

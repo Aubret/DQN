@@ -17,6 +17,7 @@ import org.deeplearning4j.optimize.api.TrainingListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.learning.config.IUpdater;
@@ -25,6 +26,7 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 @Getter
@@ -59,6 +61,9 @@ public class Mlp implements Approximator{
 
     protected Double l2 ;
     protected int epoch ;
+
+    protected String exportModel =null ;
+    protected String importModel =null ;
 
     public Mlp(Mlp mlp,boolean listener){// MultiLayerNetwork model,int output){
         this.input = mlp.getInput();
@@ -333,6 +338,13 @@ public class Mlp implements Approximator{
     public void stop() {
         System.out.println(this.tmp);
         System.out.println(this.model.params());
+        if(this.exportModel != null){
+            try {
+                ModelSerializer.writeModel(this.model,this.exportModel,false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

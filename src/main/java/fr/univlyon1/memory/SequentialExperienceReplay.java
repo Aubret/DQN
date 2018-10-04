@@ -25,13 +25,13 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
 
     protected int minForward ;
 
-    public SequentialExperienceReplay(int maxSize, ArrayList<String> file,int sequenceSize, int backpropSize,long seed){
+    public SequentialExperienceReplay(int maxSize, ArrayList<String> file,int sequenceSize, int backpropSize,long seed,Integer forwardSize){
         super(maxSize,file);
         this.resetMemory();
         this.sequenceSize = sequenceSize ;
         this.backpropSize = backpropSize ;
         this.random = new Random(seed);
-        this.minForward = 2 ;
+        this.minForward = forwardSize ;
     }
 
     @Override
@@ -50,10 +50,8 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
         if(this.interactions.size() <= minForward)
             return false ;
-
         if(this.interactions.get(this.interactions.size()-1).getTime() - this.interactions.get(0).getTime() < this.sequenceSize )
             return false ;
-
         // On vérifie qu ele curseur actuel suffit à proposer une séquence complète
         Interaction<A> start = this.choose();
         Double dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
@@ -127,12 +125,12 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         Double endTime = this.tmp.get(this.tmp.size()-1).getTime() ;
         for(int i = this.tmp.size()-1 ; i >= 0 ; i-- ) {
             if (endTime - this.tmp.get(i).getTime() > this.backpropSize) {
-                return Math.max(2,Math.min(this.backpropNumber,2));
+                return Math.max(this.minForward,Math.min(this.backpropNumber,this.minForward));
                 //return this.backpropNumber;
             } else
                 this.backpropNumber++;
         }
-        return Math.max(2,Math.min(this.backpropNumber,2));
+        return Math.max(this.minForward,Math.min(this.backpropNumber,this.minForward));
         //return this.backpropNumber;
     }
 

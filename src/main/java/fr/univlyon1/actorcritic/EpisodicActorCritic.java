@@ -4,6 +4,7 @@ import fr.univlyon1.actorcritic.policy.NoisyGreedy;
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.environment.space.ActionSpace;
+import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDBatch;
 import fr.univlyon1.networks.Mlp;
@@ -14,7 +15,7 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
 
     public EpisodicActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed) {
         super(observationSpace, actionSpace, conf, seed);
-        if(conf.getFile() == null){
+        if(conf.getReadfile() == null || conf.getReadfile().isEmpty()){
             System.out.println("Il manque un fichier de chargement");
         }
         this.countStep = 0 ;
@@ -37,7 +38,8 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     @Override
-    public A getAction(INDArray input,Double time) {
+    public A getAction(Observation observation, Double time) {
+        INDArray input =observation.getData() ;
         this.td.evaluate(input, this.reward); //Evaluation
 
         //actionBehaviore = this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
@@ -50,7 +52,7 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
             this.learn();
         }
         this.td.learn();
-        this.td.step(input,actionBehaviore,time); // step learning algorithm
+        this.td.step(observation,actionBehaviore,time); // step learning algorithm
         this.countStep++ ;
         return actionBehaviore;
     }

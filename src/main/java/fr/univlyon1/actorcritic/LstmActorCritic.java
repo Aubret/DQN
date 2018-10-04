@@ -10,6 +10,7 @@ import fr.univlyon1.configurations.PojoInteraction;
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
+import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDLstm2D;
 import fr.univlyon1.memory.SequentialExperienceReplay;
@@ -46,7 +47,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initActor();
         this.initCritic();
         this.initLstm();
-        this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed);
+        this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
         this.td = new TDLstm2D<A>(conf.getGamma(),
                 this,
                 (SequentialExperienceReplay<A>)this.ep,
@@ -79,7 +80,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     }
 
     @Override
-    public A getAction(INDArray input,Double time) {
+    public A getAction(Observation observation, Double time) {
+        INDArray input = observation.getData() ;
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
@@ -115,7 +117,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             }
         }
         //if(AgentDRL.getCount() > 1000)
-        this.td.step(input,actionBehaviore,time); // step learning algorithm
+        this.td.step(observation,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 
@@ -132,6 +134,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setLossFunction(new LossError());
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
+        this.observationApproximator.setImportModel("resources/models/lstm");
         //this.observationApproximator.setL2(0.001);
         this.observationApproximator.init() ;
         this.cloneObservationApproximator = (LSTM)this.observationApproximator.clone(false);
@@ -201,7 +204,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.criticApproximator.stop();
         System.out.println("observation approximator");
         this.observationApproximator.stop();
-        if(AgentDRL.isWriteFile()){
+        if(AgentDRL.isWriteFile() && !this.conf.equals("")){
             ListPojo<A> point = new ListPojo<A>();
             Collection<? extends Replayable<A>> memory = this.ep.getMemory();
             for(Replayable<A> replayable : memory){
@@ -214,7 +217,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             try {
                 JAXBContext context = JAXBContext.newInstance(ListPojo.class);
                 Marshaller m = context.createMarshaller();
-                m.marshal(point,new File(getConf().getFile().get(0)));
+                m.marshal(point,new File(getConf().getWritefile()));
             } catch (JAXBException e) {
                 e.printStackTrace();
             }
