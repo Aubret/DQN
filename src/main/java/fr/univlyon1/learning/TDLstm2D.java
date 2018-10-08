@@ -185,7 +185,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
             INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.observationApproximator.numOutput()));
             //INDArray epsilonObservationAct = epsilonActor.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.observationApproximator.numOutput()));
             //INDArray epsilonObservation = epsilonObservationCrit.addi(epsilonObservationAct);
-            //this.learn_observator(inputs, epsilonObservation, totalBatchs*forwardInputs, actions, inputs2, labels);
+            this.learn_observator(inputs, epsilonObservation, totalBatchs*forwardInputs, actions, inputs2, labels);
             this.cpt_time++;
         }
     }
