@@ -2,11 +2,7 @@ package fr.univlyon1.selfsupervised;
 
 import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
-import fr.univlyon1.configurations.ListPojo;
-import fr.univlyon1.configurations.PojoInteraction;
 import fr.univlyon1.configurations.SupervisedConfiguration;
-import fr.univlyon1.environment.interactions.Interaction;
-import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
@@ -15,13 +11,7 @@ import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.ObservationsReplay.SpecificObservationReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.selfsupervised.modelLearning.Learner;
-import fr.univlyon1.selfsupervised.modelLearning.LstmMlpLearner;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.File;
-import java.util.Collection;
+import fr.univlyon1.selfsupervised.modelLearning.MultipleLearner;
 
 public class ModelLearner<A> implements PomdpLearner<A> {
 
@@ -51,7 +41,9 @@ public class ModelLearner<A> implements PomdpLearner<A> {
         this.observationSpace = observationSpace ;
         this.supervisedConfiguration = supervisedConfiguration ;
         this.seed = seed;
-        this.learner =new LstmMlpLearner<A>(commonApproximator,supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
+        //this.learner =new LstmMlpLearner<A>(commonApproximator,supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
+        this.learner =new MultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
+        //this.learner =new MlpLearner<A>(supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
     }
 
 

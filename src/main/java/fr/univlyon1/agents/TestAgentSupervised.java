@@ -6,6 +6,7 @@ import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.memory.ExperienceReplay;
+import fr.univlyon1.memory.RandomExperienceReplay;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
@@ -56,17 +57,20 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
             String f = "resources/learning/supervised_conf.xml";
             this.supervisedConfiguration = (SupervisedConfiguration)unmarshaller.unmarshal( new File(f));
         }catch(Exception e){
-            e.printStackTrace();;
+            e.printStackTrace();
         }
 
         Approximator approx = initLstm();
         ExperienceReplay<A> ep = new SequentialExperienceReplay<A>(configuration.getSizeExperienceReplay(), configuration.getReadfile(), configuration.getForwardTime(), configuration.getBackpropTime(),seed, configuration.getForward());
+        //ExperienceReplay<A> ep = new RandomExperienceReplay<A>(configuration.getSizeExperienceReplay(),seed, configuration.getReadfile());
         this.pomdpLearners = new ModelLearner<A>(approx,configuration,supervisedConfiguration,ep,actionSpace,observationSpace,seed);
+
     }
+
 
     public Approximator initLstm(){
         //LSTM2D lstm = new LSTM2D(observationSpace.getShape()[0]+this.actionSpace.getSize(),this.configuration.getNumLstmOutputNodes(),seed);
-        LSTMMeanPooling lstm = new LSTMMeanPooling(observationSpace.getShape()[0]+this.actionSpace.getSize(),this.configuration.getNumLstmOutputNodes(),seed);
+        LSTM2D lstm = new LSTM2D(observationSpace.getShape()[0]+this.actionSpace.getSize(),this.configuration.getNumLstmOutputNodes(),seed);
         lstm.setLearning_rate(configuration.getLearning_rateLstm());
         lstm.setListener(true);
         lstm.setNumNodesPerLayer(configuration.getLayersLstmHiddenNodes());
@@ -78,9 +82,13 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
         lstm.setLossFunction(new LossError());
         lstm.setHiddenActivation(Activation.TANH);
         lstm.setLastActivation(Activation.TANH);
-        lstm.setExportModel("resources/models/lstm");
+        lstm.setExportModel("resources/models/lstm2");
+        lstm.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         lstm.init() ;
+
+
+
         return lstm ;
     }
 

@@ -2,16 +2,16 @@ package fr.univlyon1.selfsupervised.dataTransfer;
 
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.space.SpecificObservation;
-import fr.univlyon1.selfsupervised.dataConstructors.LstmDataConstructors;
+import fr.univlyon1.selfsupervised.dataConstructors.DataConstructor;
 
 public class DataBuilder<A> {
 
     private int type = 0 ;
     private int numAddings;
     private int numPredicts ;
-    private LstmDataConstructors<A> ldc ;
+    private DataConstructor<A> ldc ;
 
-    public DataBuilder(String name, LstmDataConstructors<A> ldc){
+    public DataBuilder(String name, DataConstructor<A> ldc){
         if(name.equals("DataList")){
             this.type = 0 ;
             this.numAddings = 2;
@@ -26,7 +26,7 @@ public class DataBuilder<A> {
             this.numPredicts = 2;
         }else if(name.equals("DataObservation")){
             this.type =3 ;
-            this.numAddings = ldc.getObservationSpace().getShape()[0] + 1 ;
+            this.numAddings = ldc.getObservationSpace().getShape()[0] + 1 + ldc.getActionSpace().getSize() ;
             this.numPredicts = 2 ;
         }
         this.ldc= ldc ;

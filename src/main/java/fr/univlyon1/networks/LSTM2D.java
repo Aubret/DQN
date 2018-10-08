@@ -8,9 +8,11 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -20,6 +22,7 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.GreaterThan;
 import org.nd4j.linalg.learning.config.Sgd;
 
+import java.io.IOException;
 import java.util.*;
 
 public class LSTM2D extends LSTM {
@@ -65,7 +68,7 @@ public class LSTM2D extends LSTM {
                 .activation(this.hiddenActivation)
                 //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
-                .forgetGateBiasInit(1.)
+                .forgetGateBiasInit(0.1)
                 //.weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(input).nOut(node)
                 .build()
@@ -81,7 +84,7 @@ public class LSTM2D extends LSTM {
                     .activation(this.hiddenActivation)
                     //.units(node)
                     .gateActivationFunction(Activation.SIGMOID)
-                    .forgetGateBiasInit(1.)
+                    .forgetGateBiasInit(0.1)
                     //.weightInit(WeightInit.XAVIER_UNIFORM)
                     .nIn(previousNode).nOut(node)
                     .build()
@@ -134,6 +137,14 @@ public class LSTM2D extends LSTM {
         if(this.listener)
             this.attachListener(this.model);
         this.model.init();
+        if(this.importModel != null){
+            try {
+                MultiLayerNetwork m = ModelSerializer.restoreMultiLayerNetwork(this.importModel);
+                this.model.setParams(m.params());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         this.tmp = this.model.params().dup();
     }
 
@@ -189,6 +200,8 @@ public class LSTM2D extends LSTM {
 
 
     public INDArray crop3dData(INDArray data,INDArray maskLabel){
+        //System.out.println(maskLabel);
+        //System.out.println(data);
         INDArray linspace = Nd4j.linspace(1,data.shape()[0],data.shape()[0]);
         INDArray indicesAndZeros = maskLabel.mul(linspace);//.reshape(data.shape()[0]);
         this.indices = BooleanIndexing.chooseFrom(new INDArray[]{indicesAndZeros},Arrays.asList(0.0), Collections.emptyList(),new GreaterThan()).addi(-1);

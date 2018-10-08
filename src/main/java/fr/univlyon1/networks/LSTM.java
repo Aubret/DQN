@@ -107,10 +107,10 @@ public class LSTM extends Mlp implements StateApproximator{
         if(this.importModel != null){
             try {
                 MultiLayerNetwork m = ModelSerializer.restoreMultiLayerNetwork(this.importModel);
+                this.model.setParams(m.params());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            this.model.setParams(model.params());
         }
         this.tmp = this.model.params().dup();
 

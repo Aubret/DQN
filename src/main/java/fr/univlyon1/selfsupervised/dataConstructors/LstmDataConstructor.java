@@ -32,23 +32,15 @@ import java.util.SortedSet;
 
 @Getter
 @Setter
-public class LstmDataConstructors<A> {
+public class LstmDataConstructor<A> extends DataConstructor<A>{
     protected SequentialExperienceReplay<A> timeEp;
     protected SpecificObservationReplay<A> labelEp;
-    protected Configuration configuration ;
-    protected SupervisedConfiguration configuration2 ;
-    protected int batchSize ;
-    protected ActionSpace<A> actionSpace ;
-    protected ObservationSpace observationSpace ;
-    protected int numberMax ;
-    protected int sequenceSize ;
-    protected DataBuilder<A> dataBuilder ;
     protected UniformIntegerDistribution srd ;
-    protected int cursor ;
     protected LSTM lstm ;
+    protected int timeDifficulty ;
 
-
-    public LstmDataConstructors(LSTM lstm ,SequentialExperienceReplay<A> timeEp, SpecificObservationReplay<A> labelEp, Configuration conf, ActionSpace<A> actionSpace, ObservationSpace observationSpace, SupervisedConfiguration conf2){
+    public LstmDataConstructor(LSTM lstm , SequentialExperienceReplay<A> timeEp, SpecificObservationReplay<A> labelEp, Configuration conf, ActionSpace<A> actionSpace, ObservationSpace observationSpace, SupervisedConfiguration conf2){
+        super(conf,actionSpace,observationSpace,conf2);
         this.timeEp = timeEp ;
         this.labelEp = labelEp ;
         this.configuration = conf ;
@@ -58,9 +50,11 @@ public class LstmDataConstructors<A> {
         this.numberMax = conf2.getNumberMaxInputs();
         this.sequenceSize = conf.getForwardTime();
         this.dataBuilder = new DataBuilder<A>(conf2.getDataBuilder(),this);
-        this.srd = new UniformIntegerDistribution(0,conf2.getTimeDifficulty()) ;
+        //this.srd = new UniformIntegerDistribution(0,conf2.getTimeDifficulty()) ;
+        this.srd = new UniformIntegerDistribution(5,this.sequenceSize+1) ;
         this.configuration2 = conf2 ;
         this.lstm = lstm ;
+        this.timeDifficulty=0 ;
 
 
     }
@@ -76,7 +70,12 @@ public class LstmDataConstructors<A> {
 
         //double timeDifficulty = this.timeDifficulty ;
         while(backward < numRows) {
-            int timeDifficulty = /*this.configuration2.getTimeDifficulty();*/this.srd.sample();
+            //int timeDifficulty = /*this.configuration2.getTimeDifficulty();*/this.srd.sample();
+            /*int timeDuration = this.srd.sample();
+            this.timeEp.setSequenceSize(timeDuration);
+            this.timeEp.setBackpropSize(timeDuration);
+            */
+            this.timeEp.setBackpropSize(this.sequenceSize);
             this.timeEp.setSequenceSize(this.sequenceSize);
             if (this.timeEp.initChoose()) {
                 // choix des interactions
@@ -86,7 +85,7 @@ public class LstmDataConstructors<A> {
                     observations.add(interaction);
                     interaction = this.timeEp.chooseInteraction();
                 }
-                DataTarget lab = this.choosePrediction(observations,timeDifficulty);
+                DataTarget lab = this.choosePrediction(observations,this.timeDifficulty);
                 if(lab == null)
                     continue ;
                 labelisation.add(lab);
@@ -104,10 +103,10 @@ public class LstmDataConstructors<A> {
                 }
             }
         }
-        int forwardInputs = forward-1 ;
+        int forwardInputs = forward;//-1 ;
         //contruction des INDArrays
         int totalBatchs = total.size();
-        backward = backward - totalBatchs;
+        //backward = backward - totalBatchs;
         INDArray inputs = Nd4j.zeros(totalBatchs,size,forwardInputs);// On avait besoin de la taille maximale du forward
         INDArray masks = Nd4j.zeros(totalBatchs,forwardInputs);
         INDArray maskLabel  ;
@@ -116,8 +115,9 @@ public class LstmDataConstructors<A> {
         }else
             maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
 
+
         INDArray labels = Nd4j.zeros(backward,labelisation.get(0).getLabels().size(1));
-        INDArray secondInputs = Nd4j.zeros(backward,this.numAddings());
+        INDArray addings = Nd4j.zeros(backward,this.dataBuilder.getNumAddings());
 
         int cursorBackward = 0 ;
         for(int batch = 0 ; batch < total.size() ; batch++){ // Insertion des batchs
@@ -132,30 +132,34 @@ public class LstmDataConstructors<A> {
                 Interaction<A> interact = observations.get(cursorForward);
                 INDArray action = (INDArray) this.actionSpace.mapActionToNumber(interact.getAction());
                 int indice = - numberObservation +numBackwards + cursorForward;
-                if(indice > 0) {
+                if(indice >= 0) {
                     labels.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},labelisation.get(cursorBackward).getLabels());
-                    secondInputs.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},labelisation.get(cursorBackward).constructAddings());
+                    addings.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()},labelisation.get(cursorBackward).constructAddings());
                     cursorBackward++ ;
                 }
 
-                if(!(this.lstm instanceof LSTMMeanPooling) && temporal >= forwardInputs-numBackwards+1 && temporal < forwardInputs){
+                if(!(this.lstm instanceof LSTMMeanPooling) && temporal >= forwardInputs-numBackwards){//+1 ){//&& temporal < forwardInputs){
+                    //System.out.println(totalBatchs*temporal + batch);
                     maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
                 }
 
-                if(temporal < forwardInputs) {
+                //if(temporal <= forwardInputs) {
                     INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(temporal)};
                     masks.put(indexMask, Nd4j.ones(1));
 
                     INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)};
                     inputs.put(indexs, Nd4j.concat(1, interact.getObservation(), action));
-                }
+                //}
                 cursorForward++ ;
             }
         }
-        return new ModelBasedData(inputs, secondInputs, labels, masks,maskLabel,forwardInputs,totalBatchs);
+        return new ModelBasedData(inputs, addings, labels, masks,maskLabel,forwardInputs,totalBatchs);
     }
 
     public DataTarget choosePrediction(ArrayList<Interaction<A>> observations, int dt ) {
+        if(this.configuration2.getDataBuilder().equals("DataReward")){
+            return this.dataBuilder.build(null,observations.get(observations.size()-1),null);
+        }
         Interaction<A> last = observations.get(observations.size()-1);
         Interaction<A> chosen = this.chooseStudiedInteraction(observations,dt);
         if(chosen == null)
@@ -177,7 +181,7 @@ public class LstmDataConstructors<A> {
         }
         //System.out.println("found "+id+ " vs "+chosen.getIdObserver());
         Double elapseTime = (spo.getOrderedNumber()-observations.get(observations.size()-1).getTime()-30.)/30.;
-        this.timeEp.setSequenceSize(this.sequenceSize);
+        //this.timeEp.setSequenceSize(this.sequenceSize);
         return this.dataBuilder.build(spo,chosen,elapseTime);
     }
 
@@ -195,9 +199,6 @@ public class LstmDataConstructors<A> {
     }
 
 
-    public int numAddings(){
-        return this.dataBuilder.getNumAddings();
-    }
 
 
 }

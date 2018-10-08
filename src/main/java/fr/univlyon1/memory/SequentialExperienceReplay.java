@@ -61,6 +61,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
                 cursor=0 ; // On veut limiter le nombre de recherches aléatoires
                 break;
             }else {
+                //System.out.println("fail");
                 start = this.choose();
                 dt = this.interactions.get(this.interactions.size()-1).getTime() - start.getTime() ;
                 //cursor = 0; // On a déjà vérifié que c'était possible avec 0

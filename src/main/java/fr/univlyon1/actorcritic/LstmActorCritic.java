@@ -38,7 +38,6 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
     public LstmActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed) {
         super(observationSpace, actionSpace, conf, seed);
-        this.initLstm();
         this.learn_step = conf.getLearn();
         this.restartMemory = 5000 ;
     }
@@ -134,7 +133,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setLossFunction(new LossError());
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
-        this.observationApproximator.setImportModel("resources/models/lstm");
+        this.observationApproximator.setImportModel("resources/models/lstm2");
+        this.observationApproximator.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         this.observationApproximator.init() ;
         this.cloneObservationApproximator = (LSTM)this.observationApproximator.clone(false);
@@ -156,6 +156,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.policyApproximator.setLastActivation(Activation.TANH);
         this.policyApproximator.setHiddenActivation(Activation.ELU);
         this.policyApproximator.setNumNodesPerLayer(conf.getLayersHiddenNodes());
+        this.policyApproximator.setName("Policy");
         //this.policyApproximator.setL2(0.0002);
         //this.policyApproximator.setDropout(true);
         ((NormalizedMlp)this.policyApproximator).setLayerNormalization(true);
@@ -176,6 +177,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         //this.criticApproximator.setDropout(true);
         this.criticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.criticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
+        this.criticApproximator.setName("Critic");
         //this.criticApproximator.setL2(0.00001);
         this.criticApproximator.init() ;
 
@@ -190,6 +192,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.cloneMaximizeCriticApproximator.setLossFunction(new LossIdentity());
         this.cloneMaximizeCriticApproximator.setUpdater(new Adam(conf.getLearning_rateCritic()));
         this.cloneMaximizeCriticApproximator.setNumNodesPerLayer(conf.getLayersCriticHiddenNodes());
+        this.cloneMaximizeCriticApproximator.setName("dQdA");
         //this.cloneMaximizeCriticApproximator.setL2(0.00001);
         //this.cloneMaximizeCriticApproximator.setListener(true);
         this.cloneMaximizeCriticApproximator.init();
@@ -204,7 +207,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.criticApproximator.stop();
         System.out.println("observation approximator");
         this.observationApproximator.stop();
-        if(AgentDRL.isWriteFile() && !this.conf.equals("")){
+        if(AgentDRL.isWriteFile() && !this.conf.getWritefile().equals("")){
             ListPojo<A> point = new ListPojo<A>();
             Collection<? extends Replayable<A>> memory = this.ep.getMemory();
             for(Replayable<A> replayable : memory){

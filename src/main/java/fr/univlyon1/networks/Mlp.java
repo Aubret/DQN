@@ -65,11 +65,12 @@ public class Mlp implements Approximator{
     protected String exportModel =null ;
     protected String importModel =null ;
 
+    protected String name = null ;
+
     public Mlp(Mlp mlp,boolean listener){// MultiLayerNetwork model,int output){
         this.input = mlp.getInput();
         //this.model = mlp.getModel().clone();
         this.output = mlp.getOutput() ;
-        this.input = mlp.getInput();
         this.tmp = mlp.tmp ;
         this.minimize = mlp.isMinimize() ;
         this.epsilon = mlp.isEpsilon();
@@ -87,7 +88,6 @@ public class Mlp implements Approximator{
         this.l2 = mlp.getL2();
         this.listener = listener ;
         this.epoch = mlp.getEpoch() ;
-
         /*if(listener)
             this.attachListener(this.model);*/
     }
@@ -361,7 +361,11 @@ public class Mlp implements Approximator{
 
 
         //Then add the StatsListener to collect this information from the network, as it trains
-        mlp.setListeners(new StatsListener(statsStorage));
+        StatsListener stat =new StatsListener(statsStorage) ;
+        if(this.name != null){
+            stat.setSessionID(this.name);
+        }
+        mlp.setListeners(stat);
     }
 
     public MultiLayerNetwork getModel() {
@@ -392,5 +396,6 @@ public class Mlp implements Approximator{
     public INDArray getScoreArray(){
         return this.scoreArray ;
     }
+
 
 }

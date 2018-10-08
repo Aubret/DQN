@@ -2,7 +2,7 @@ package fr.univlyon1.selfsupervised.dataTransfer;
 
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.space.SpecificObservation;
-import fr.univlyon1.selfsupervised.dataConstructors.LstmDataConstructors;
+import fr.univlyon1.selfsupervised.dataConstructors.DataConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -16,7 +16,7 @@ public class DataList<A> implements DataTarget<A> {
     protected Double extratime ;
     protected Double normalizedId ;
 
-    public DataList(SpecificObservation observation, Interaction<A> predictions, Double extratime, LstmDataConstructors<A> ldc){
+    public DataList(SpecificObservation observation, Interaction<A> predictions, Double extratime, DataConstructor<A> ldc){
         this.observation = observation ;
         this.predictions = predictions ;
         this.extratime = extratime ;

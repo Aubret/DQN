@@ -90,7 +90,7 @@ public class LSTMMeanPooling extends LSTM2D {
                         .nIn(node)
                         .nOut(output)
                         .activation(this.lastActivation)
-                        .build());*/
+                        .build());*///PoolingType.
         builder.layer(cursor,new GlobalPoolingLayer.Builder(PoolingType.AVG)
             .build()
         );
