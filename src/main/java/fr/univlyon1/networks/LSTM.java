@@ -251,7 +251,8 @@ public class LSTM extends Mlp implements StateApproximator{
             //memories.add(this.model.rnnGetPreviousState(i));
             if(this.model.getLayer(i)instanceof org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) {
                 org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer recurrent = (org.deeplearning4j.nn.layers.recurrent.BaseRecurrentLayer) this.model.getLayer(i);
-                memories.add(recurrent.rnnGetTBPTTState());
+                Map m = recurrent.rnnGetTBPTTState();
+                memories.add(m);
             }
 
         }

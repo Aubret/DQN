@@ -184,6 +184,8 @@ public class LSTM2D extends LSTM {
             }
         }
         INDArray last = workspace.get(workspace.size()-1); // Dernière couche
+        //System.out.println("-----");
+        //System.out.println(last);
         return crop3dData(last,maskLabel);
     }
 
