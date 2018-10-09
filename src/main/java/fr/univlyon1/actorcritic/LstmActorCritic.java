@@ -104,7 +104,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             resultBehaviore = (INDArray)this.actionSpace.randomAction();
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }
-        int tmp = this.learn_step%restartMemory;
+        int tmp = AgentDRL.getCount()%restartMemory;
         if(tmp <= 50) {
             if(tmp == 50) {
                 this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
