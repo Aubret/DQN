@@ -110,6 +110,7 @@ public class TDLstm<A> extends TD<A> {
             this.learn_replay();
         this.informations.setModified(true);
         //this.observationApproximator.setMemory(this.state);
+        this.targetObservationApproximator.setMemory(this.state);
         this.cloneObservationApproximator.setMemory(state2);
     }
 
