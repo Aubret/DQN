@@ -28,7 +28,7 @@ public class MlpLearner<A> extends Learner<A>{
 
     public MlpLearner( SupervisedConfiguration supervisedConfiguration, ExperienceReplay<A> ep, ExperienceReplay<A> spo, Configuration configuration, ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed) {
         super(supervisedConfiguration, configuration, actionSpace, observationSpace, seed);
-        assert(!(ep instanceof SequentialExperienceReplay));
+        assert !(ep instanceof SequentialExperienceReplay)  : "mauvais experience replay" ;
         assert(spo instanceof SpecificObservationReplay);
         this.ep = ep ;
         this.dataConstructor = new MlpDataConstructor<A>(ep,(SpecificObservationReplay<A>)spo,configuration,actionSpace,observationSpace,conf);

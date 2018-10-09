@@ -219,8 +219,11 @@ public class LSTM2D extends LSTM {
 
     public INDArray uncrop2dData(INDArray labels,int number){
         INDArray newLabels = Nd4j.zeros(number,this.output);
+        //System.out.println(labels);
         for(int i = 0 ; i < this.indices.size(0); i++){
-            INDArrayIndex[] ndi = new INDArrayIndex[]{NDArrayIndex.point(i)};
+            //INDArrayIndex[] ndi = new INDArrayIndex[]{NDArrayIndex.point(i)};
+            //System.out.println(this.indices.size(0));
+            //System.out.println(i);
             INDArray lab = labels.get(NDArrayIndex.point(i),NDArrayIndex.all()) ;
             Double ind = this.indices.getDouble(i);
             newLabels.put(new INDArrayIndex[]{NDArrayIndex.point(ind.intValue()),NDArrayIndex.all()},lab);

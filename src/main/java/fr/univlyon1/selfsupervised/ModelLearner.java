@@ -10,8 +10,7 @@ import fr.univlyon1.environment.space.SpecificObservation;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.ObservationsReplay.SpecificObservationReplay;
 import fr.univlyon1.networks.Approximator;
-import fr.univlyon1.selfsupervised.modelLearning.Learner;
-import fr.univlyon1.selfsupervised.modelLearning.MultipleLearner;
+import fr.univlyon1.selfsupervised.modelLearning.*;
 
 public class ModelLearner<A> implements PomdpLearner<A> {
 
@@ -41,8 +40,9 @@ public class ModelLearner<A> implements PomdpLearner<A> {
         this.observationSpace = observationSpace ;
         this.supervisedConfiguration = supervisedConfiguration ;
         this.seed = seed;
-        //this.learner =new LstmMlpLearner<A>(commonApproximator,supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
-        this.learner =new MultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
+        this.learner =new LstmMlpLearner<A>(commonApproximator,supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
+        //this.learner =new MultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
+        //this.learner =new GradientMultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
         //this.learner =new MlpLearner<A>(supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
     }
 

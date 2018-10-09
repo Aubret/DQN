@@ -28,6 +28,9 @@ public class MultipleLearner<A> extends Learner<A>{
     protected int cpt ;
     protected int schedule ;
     protected ArrayList<Mlp> regressions ;
+    protected SequentialExperienceReplay<A> timeEp ;
+    protected SpecificObservationReplay<A> labelEp ;
+
 
     public MultipleLearner(Approximator lstm, ExperienceReplay<A> timeEp, ExperienceReplay<A> labelEp, SupervisedConfiguration supervisedConfiguration, Configuration configuration, ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed) {
         super(supervisedConfiguration, configuration, actionSpace, observationSpace, seed);
@@ -39,15 +42,18 @@ public class MultipleLearner<A> extends Learner<A>{
         this.cpt = 0 ;
         this.schedule = 200 ;
         this.lstm = (LSTM2D) lstm ;
-        for(int i = 0 ; i < supervisedConfiguration.getTimeDifficulty() ; i++) {
-            int k=i*2 ;
-            DataConstructor<A> dc = new LstmDataNumberConstructor<A>(this.lstm, (SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration,k);
-            this.dataConstructors.add(dc);
-            this.regressions.add(this.initRegression(dc,k));
-        }
+        this.timeEp = (SequentialExperienceReplay<A>)timeEp ;
+        this.labelEp = (SpecificObservationReplay<A>)labelEp ;
+
         //DataConstructor<A> dc = new LstmDataNumberConstructor<A>(this.lstm, (SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration,4);
         //this.dataConstructors.add(dc);
         //this.regressions.add(this.initRegression(dc));
+        for(int i = 0 ; i < this.conf.getTimeDifficulty() ; i++) {
+            int k=i*2 ;
+            DataConstructor<A> dc = new LstmDataNumberConstructor<A>(this.lstm, this.timeEp,this.labelEp, configuration, actionSpace, observationSpace, this.conf,k);
+            this.dataConstructors.add(dc);
+            this.regressions.add(this.initRegression(dc,k));
+        }
 
     }
 
@@ -63,7 +69,6 @@ public class MultipleLearner<A> extends Learner<A>{
             INDArray epsilon = (INDArray) this.regressions.get(j).learn(Nd4j.concat(1, result, mbd.getAddings()), mbd.getLabels(), mbd.getTotalbatchs());
             INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.lstm.numOutput()));
             //System.out.println(epsilonObservation);
-
             INDArray firstval = this.regressions.get(j).getValues().detach();
             if (cpt % schedule == 0) {
                 System.out.println(j+ " - "+ firstval.get(NDArrayIndex.point(0), NDArrayIndex.all()) + " vs " + mbd.getLabels().get(NDArrayIndex.point(0), NDArrayIndex.all()));

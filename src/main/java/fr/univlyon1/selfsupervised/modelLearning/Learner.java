@@ -24,6 +24,7 @@ public abstract class Learner<A> {
 
     }
 
+
     public abstract void learn();
     public abstract void stop();
 

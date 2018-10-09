@@ -50,8 +50,8 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
         this.numberMax = conf2.getNumberMaxInputs();
         this.sequenceSize = conf.getForwardTime();
         this.dataBuilder = new DataBuilder<A>(conf2.getDataBuilder(),this);
-        //this.srd = new UniformIntegerDistribution(0,conf2.getTimeDifficulty()) ;
-        this.srd = new UniformIntegerDistribution(5,this.sequenceSize+1) ;
+        this.srd = new UniformIntegerDistribution(0,conf2.getTimeDifficulty()) ;
+        //this.srd = new UniformIntegerDistribution(0,timeDifficulty) ;
         this.configuration2 = conf2 ;
         this.lstm = lstm ;
         this.timeDifficulty=0 ;
@@ -85,7 +85,9 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
                     observations.add(interaction);
                     interaction = this.timeEp.chooseInteraction();
                 }
-                DataTarget lab = this.choosePrediction(observations,this.timeDifficulty);
+                int timeDifficulty = this.srd.sample();
+                //DataTarget lab = this.choosePrediction(observations,this.timeDifficulty);
+                DataTarget lab = this.choosePrediction(observations,timeDifficulty);
                 if(lab == null)
                     continue ;
                 labelisation.add(lab);

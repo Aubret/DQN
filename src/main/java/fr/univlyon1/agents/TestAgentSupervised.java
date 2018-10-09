@@ -79,10 +79,11 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
         lstm.setUpdater(new Adam(configuration.getLearning_rateLstm()));
         lstm.setEpsilon(false);
         lstm.setMinimize(true);
+        //lstm.setL2(0.01);
         lstm.setLossFunction(new LossError());
         lstm.setHiddenActivation(Activation.TANH);
         lstm.setLastActivation(Activation.TANH);
-        lstm.setExportModel("resources/models/lstm2");
+        lstm.setExportModel("resources/models/lstm");
         lstm.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         lstm.init() ;

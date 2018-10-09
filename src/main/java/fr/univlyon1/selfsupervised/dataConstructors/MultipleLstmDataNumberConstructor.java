@@ -99,38 +99,44 @@ public class MultipleLstmDataNumberConstructor<A> extends MlpDataConstructor<A> 
 
         int cursorBackward = 0 ;
         for(int batch = 0 ; batch < total.size() ; batch++){ // Insertion des batchs
-            for(int numRegress = 0 ; numRegress < labelisation.get(batch).size();numRegress++) {
-                ArrayList<Interaction<A>> observations = total.get(batch);
-                int numberObservation = observations.size();//Nombre données temporelles
-                int numBackwards = backwardsNumber.get(batch); // Nombre de backwards parmi ces données
-                int start = forward - numberObservation;
-                int cursorForward = 0;
-                for (int temporal = 0; temporal < forward; temporal++) { // INsertion temporelles
-                    if (temporal < start)
-                        continue;
-                    Interaction<A> interact = observations.get(cursorForward);
-                    INDArray action = (INDArray) this.actionSpace.mapActionToNumber(interact.getAction());
-                    int indice = -numberObservation + numBackwards + cursorForward;
-                    if (indice >= 0) {
+            ArrayList<Interaction<A>> observations = total.get(batch);
+            int numberObservation = observations.size();//Nombre données temporelles
+            int numBackwards = backwardsNumber.get(batch); // Nombre de backwards parmi ces données
+            int start = forward - numberObservation;
+            int cursorForward = 0;
+            for (int temporal = 0; temporal < forward; temporal++) { // INsertion temporelles
+                if (temporal < start)
+                    continue;
+                Interaction<A> interact = observations.get(cursorForward);
+                INDArray action = (INDArray) this.actionSpace.mapActionToNumber(interact.getAction());
+                int indice = -numberObservation + numBackwards + cursorForward;
+                if (indice >= 0) {
+                    for(int numRegress = 0 ; numRegress < labelisation.get(batch).size();numRegress++) {
+                        /*System.out.println("------------");
+                        System.out.println(labels.size());
+                        System.out.println(labelisation.size());
+                        System.out.println(labelisation.get(0).size());
+                        System.out.println(numRegress);
+                        System.out.println(cursorBackward);*/
                         labels.get(numRegress).put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward), NDArrayIndex.all()}, labelisation.get(cursorBackward).get(numRegress).getLabels());
                         addings.get(numRegress).put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward), NDArrayIndex.all()}, labelisation.get(cursorBackward).get(numRegress).constructAddings());
-                        cursorBackward++;
                     }
-
-                    if (temporal >= forwardInputs - numBackwards) {//+1 ){//&& temporal < forwardInputs){
-                        //System.out.println(totalBatchs*temporal + batch);
-                        maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs * temporal + batch), NDArrayIndex.all()}, Nd4j.ones(1));
-                    }
-
-                    //if(temporal <= forwardInputs) {
-                    INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.point(temporal)};
-                    masks.put(indexMask, Nd4j.ones(1));
-
-                    INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)};
-                    inputs.put(indexs, Nd4j.concat(1, interact.getObservation(), action));
-                    //}
-                    cursorForward++;
+                    cursorBackward++;
                 }
+
+                if (temporal >= forwardInputs - numBackwards) {//+1 ){//&& temporal < forwardInputs){
+                    //System.out.println(totalBatchs*temporal + batch);
+                    maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs * temporal + batch), NDArrayIndex.all()}, Nd4j.ones(1));
+                }
+
+                //if(temporal <= forwardInputs) {
+                INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.point(temporal)};
+                masks.put(indexMask, Nd4j.ones(1));
+
+                INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)};
+                inputs.put(indexs, Nd4j.concat(1, interact.getObservation(), action));
+                //}
+                cursorForward++;
             }
         }
         return new MultipleModelBasedData(inputs, addings, labels, masks,maskLabel,forwardInputs,totalBatchs);

@@ -133,7 +133,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setLossFunction(new LossError());
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
-        this.observationApproximator.setImportModel("resources/models/lstm2");
+        this.observationApproximator.setImportModel("resources/models/lstm");
         this.observationApproximator.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         this.observationApproximator.init() ;
