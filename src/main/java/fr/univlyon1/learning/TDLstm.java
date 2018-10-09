@@ -73,7 +73,7 @@ public class TDLstm<A> extends TD<A> {
     public INDArray behave(INDArray input){
         if(this.lastInteraction != null) {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
-            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+            INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
         }else{
