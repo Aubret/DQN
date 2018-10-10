@@ -162,10 +162,10 @@ public class TDLstm2D<A> extends TDLstm<A> {
             System.out.println(maskLabel);*/
             this.experienceReplay.setConstructedData(inputs); // save for self supervised learning
             // Apprentissage : besoin de l'état
-            INDArray targetState = this.targetObservationApproximator.forwardLearn(inputs,null,inputs.size(0),masks,maskLabel);
+            //INDArray targetState = this.targetObservationApproximator.forwardLearn(inputs,null,inputs.size(0),masks,maskLabel);
             INDArray state = this.observationApproximator.forwardLearn(inputs, null, totalBatchs,masks,maskLabel);
             INDArray state_label = Nd4j.concat(1,state,inputs2);
-            INDArray targetState_label = Nd4j.concat(1,targetState,inputs2);
+            //INDArray targetState_label = Nd4j.concat(1,targetState,inputs2);
 
             //System.out.println("--------");
 
@@ -174,9 +174,8 @@ public class TDLstm2D<A> extends TDLstm<A> {
             //this.targetObservationApproximator.setMaskLabel(maskLabel);
             //INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));
             //INDArray labels = this.multistepLabelize(secondObservations3,rewards,secondObservations2,gammas, forwardInputs,totalBatchs,masks,maskLabel); // A faire après le forard learn pour avoir la bonne mémoire
-            INDArray labels1 = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
-
-            INDArray labels = this.labelizeFullTarget(inputs, secondObservations,rewards,secondObservations2,gammas,masks,maskLabel );
+            INDArray labels = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
+            //INDArray labels = this.labelizeFullTarget(inputs, secondObservations,rewards,secondObservations2,gammas,masks,maskLabel );
             //System.out.println(labels1.getDouble(0)+ " vs "+labels.getDouble(0));
 
             //Apprentissage critic
@@ -193,7 +192,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
             //Apprentissage politique
             int sizeAction = this.learning.getActionSpace().getSize();
-            this.learn_actor(targetState_label, sizeObservation, sizeAction, totalBatchs); // Important entre la propagation de l'observation et la backpropagation du gradient
+            this.learn_actor(state_label, sizeObservation, sizeAction, totalBatchs); // Important entre la propagation de l'observation et la backpropagation du gradient
 
             //INDArray epsilonObservationCrit = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.observationApproximator.numOutput()));
             INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.observationApproximator.numOutput()));

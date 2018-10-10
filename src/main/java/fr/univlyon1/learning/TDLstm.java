@@ -60,12 +60,12 @@ public class TDLstm<A> extends TD<A> {
         this.cloneCriticApproximator = cloneCriticApproximator ; // Le clône permet de traiter deux fontions de pertes différentes.
 
 
-        /*this.targetObservationApproximator = this.observationApproximator.clone(false);
+        this.targetObservationApproximator = observationApproximator.clone(false);
         this.observationApproximator = observationApproximator ;
-        this.cloneObservationApproximator = cloneObservationApproximator ;*/
-        this.targetObservationApproximator = observationApproximator ;
-        this.observationApproximator = this.targetObservationApproximator.clone(true);
         this.cloneObservationApproximator = cloneObservationApproximator ;
+        /*this.targetObservationApproximator = observationApproximator ;
+        this.observationApproximator = this.targetObservationApproximator.clone(true);
+        this.cloneObservationApproximator = cloneObservationApproximator ;*/
 
     }
 
@@ -73,8 +73,8 @@ public class TDLstm<A> extends TD<A> {
     public INDArray behave(INDArray input){
         if(this.lastInteraction != null) {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
-            INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
-            //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+            //INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
         }else{
@@ -105,13 +105,13 @@ public class TDLstm<A> extends TD<A> {
     @Override
     public void learn(){
         //Object state2 = this.cloneObservationApproximator.getMemory();
-        //this.state = this.observationApproximator.getMemory();
-        this.state = this.targetObservationApproximator.getMemory();
+        this.state = this.observationApproximator.getMemory();
+        //this.state = this.targetObservationApproximator.getMemory();
         if(this.replay)
             this.learn_replay();
         this.informations.setModified(true);
-        //this.observationApproximator.setMemory(this.state);
-        this.targetObservationApproximator.setMemory(this.state);
+        this.observationApproximator.setMemory(this.state);
+        //this.targetObservationApproximator.setMemory(this.state);
         //System.out.println(this.targetObservationApproximator.getMemory());
         //this.cloneObservationApproximator.setMemory(state2);
     }

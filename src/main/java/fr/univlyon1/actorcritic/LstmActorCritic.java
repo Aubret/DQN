@@ -104,7 +104,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             resultBehaviore = (INDArray)this.actionSpace.randomAction();
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }
-        int tmp = AgentDRL.getCount()%restartMemory;
+        /*int tmp = AgentDRL.getCount()%restartMemory;
         int period = 15 ;
         if(tmp <= period && AgentDRL.getCount() > 2016) {
             if(tmp == 0) {
@@ -117,7 +117,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
                 this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
                 this.cloneObservationApproximator.getOneResult(Nd4j.concat(1,input,resultBehaviore));
             }
-        }
+        }*/
         //if(AgentDRL.getCount() > 1000)
         this.td.step(observation,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
