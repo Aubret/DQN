@@ -104,7 +104,7 @@ public class TDLstm<A> extends TD<A> {
      */
     @Override
     public void learn(){
-        Object state2 = this.cloneObservationApproximator.getMemory();
+        //Object state2 = this.cloneObservationApproximator.getMemory();
         //this.state = this.observationApproximator.getMemory();
         this.state = this.targetObservationApproximator.getMemory();
         if(this.replay)
@@ -112,7 +112,8 @@ public class TDLstm<A> extends TD<A> {
         this.informations.setModified(true);
         //this.observationApproximator.setMemory(this.state);
         this.targetObservationApproximator.setMemory(this.state);
-        this.cloneObservationApproximator.setMemory(state2);
+        //System.out.println(this.targetObservationApproximator.getMemory());
+        //this.cloneObservationApproximator.setMemory(state2);
     }
 
     // Désuete et non mis à jour

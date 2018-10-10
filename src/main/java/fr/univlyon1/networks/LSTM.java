@@ -275,7 +275,6 @@ public class LSTM extends Mlp implements StateApproximator{
                     if(k==mem.size())
                         break ;
                 }
-
             }
         }else{
             System.out.println("erreur casting");

@@ -4,7 +4,6 @@ import org.apache.commons.math3.analysis.function.Sigmoid;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 public class GammaInteraction<A> extends Interaction<A> {
-    public double gamma ;
 
 
     public GammaInteraction(A action, INDArray observation, double gamma) {
@@ -20,6 +19,9 @@ public class GammaInteraction<A> extends Interaction<A> {
         i.setSecondObservation(this.getSecondObservation());
         i.setReward(this.getReward());
         i.setId(this.getId());
+        i.setIdObserver(this.getIdObserver());
+        i.setTime(this.time);
+        i.setDt(this.dt);
         return i ;
     }
 
@@ -43,6 +45,7 @@ public class GammaInteraction<A> extends Interaction<A> {
     public double computeGamma() {
         //this.timefactor = sigmo.value(3*this.secondObservation.getDouble(6));
         //double gam =this.gamma+(1-this.gamma)*(1- Math.max(0,Math.min(1,(this.secondObservation.getDouble(6)+1)/2)));
+        //System.out.println(this.gamma+ " vs "+this.dt);
         double gam = Math.pow(this.gamma,this.dt);
         return gam ;
     }

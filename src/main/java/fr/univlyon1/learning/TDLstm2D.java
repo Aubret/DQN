@@ -122,7 +122,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
                         rewards.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeReward());
                         //gammas
                         gammas.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeGamma());
-
+                        //System.out.println(interact.computeGamma());
                         cursorBackward++ ;
                     }
 
@@ -167,13 +167,17 @@ public class TDLstm2D<A> extends TDLstm<A> {
             INDArray state_label = Nd4j.concat(1,state,inputs2);
             INDArray targetState_label = Nd4j.concat(1,targetState,inputs2);
 
+            //System.out.println("--------");
+
             int sizeObservation = state_label.size(1);
             //Commencement de l'apprentissage, labellisation
             //this.targetObservationApproximator.setMaskLabel(maskLabel);
             //INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));
             //INDArray labels = this.multistepLabelize(secondObservations3,rewards,secondObservations2,gammas, forwardInputs,totalBatchs,masks,maskLabel); // A faire après le forard learn pour avoir la bonne mémoire
-            //INDArray labels = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
+            INDArray labels1 = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
+
             INDArray labels = this.labelizeFullTarget(inputs, secondObservations,rewards,secondObservations2,gammas,masks,maskLabel );
+            //System.out.println(labels1.getDouble(0)+ " vs "+labels.getDouble(0));
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);
@@ -294,6 +298,9 @@ public class TDLstm2D<A> extends TDLstm<A> {
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
         res = res.muli(gammas);
         res.addi(rewards) ;
+        /*if(res.getDouble(0)==0.){
+            System.out.println("gammes : "+gammas.getDouble(0));
+        }*/
         return res ;
     }
 

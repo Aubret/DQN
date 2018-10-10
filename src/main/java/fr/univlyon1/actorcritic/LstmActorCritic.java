@@ -40,7 +40,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         super(observationSpace, actionSpace, conf, seed);
         this.initLstm();
         this.learn_step = conf.getLearn();
-        this.restartMemory = 5000 ;
+        this.restartMemory = 30 ;
     }
 
     public void init(){
@@ -105,12 +105,14 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }
         int tmp = AgentDRL.getCount()%restartMemory;
-        if(tmp <= 50) {
-            if(tmp == 50) {
+        int period = 15 ;
+        if(tmp <= period && AgentDRL.getCount() > 2016) {
+            if(tmp == 0) {
                 this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
-                this.cloneObservationApproximator.setMemory(this.observationApproximator.getMemory());
-            }else if (tmp == 0) {
-                this.observationApproximator.setMemory(this.cloneObservationApproximator);
+                //System.out.println(this.observationApproximator.getMemory());
+                this.cloneObservationApproximator.clear();
+            }else if (tmp == period) {
+                this.observationApproximator.setMemory(this.cloneObservationApproximator.getMemory());
             }else{
                 this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
                 this.cloneObservationApproximator.getOneResult(Nd4j.concat(1,input,resultBehaviore));
@@ -135,7 +137,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
         this.observationApproximator.setImportModel("resources/models/lstm");
-        this.observationApproximator.setL2(0.001);
+        //this.observationApproximator.setL2(0.001);
         this.observationApproximator.init() ;
         this.cloneObservationApproximator = (LSTM)this.observationApproximator.clone(false);
     }
