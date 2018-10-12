@@ -42,14 +42,14 @@ public class TDActorCritic<A> extends TDBatch<A> {
         this.informations.setModified(true);
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         int sizeObservation ;
-        if(this.lastInteraction != null && this.lastInteraction.getSecondObservation() != null ) {
+        /*if(this.lastInteraction != null && this.lastInteraction.getSecondObservation() != null ) {
             INDArray inputAction1 = Nd4j.concat(1, this.lastInteraction.getObservation(), (INDArray) this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
             this.informations.setScore(this.criticApproximator.getOneResult(inputAction1).getDouble(0) - this.labelize(this.lastInteraction).getDouble(0));
             sizeObservation = this.lastInteraction.getObservation().size(1);
-        }else{
+        }else{*/
             sizeObservation = this.learning.getObservationSpace().getShape()[0];
             //System.out.println(sizeObservation);
-        }
+        //}
         if(numRows < 1 ) {
             return;
         }
@@ -63,6 +63,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
             INDArray labels = Nd4j.zeros(numRows, numColumnsLabels);
             for (int i = 0; i < numRows; i++) {
                 Interaction<A> interaction = (Interaction<A>)experienceReplay.chooseInteraction();
+                //System.out.println(interaction.getDt());
                 INDArray inputAction = Nd4j.concat(1,interaction.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(interaction.getAction()));
                 inputs.putRow(i, inputAction);
                 observations.putRow(i, interaction.getObservation());
@@ -144,7 +145,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         /*INDArray res1 = res.dup().muli(this.gamma).addi(Nd4j.create(new double[]{interaction.getReward()}) );
         System.out.println(res.addi(interaction.getReward()).getDouble(0));
         System.out.println(res1.getDouble(0)); */
-        res.muli(this.gamma).addi(interaction.getReward());
+        res.muli(interaction.computeGamma()).addi(interaction.computeReward());
         return res ;
     }
 

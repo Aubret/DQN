@@ -20,6 +20,7 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
         Interaction<A> interaction = (Interaction<A>)replayable ;
         if(memory.size() == this.maxSize)
             memory.remove(0);
+        //System.out.println("add"+interaction.getDt());
         memory.add(interaction);
     }
 
@@ -28,6 +29,7 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     @Override
     public Interaction<A> chooseInteraction() {
         Interaction<A> i = (Interaction<A>)this.memory.get(random.nextInt(this.memory.size()));
+        //System.out.println("choose"+ i.getDt());
         return i;
     }
 

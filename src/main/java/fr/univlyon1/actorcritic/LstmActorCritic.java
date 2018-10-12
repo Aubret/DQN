@@ -86,7 +86,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         A actionBehaviore;
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
-        this.td.evaluate(input, this.reward); //Evaluation
+        this.td.evaluate(input, this.reward,time); //Evaluation
         if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
@@ -103,12 +103,13 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             resultBehaviore = (INDArray)this.actionSpace.randomAction();
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }
-        int tmp = this.learn_step%restartMemory;
-        if(tmp <= 50) {
-            if(tmp == 50) {
+        int tmp = AgentDRL.getCount()%restartMemory;
+        int period = 15 ;
+        if(tmp <= period && AgentDRL.getCount() > 2016) {
+            if(tmp == 0) {
                 this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
                 this.cloneObservationApproximator.setMemory(this.observationApproximator.getMemory());
-            }else if (tmp == 0) {
+            }else if (tmp == period) {
                 this.observationApproximator.setMemory(this.cloneObservationApproximator);
             }else{
                 this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
@@ -133,7 +134,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setLossFunction(new LossError());
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
-        this.observationApproximator.setImportModel("resources/models/lstm");
+        //this.observationApproximator.setImportModel("resources/models/lstm");
         this.observationApproximator.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         this.observationApproximator.init() ;

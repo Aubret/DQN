@@ -76,12 +76,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         //29 - 30 60 secondes + 40% véhicules connectés
         //31 60 secondes, 40% véhicules, 3 voies;
         //32 100% véhicules 3v oies
-        //this.learning = new DQNActor<A>(observationSpace,actionSpace,seed);
-        //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new SupervisedActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.learning = new EpisodicActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //a6 2-6 lstm test2.xprj
+        // a6 2-6 lstm test2.xprj
         //a6 7-12 correction vraie récompense moyenne
         //a6 13 - 17 Vitesse minmale avec changement output lstm, marche tjrs pas très bien sur 17
         // 18 on inaugure le nouveau experience replay priorisé sur test
@@ -98,7 +93,6 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
-        //this.rewardShaping = new NstepTime(this.configuration);
         this.rewardShaping = new NstepTime(this.configuration);
         this.learning.init();
         if(this.print) {

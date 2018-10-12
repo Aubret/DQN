@@ -11,22 +11,23 @@ public class TDBatch<A> extends TD<A> {
     protected ExperienceReplay<A> experienceReplay ;
     protected int batchSize ;
     protected int nbrIterations;
-    protected Approximator approximator ;
 
     public TDBatch(double gamma, Learning<A> learning,ExperienceReplay<A> experienceReplay, int batchSize, int iterations) {
         super(gamma, learning);
         this.experienceReplay = experienceReplay;
         this.batchSize= batchSize ;
         this.nbrIterations = iterations ;
-        if(learning.getApproximator() != null)
-            this.approximator = learning.getApproximator().clone(true);
+        //if(learning.getApproximator() != null)
+          //  this.approximator = learning.getApproximator().clone(true);
     }
 
     @Override
-    public void evaluate(INDArray input, Double reward) { // Store transistions
+    public void evaluate(INDArray input, Double reward, Double time) { // Store transistions
         if(this.lastInteraction != null) { // Avoir des interactions complètes
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
+            this.informations.setDt(time-this.lastInteraction.getTime());
+            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
             //Interaction<A> i = this.lastInteraction.clone();
             this.experienceReplay.addInteraction(this.lastInteraction);
         }
@@ -54,10 +55,11 @@ public class TDBatch<A> extends TD<A> {
             }
             this.learning.getApproximator().learn(inputs, labels, numRows);
         }
+        this.informations.setModified(true);
     }
 
     public void epoch(){
-        this.approximator = this.learning.getApproximator().clone(false);
+        //this.approximator = this.learning.getApproximator().clone(false);
     }
 
     public int getBatchSize() {

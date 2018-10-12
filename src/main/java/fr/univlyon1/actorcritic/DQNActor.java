@@ -78,7 +78,7 @@ public class DQNActor<A> implements Learning<A> {
     public A getAction(Observation observation, Double time) {
         INDArray input = observation.getData() ;
         if(AgentDRL.getCount() > 50) { // Ne pas overfitter sur les premières données arrivées
-            this.td.evaluate(input, this.reward); //Evaluation
+            this.td.evaluate(input, this.reward,time); //Evaluation
             this.countStep++;
             if (this.countStep == this.epoch) {
                 countStep = 0;

@@ -26,7 +26,8 @@ public class DataBuilder<A> {
             this.numPredicts = 2;
         }else if(name.equals("DataObservation")){
             this.type =3 ;
-            this.numAddings = ldc.getObservationSpace().getShape()[0] + 1 + ldc.getActionSpace().getSize() ;
+            //this.numAddings = ldc.getObservationSpace().getShape()[0] + 1 + ldc.getActionSpace().getSize() ;
+            this.numAddings = ldc.getObservationSpace().getShape()[0] + 1; ;
             this.numPredicts = 2 ;
         }
         this.ldc= ldc ;

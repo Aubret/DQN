@@ -26,6 +26,7 @@ public class DataObservation<A> implements DataTarget<A> {
 
     @Override
     public INDArray constructAddings() {
-        return Nd4j.concat(1,Nd4j.create(new double[]{this.extratime}),predictions.getObservation(),(INDArray)ldc.getActionSpace().mapActionToNumber(predictions.getAction()));
+        //return Nd4j.concat(1,Nd4j.create(new double[]{this.extratime}),predictions.getObservation(),(INDArray)ldc.getActionSpace().mapActionToNumber(predictions.getAction()));
+        return Nd4j.concat(1,Nd4j.create(new double[]{this.extratime}),predictions.getObservation());
     }
 }

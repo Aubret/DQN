@@ -54,7 +54,7 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
         //this.srd = new UniformIntegerDistribution(0,timeDifficulty) ;
         this.configuration2 = conf2 ;
         this.lstm = lstm ;
-        this.timeDifficulty=0 ;
+        //this.timeDifficulty=0 ;
 
 
     }

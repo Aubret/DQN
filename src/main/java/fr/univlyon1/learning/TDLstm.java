@@ -77,7 +77,7 @@ public class TDLstm<A> extends TD<A> {
     }
 
     @Override
-    public void evaluate(INDArray input, Double reward) { // Store transistions
+    public void evaluate(INDArray input, Double reward, Double time) { // Store transistions
         if(this.lastInteraction != null) { // Avoir des interactions complètes
             /*if(this.lastInteraction.getObservation().getDouble(4)==-0.5){
                 INDArray act = (INDArray)(this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
@@ -87,6 +87,8 @@ public class TDLstm<A> extends TD<A> {
             }*/
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
+            this.informations.setDt(time-this.lastInteraction.getTime());
+            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
             this.experienceReplay.addInteraction(this.lastInteraction);
         }
     }

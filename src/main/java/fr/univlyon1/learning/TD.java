@@ -30,7 +30,7 @@ public class TD<A> implements Algorithm<A> {
 
     @Override
     public INDArray behave(INDArray input) {
-        return (INDArray)this.learning.getPolicy().getAction(input,null);
+        return (INDArray)this.learning.getPolicy().getAction(input,this.informations);
     }
 
     @Override
@@ -53,8 +53,7 @@ public class TD<A> implements Algorithm<A> {
         double dt = 0. ;
         if(this.lastInteraction != null) {
             this.lastInteraction.setSecondAction(action);
-            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
-            this.informations.setDt(time-this.lastInteraction.getTime());
+            //System.out.println(this.lastInteraction.getDt());
             this.previousInteraction = this.lastInteraction;
         }
         this.lastInteraction = new GammaInteraction<A>(action,input,this.learning.getConf().getGamma());
@@ -66,10 +65,13 @@ public class TD<A> implements Algorithm<A> {
     }
 
     @Override
-    public void evaluate(INDArray input, Double reward) {
+    public void evaluate(INDArray input, Double reward, Double time) {
         if(this.lastInteraction != null) { // Avoir des interactions complètes
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
+            this.informations.setDt(time-this.lastInteraction.getTime());
+            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
+
         }
     }
 

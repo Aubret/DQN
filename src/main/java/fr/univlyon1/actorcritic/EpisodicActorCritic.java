@@ -40,7 +40,7 @@ public class EpisodicActorCritic<A> extends ContinuousActorCritic<A> {
     @Override
     public A getAction(Observation observation, Double time) {
         INDArray input =observation.getData() ;
-        this.td.evaluate(input, this.reward); //Evaluation
+        this.td.evaluate(input, this.reward,time); //Evaluation
 
         //actionBehaviore = this.actionSpace.mapNumberToAction(this.actionSpace.randomAction());
         //INDArray resultBehaviore = (INDArray)this.policy.getAction(input);modif après
