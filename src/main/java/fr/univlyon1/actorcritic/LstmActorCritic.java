@@ -39,7 +39,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     public LstmActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed) {
         super(observationSpace, actionSpace, conf, seed);
         this.learn_step = conf.getLearn();
-        this.restartMemory = 5000 ;
+        this.restartMemory = 30 ;
     }
 
     public void init(){
@@ -111,7 +111,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
     public void initLstm(){
         this.observationApproximator = new LSTM2D(observationSpace.getShape()[0]+this.actionSpace.getSize(), conf.getNumLstmOutputNodes(), seed);
         this.observationApproximator.setLearning_rate(conf.getLearning_rateLstm());
-        this.observationApproximator.setListener(true);
+        this.observationApproximator.setListener(false);
         this.observationApproximator.setNumNodesPerLayer(conf.getLayersLstmHiddenNodes());
         this.observationApproximator.setNumLayers(conf.getNumLstmlayers());
         this.observationApproximator.setNumNodes(conf.getNumLstmHiddenNodes());

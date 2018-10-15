@@ -51,22 +51,30 @@ public class TDLstm<A> extends TD<A> {
         this.iterations = iterations ;
         this.batchSize = batchSize ;
         this.experienceReplay = experienceReplay ;
-        this.observationApproximator = observationApproximator ;
-        this.cloneObservationApproximator = cloneObservationApproximator ;
+
         //this.targetObservationApproximator = observationApproximator.clone(false);
         this.targetActorApproximator = this.learning.getApproximator().clone(false);
         this.criticApproximator = criticApproximator ;
         this.approximator = criticApproximator;
         this.targetCriticApproximator = criticApproximator.clone(false);
         this.cloneCriticApproximator = cloneCriticApproximator ; // Le clône permet de traiter deux fontions de pertes différentes.
-        this.targetObservationApproximator = this.observationApproximator.clone(false);
+
+
+        this.targetObservationApproximator = observationApproximator.clone(false);
+        this.observationApproximator = observationApproximator ;
+        this.cloneObservationApproximator = cloneObservationApproximator ;
+        /*this.targetObservationApproximator = observationApproximator ;
+        this.observationApproximator = this.targetObservationApproximator.clone(true);
+        this.cloneObservationApproximator = cloneObservationApproximator ;*/
+
     }
 
     @Override
     public INDArray behave(INDArray input){
         if(this.lastInteraction != null) {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
-            INDArray actualState= this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+            //INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
         }else{
@@ -182,7 +190,7 @@ public class TDLstm<A> extends TD<A> {
 
             //Apprentissage politique
             int sizeAction = this.learning.getActionSpace().getSize();
-            INDArray epsilonActor = this.learn_actor(state_label, sizeObservation, sizeAction, 1); // Important entre la propagation de l'observation et la backpropagation du gradient
+            /*INDArray epsilonActor = */this.learn_actor(state_label, sizeObservation, sizeAction, 1); // Important entre la propagation de l'observation et la backpropagation du gradient
 
             //Apprentissage des observations
             //INDArray epsilonObservationAct = epsilonActor.get(NDArrayIndex.all(), NDArrayIndex.interval(0, sizeObservation));
