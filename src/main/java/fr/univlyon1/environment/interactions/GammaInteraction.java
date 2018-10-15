@@ -43,12 +43,6 @@ public class GammaInteraction<A> extends Interaction<A> {
     public double computeGamma() {
         //this.timefactor = sigmo.value(3*this.secondObservation.getDouble(6));
         //double gam =this.gamma+(1-this.gamma)*(1- Math.max(0,Math.min(1,(this.secondObservation.getDouble(6)+1)/2)));
-<<<<<<< HEAD
-        //System.out.println(this.gamma);
-        //System.out.println(this.dt);
-=======
-        //System.out.println(this.gamma+ " vs "+this.dt);
->>>>>>> dff1c99982d24a4c00820679f825fd3502eabf93
         double gam = Math.pow(this.gamma,this.dt);
         return gam ;
     }
