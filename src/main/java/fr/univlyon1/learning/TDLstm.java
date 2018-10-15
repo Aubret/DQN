@@ -100,9 +100,11 @@ public class TDLstm<A> extends TD<A> {
     public void learn(){
         //Object state2 = this.cloneObservationApproximator.getMemory();
         this.state = this.observationApproximator.getMemory();
+        this.experienceReplay.setMinForward(this.learning.getConf().getForward()+1);
         if(this.replay)
             this.learn_replay();
         this.informations.setModified(true);
+        this.experienceReplay.setMinForward(this.learning.getConf().getForward());
         this.observationApproximator.setMemory(this.state);
         //this.cloneObservationApproximator.setMemory(state2);
     }

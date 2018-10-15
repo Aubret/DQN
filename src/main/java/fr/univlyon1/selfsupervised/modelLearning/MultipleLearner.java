@@ -21,6 +21,7 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.learning.config.Adam;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MultipleLearner<A> extends Learner<A>{
     protected LSTM2D lstm ;
@@ -48,8 +49,10 @@ public class MultipleLearner<A> extends Learner<A>{
         //DataConstructor<A> dc = new LstmDataNumberConstructor<A>(this.lstm, (SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration,4);
         //this.dataConstructors.add(dc);
         //this.regressions.add(this.initRegression(dc));
-        for(int i = 0 ; i < this.conf.getTimeDifficulty() ; i++) {
-            int k=i*2 ;
+        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(new Integer[]{0,3,7}));
+        for(int i = 0 ;/* i < this.conf.getTimeDifficulty() && */i < numbers.size(); i++) {
+            //int k=i*2 ;
+            int k =  numbers.get(i);
             DataConstructor<A> dc = new LstmDataNumberConstructor<A>(this.lstm, this.timeEp,this.labelEp, configuration, actionSpace, observationSpace, this.conf,k);
             this.dataConstructors.add(dc);
             this.regressions.add(this.initRegression(dc,k));

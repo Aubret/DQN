@@ -2,6 +2,8 @@ package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
+import lombok.Setter;
+import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.AbstractCollection;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.Random;
 
 
+@Setter
+@Getter
 public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     protected ArrayList<Interaction<A>> interactions ;
     protected ArrayList<Interaction<A>> tmp ;
@@ -135,27 +139,4 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         //return this.backpropNumber;
     }
 
-    public int getSequenceSize() {
-        return sequenceSize;
-    }
-
-    public void setSequenceSize(int sequenceSize) {
-        this.sequenceSize = sequenceSize;
-    }
-
-    public int getBackpropSize() {
-        return backpropSize;
-    }
-
-    public void setBackpropSize(int backpropSize) {
-        this.backpropSize = backpropSize;
-    }
-
-    public INDArray getConstructedData() {
-        return constructedData;
-    }
-
-    public void setConstructedData(INDArray constructedData) {
-        this.constructedData = constructedData;
-    }
 }

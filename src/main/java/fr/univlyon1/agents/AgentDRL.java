@@ -91,6 +91,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 55-56-57 sans cheat fonctionne bien du monis normalement
 
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new ConstantActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         this.rewardShaping = new NstepTime(this.configuration);
@@ -178,7 +179,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         this.action = action ;
         if(rewardTime != null ){
             if(this.print) {
-                if(action instanceof ContinuousAction && this.learning instanceof ContinuousActorCritic) {
+                if(action instanceof ContinuousAction /*&& this.learning instanceof ContinuousActorCritic*/) {
                     //------------REward and action------------
                     INDArray res = ((INDArray) this.actionSpace.mapActionToNumber(action));
                     //TD td = ((TD)(((ContinuousActorCritic)this.learning).getTd()));
@@ -187,8 +188,8 @@ public class AgentDRL<A> implements AgentRL<A> {
                     for(int i = 0 ; i < res.size(1) ; i++){
                         str+=";"+res.getDouble(i);
                     }
-                    Double score =((ContinuousActorCritic)this.learning).getScore() ;
-                    str+=";"+ (score == null ? 0 : score) ;
+                    /*Double score =((ContinuousActorCritic)this.learning).getScore() ;
+                    str+=";"+ (score == null ? 0 : score) ;*/
                     String inputs ="";
                     for(int i = 0 ; i < data.size(1) ; i++){
                         inputs=inputs.concat(";"+data.getDouble(i));

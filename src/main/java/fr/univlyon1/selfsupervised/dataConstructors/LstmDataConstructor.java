@@ -67,7 +67,6 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
         int backward = 0 ; // Total de données labellisées, donc total de backpropagation
         int numRows = Math.min(this.timeEp.getSize(),this.batchSize);
         int size = this.observationSpace.getShape()[0]+this.actionSpace.getSize();
-
         //double timeDifficulty = this.timeDifficulty ;
         while(backward < numRows) {
             //int timeDifficulty = /*this.configuration2.getTimeDifficulty();*/this.srd.sample();

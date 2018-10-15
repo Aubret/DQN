@@ -103,19 +103,6 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
             resultBehaviore = (INDArray)this.actionSpace.randomAction();
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }
-        int tmp = AgentDRL.getCount()%restartMemory;
-        int period = 15 ;
-        if(tmp <= period && AgentDRL.getCount() > 2016) {
-            if(tmp == 0) {
-                this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
-                this.cloneObservationApproximator.setMemory(this.observationApproximator.getMemory());
-            }else if (tmp == period) {
-                this.observationApproximator.setMemory(this.cloneObservationApproximator);
-            }else{
-                this.cloneObservationApproximator.setParams(this.observationApproximator.getParams());
-                this.cloneObservationApproximator.getOneResult(Nd4j.concat(1,input,resultBehaviore));
-            }
-        }
         //if(AgentDRL.getCount() > 1000)
         this.td.step(observation,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
@@ -134,13 +121,12 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setLossFunction(new LossError());
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
-        //this.observationApproximator.setImportModel("resources/models/lstm");
+        //this.observationApproximator.setImportModel("resources/models/lstm0-3-7");
         this.observationApproximator.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         this.observationApproximator.init() ;
         this.cloneObservationApproximator = (LSTM)this.observationApproximator.clone(false);
     }
-
 
     private void initActor(){
         //this.policyApproximator =new Mlp(conf.getNumLstmOutputNodes()+observationSpace.getShape()[0],this.actionSpace.getSize(),this.seed);
