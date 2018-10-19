@@ -41,7 +41,7 @@ public class SaveLearner<A> implements PomdpLearner<A> {
 
     @Override
     public void stop() {
-        if(AgentDRL.isWriteFile() && !this.supervisedConfiguration.equals("")){
+        if(AgentDRL.isWriteFile() && !this.supervisedConfiguration.getWritefile().equals("")){
             System.out.println("Saving notifications");
             ListPojoObs<A> point = new ListPojoObs<A>();
             Collection<? extends Replayable<A>> memory = this.notifications.getMemory();

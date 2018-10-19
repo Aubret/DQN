@@ -2,6 +2,7 @@ package fr.univlyon1.learning;
 
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.Mlp;
@@ -14,6 +15,7 @@ import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 @Getter
 @Setter
@@ -74,7 +76,17 @@ public class TDLstm<A> extends TD<A> {
         if(this.lastInteraction != null) {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
             //INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
-            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
+
+            Stack<Replayable<A>> lastInteractions = this.experienceReplay.lastInteraction() ;
+            Interaction<A> inter = (Interaction<A>)lastInteractions.pop();
+            INDArray inputPrev = inter.getSecondObservation();
+            while(!lastInteractions.isEmpty()){
+                this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+                inter = (Interaction<A>)lastInteractions.pop();
+                inputPrev = inter.getSecondObservation();
+            }
+            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+            //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
         }else{
@@ -87,12 +99,6 @@ public class TDLstm<A> extends TD<A> {
     @Override
     public void evaluate(INDArray input, Double reward, Double time) { // Store transistions
         if(this.lastInteraction != null) { // Avoir des interactions complètes
-            /*if(this.lastInteraction.getObservation().getDouble(4)==-0.5){
-                INDArray act = (INDArray)(this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction()));
-                if(act.getDouble(1) < -0.5){
-                    reward += 0.3 ;
-                }
-            }*/
             this.lastInteraction.setSecondObservation(input);
             this.lastInteraction.setReward(reward);
             this.informations.setDt(time-this.lastInteraction.getTime());

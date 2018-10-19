@@ -68,6 +68,13 @@ public class StochasticPrioritizedExperienceReplay<A> extends ExperienceReplay<A
         }
     }
 
+    @Override
+    public Stack<Replayable<A>> lastInteraction() {
+        Stack<Replayable<A>> last = new Stack<>();
+        last.add(this.history.getLast().getInteraction());
+        return last ;
+    }
+
     public void repushLast(){
         InteractionHistory<A> ih = this.tmp.get(this.tmp.size()-1);
         this.history.insert(ih);

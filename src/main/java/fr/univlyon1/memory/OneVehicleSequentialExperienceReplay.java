@@ -1,46 +1,63 @@
 package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.interactions.Interaction;
+import fr.univlyon1.environment.interactions.Replayable;
+import play.mvc.WebSocket;
 
 import java.util.ArrayList;
 import java.util.Stack;
 
 public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienceReplay<A> {
 
-    protected Stack<Interaction<A>> filteredInteractions ;
+    protected Stack<Replayable<A>> filteredInteractions ;
 
     public OneVehicleSequentialExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed, Integer forwardSize) {
         super(maxSize, file, sequenceSize, backpropSize, seed, forwardSize);
     }
 
-    public boolean initChoose() { // Toujours appeler avant les chooseInteraction
-        boolean init = super.initChoose();
-        if (!init)
-            return false;
+    public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
+        if(!super.initChoose())
+            return false ;
+        ArrayList<Interaction<A>> interactions = constructInteractions() ;
+        this.filteredInteractions = this.idFilter.filter(interactions);
+        return true ;
+    }
+
+    protected ArrayList<Interaction<A>> constructInteractions(){
+        this.tmp = new ArrayList<>();
         ArrayList<Interaction<A>> interactions = new ArrayList<>();
         Interaction<A> interaction = super.chooseInteraction();
-        interactions = new ArrayList<>();
         while (interaction != null) {
             interactions.add(interaction);
             interaction = super.chooseInteraction();
         }
-        this.filter(interactions);
-        return true;
+        return interactions;
     }
 
     @Override
     public Interaction<A> chooseInteraction() {
-        return this.filteredInteractions.pop();
+        return (Interaction<A>)this.filteredInteractions.pop();
     }
 
-    protected void filter(ArrayList<Interaction<A>> interactions){
-        ArrayList<Long> ids = new ArrayList<>();
-        this.filteredInteractions = new Stack<>();
-        for(int i = this.interactions.size()-1 ; i >=  0; i++){
-            if(!ids.contains(this.interactions.get(i).getIdObserver())) {
-                this.filteredInteractions.push(this.interactions.get(i));
-            }
+
+    @Override
+    public Stack<Replayable<A>> lastInteraction(){
+        double time = 0. ;
+        if(this.interactions.size() < 2){
+            System.out.println("error");
+            return null ;
         }
-    }
 
+        ArrayList<Interaction<A>> lasts = new ArrayList<>();
+        int cursor = this.interactions.size()-1;
+        while(time < this.sequenceSize){
+            time+=this.interactions.get(cursor).getDt();
+            cursor -- ;
+        }
+
+        for(int i = cursor; i < this.interactions.size();i++){
+            lasts.add(this.interactions.get(i));
+        }
+        return this.idFilter.filter(lasts);
+    }
 }

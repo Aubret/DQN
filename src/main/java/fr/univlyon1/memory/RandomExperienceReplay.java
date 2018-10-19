@@ -50,4 +50,11 @@ public class RandomExperienceReplay<A> extends ExperienceReplay<A> {
     @Override
     public void setError(INDArray errors) {
     }
+
+    @Override
+    public Stack<Replayable<A>> lastInteraction() {
+        Stack<Replayable<A>> last = new Stack<>();
+        last.push(this.memory.get(this.memory.size()-1));
+        return last ;
+    }
 }

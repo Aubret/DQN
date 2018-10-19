@@ -46,7 +46,7 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             //String f = "resources/learning/ddpg.xml";
             //String f = "resources/learning/justhour_ddpg.xml";
-            String f = "resources/learning/lstm.xml";
+            String f = "resources/learning/lstmDiff.xml";
             this.configuration = (Configuration)unmarshaller.unmarshal( new File(f));
         }catch(Exception e){
             e.printStackTrace();

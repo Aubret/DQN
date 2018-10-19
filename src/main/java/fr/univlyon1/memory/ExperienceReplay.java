@@ -12,10 +12,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static javax.xml.bind.JAXBContext.*;
 
@@ -34,6 +31,7 @@ public abstract class ExperienceReplay<A> {
     public abstract void resetMemory();
     public abstract int getSize();
     public abstract void setError(INDArray errors);
+    public abstract Stack<Replayable<A>> lastInteraction();
 
     public boolean initChoose(){return true ;}
 

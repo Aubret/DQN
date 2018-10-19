@@ -27,8 +27,8 @@ public class SelfSupervisedAgentDRL<A> extends AgentDRL<A> {
         }
         Approximator modelLearner = this.learning.getModelApproximator();
         assert(modelLearner != null);
-        this.pomdpLearners.add(new ModelLearner<A>(modelLearner,this.configuration, this.supervisedConfiguration, this.learning.getExperienceReplay(),this.actionSpace,observationSpace,seed));
-        //this.pomdpLearners.add(new SaveLearner<A>(this.configuration,this.supervisedConfiguration,this.actionSpace));
+        //this.pomdpLearners.add(new ModelLearner<A>(modelLearner,this.configuration, this.supervisedConfiguration, this.learning.getExperienceReplay(),this.actionSpace,observationSpace,seed));
+        this.pomdpLearners.add(new SaveLearner<A>(this.configuration,this.supervisedConfiguration,this.actionSpace));
 
     }
 }

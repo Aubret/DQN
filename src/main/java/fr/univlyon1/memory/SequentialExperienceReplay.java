@@ -2,14 +2,12 @@ package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
+import fr.univlyon1.memory.filters.IdFilter;
 import lombok.Setter;
 import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 @Setter
@@ -28,6 +26,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     protected double startTime ;
 
     protected int minForward ;
+    protected IdFilter<A> idFilter ;
 
     public SequentialExperienceReplay(int maxSize, ArrayList<String> file,int sequenceSize, int backpropSize,long seed,Integer forwardSize){
         super(maxSize,file);
@@ -36,6 +35,7 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         this.backpropSize = backpropSize ;
         this.random = new Random(seed);
         this.minForward = forwardSize ;
+        this.idFilter = new IdFilter<A>();
     }
 
     @Override
@@ -94,6 +94,13 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         this.forwardNumber++ ;
         this.cursor++ ;
         return choose;
+    }
+
+    @Override
+    public Stack<Replayable<A>> lastInteraction() {
+        Stack<Replayable<A>> last = new Stack<>();
+        last.push(this.interactions.get(this.interactions.size()-1));
+        return last ;
     }
 
     @Override

@@ -44,6 +44,12 @@ public class SpecificObservationReplay<A> extends ExperienceReplay<A> {
         SpecificObservation obs = this.treeset.ceiling(this.repere.emitObs());
         return obs;
     }
+    @Override
+    public Stack<Replayable<A>> lastInteraction() {
+        Stack<Replayable<A>> last = new Stack<>();
+        last.push(this.treeset.last());
+        return last ;
+    }
 
     public SortedSet<SpecificObservation> subset(){
         return this.treeset.tailSet(this.repere.emitObs());

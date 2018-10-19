@@ -35,6 +35,13 @@ public class PrioritizedExperienceReplay<A> extends ExperienceReplay<A> {
         this.interactions.put(interaction, newIh);
     }
 
+    @Override
+    public Stack<Replayable<A>> lastInteraction() {
+        Stack<Replayable<A>> last = new Stack<>();
+        last.push(this.history.last().getInteraction());
+        return last ;
+    }
+
     public void setError(INDArray errors){
         if(errors == null)
             return ;

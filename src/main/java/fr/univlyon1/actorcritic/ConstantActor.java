@@ -47,8 +47,14 @@ public class ConstantActor<A> implements Learning<A> {
 
     @Override
     public A getAction(Observation observation, Double time) {
+        Double interdist ;
+        if(observation.getData().getDouble(4) == 1.) {
+            interdist = -1. ;
+        }else{
+            interdist=1. ;
+        }
 
-        INDArray behaviore= Nd4j.create(new double[]{-1.,-1.,-1.});
+        INDArray behaviore= Nd4j.create(new double[]{interdist,1.,-1.});
         return this.actionSpace.mapNumberToAction(behaviore);
     }
 
