@@ -79,11 +79,9 @@ public class TDLstm<A> extends TD<A> {
 
             Stack<Replayable<A>> lastInteractions = this.experienceReplay.lastInteraction() ;
             Interaction<A> inter = (Interaction<A>)lastInteractions.pop();
-            INDArray inputPrev = inter.getSecondObservation();
             while(!lastInteractions.isEmpty()){
                 this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
                 inter = (Interaction<A>)lastInteractions.pop();
-                inputPrev = inter.getSecondObservation();
             }
             INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
             //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));

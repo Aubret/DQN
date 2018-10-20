@@ -20,6 +20,7 @@ public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienc
             return false ;
         ArrayList<Interaction<A>> interactions = constructInteractions() ;
         this.filteredInteractions = this.idFilter.filter(interactions);
+        System.out.println("---");
         return true ;
     }
 
@@ -36,7 +37,7 @@ public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienc
 
     @Override
     public Interaction<A> chooseInteraction() {
-        return (Interaction<A>)this.filteredInteractions.pop();
+        return this.filteredInteractions.isEmpty() ? null : (Interaction<A>)this.filteredInteractions.pop();
     }
 
 
@@ -54,8 +55,8 @@ public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienc
             time+=this.interactions.get(cursor).getDt();
             cursor -- ;
         }
-
         for(int i = cursor; i < this.interactions.size();i++){
+
             lasts.add(this.interactions.get(i));
         }
         return this.idFilter.filter(lasts);
