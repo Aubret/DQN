@@ -2,6 +2,7 @@ package fr.univlyon1.actorcritic;
 
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.actorcritic.policy.RandomPolicy;
+import fr.univlyon1.agents.AgentDRL;
 import fr.univlyon1.configurations.Configuration;
 import fr.univlyon1.configurations.ListPojo;
 import fr.univlyon1.configurations.PojoInteraction;
@@ -97,20 +98,22 @@ public class RandomActor<A> implements Learning<A> {
 
     @Override
     public void stop(){
-        ListPojo<A> point = new ListPojo<A>();
-        Collection<? extends Replayable<A>> memory = this.ep.getMemory();
-        for(Replayable<A> replayable : memory){
-            if(replayable instanceof Interaction) {
-                Interaction<A> interaction = (Interaction<A>)replayable ;
-                point.add(new PojoInteraction<A>(interaction, this.actionSpace));
+        if(!this.conf.getWritefile().equals("") && AgentDRL.isWriteFile()) {
+            ListPojo<A> point = new ListPojo<A>();
+            Collection<? extends Replayable<A>> memory = this.ep.getMemory();
+            for (Replayable<A> replayable : memory) {
+                if (replayable instanceof Interaction) {
+                    Interaction<A> interaction = (Interaction<A>) replayable;
+                    point.add(new PojoInteraction<A>(interaction, this.actionSpace));
+                }
             }
-        }
-        try {
-            JAXBContext context = JAXBContext.newInstance(ListPojo.class);
-            Marshaller m = context.createMarshaller();
-            m.marshal(point,new File(getConf().getWritefile()));
-        } catch (JAXBException e) {
-            e.printStackTrace();
+            try {
+                JAXBContext context = JAXBContext.newInstance(ListPojo.class);
+                Marshaller m = context.createMarshaller();
+                m.marshal(point, new File(getConf().getWritefile()));
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

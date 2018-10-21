@@ -20,7 +20,6 @@ public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienc
             return false ;
         ArrayList<Interaction<A>> interactions = constructInteractions() ;
         this.filteredInteractions = this.idFilter.filter(interactions);
-        System.out.println("---");
         return true ;
     }
 
