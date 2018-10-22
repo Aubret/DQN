@@ -20,6 +20,7 @@ public class GammaInteraction<A> extends Interaction<A> {
         i.setIdObserver(this.getIdObserver());
         i.setTime(this.time);
         i.setDt(this.dt);
+        i.setIdSecondObserver(this.idSecondObserver);
         return i ;
     }
 

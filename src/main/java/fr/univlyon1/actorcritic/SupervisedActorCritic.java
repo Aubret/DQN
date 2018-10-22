@@ -33,7 +33,7 @@ public class SupervisedActorCritic<A> extends ContinuousActorCritic<A> {
     public A getAction(Observation observation, Double time) {
         INDArray input = observation.getData() ;
         A actionBehaviore;
-        this.td.evaluate(input,this.reward,time);
+        this.td.evaluate(observation,this.reward,time);
         this.td.learn();
         INDArray resultBehaviore = this.td.behave(input);//INDArray)this.policy.getAction(input);
         actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);

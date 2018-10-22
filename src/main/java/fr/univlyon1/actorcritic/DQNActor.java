@@ -78,7 +78,7 @@ public class DQNActor<A> implements Learning<A> {
     public A getAction(Observation observation, Double time) {
         INDArray input = observation.getData() ;
         if(AgentDRL.getCount() > 50) { // Ne pas overfitter sur les premières données arrivées
-            this.td.evaluate(input, this.reward,time); //Evaluation
+            this.td.evaluate(observation, this.reward,time); //Evaluation
             this.countStep++;
             if (this.countStep == this.epoch) {
                 countStep = 0;
@@ -91,7 +91,7 @@ public class DQNActor<A> implements Learning<A> {
         int indiceBehaviore = (Integer)this.policy.getAction(results,null);
         A actionBehaviore = this.actionSpace.mapNumberToAction(indiceBehaviore);
 
-        this.td.step(input,actionBehaviore,time); // step learning algorithm
+        this.td.step(observation,actionBehaviore,time); // step learning algorithm
         return actionBehaviore;
     }
 

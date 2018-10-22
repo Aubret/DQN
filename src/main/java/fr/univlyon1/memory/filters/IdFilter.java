@@ -16,7 +16,7 @@ public class IdFilter<A>  {
      */
     public Stack<Replayable<A>> filter(ArrayList<Interaction<A>> interactions){
         ArrayList<Long> ids = new ArrayList<>();
-        StringBuffer str = new StringBuffer("");
+        //StringBuffer str = new StringBuffer("");
         /*StringBuffer str2 = new StringBuffer("");
 
         for(Interaction<A> ite : interactions){

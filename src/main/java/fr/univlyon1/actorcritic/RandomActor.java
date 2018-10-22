@@ -58,7 +58,7 @@ public class RandomActor<A> implements Learning<A> {
     @Override
     public A getAction(Observation observation, Double time) {
         INDArray input =  observation.getData() ;
-        this.td.evaluate(input,this.reward,time);
+        this.td.evaluate(observation,this.reward,time);
         Object o = this.td.behave(input);//this.policy.getAction(input);
         A a = this.actionSpace.mapNumberToAction(o);
         this.td.step(observation,this.actionSpace.mapNumberToAction(o),time);

@@ -14,6 +14,7 @@ import fr.univlyon1.environment.space.ActionSpace;
 import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import fr.univlyon1.learning.TDLstm2D;
+import fr.univlyon1.learning.TDLstmFilter;
 import fr.univlyon1.memory.OneVehicleSequentialExperienceReplay;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.*;
@@ -50,7 +51,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.initLstm();
         //this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
         this.ep = new OneVehicleSequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
-        this.td = new TDLstm2D<A>(conf.getGamma(),
+        //this.td = new TDLstm2D<A>(conf.getGamma(),
+        this.td = new TDLstmFilter<A>(conf.getGamma(),
                 this,
                 (SequentialExperienceReplay<A>)this.ep,
                 //new SequentialPrioritizedExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getFile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getLearn()),
@@ -90,8 +92,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         A actionBehaviore;
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
-        this.td.evaluate(input, this.reward,time); //Evaluation
-        if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
+        this.td.evaluate(observation, this.reward,time); //Evaluation
+        if(AgentDRL.getCount() > 200) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             if(AgentDRL.getCount()%this.learn_step== 0) {

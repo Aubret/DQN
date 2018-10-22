@@ -109,7 +109,7 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         //INDArray result = this.policyApproximator.getOneResult(input);
         //INDArray resultBehaviore = Nd4j.zeros(this.getActionSpace().getSize()).add(0.1);
         A actionBehaviore;
-        this.td.evaluate(input, this.reward,time); //Evaluation
+        this.td.evaluate(observation, this.reward,time); //Evaluation
         if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = this.td.behave(input);//(INDArray)this.policy.getAction(input);
             this.td.learn();

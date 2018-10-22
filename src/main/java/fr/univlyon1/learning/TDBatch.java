@@ -1,5 +1,7 @@
 package fr.univlyon1.learning;
 
+import fr.univlyon1.environment.space.Observation;
+import fr.univlyon1.environment.space.SpecificObservation;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.interactions.Interaction;
@@ -22,13 +24,9 @@ public class TDBatch<A> extends TD<A> {
     }
 
     @Override
-    public void evaluate(INDArray input, Double reward, Double time) { // Store transistions
+    public void evaluate(Observation input, Double reward, Double time) { // Store transistions
+        super.evaluate(input,reward,time);
         if(this.lastInteraction != null) { // Avoir des interactions complètes
-            this.lastInteraction.setSecondObservation(input);
-            this.lastInteraction.setReward(reward);
-            this.informations.setDt(time-this.lastInteraction.getTime());
-            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
-            //Interaction<A> i = this.lastInteraction.clone();
             this.experienceReplay.addInteraction(this.lastInteraction);
         }
     }

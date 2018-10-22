@@ -34,20 +34,6 @@ public class TD<A> implements Algorithm<A> {
     }
 
     @Override
-    public void step(INDArray observation, A action,Double time) {
-        double dt = 0. ;
-        if(this.lastInteraction != null) {
-            this.lastInteraction.setSecondAction(action);
-            this.lastInteraction.setDt(time-this.lastInteraction.getTime());
-            this.informations.setDt(time-this.lastInteraction.getTime());
-            this.previousInteraction = this.lastInteraction;
-        }
-        this.lastInteraction = new GammaInteraction<A>(action,observation,this.learning.getConf().getGamma());
-        this.lastInteraction.setTime(time);
-
-    }
-
-    @Override
     public void step(Observation observation, A action, Double time) {
         INDArray input = observation.getData() ;
         double dt = 0. ;
@@ -57,17 +43,18 @@ public class TD<A> implements Algorithm<A> {
             this.previousInteraction = this.lastInteraction;
         }
         this.lastInteraction = new GammaInteraction<A>(action,input,this.learning.getConf().getGamma());
-        if(observation instanceof SpecificObservation){
+        if(observation instanceof SpecificObservation)
             this.lastInteraction.setIdObserver(((SpecificObservation) observation).getId());
-        }
         this.lastInteraction.setTime(time);
 
     }
 
     @Override
-    public void evaluate(INDArray input, Double reward, Double time) {
+    public void evaluate(Observation input, Double reward, Double time) {
         if(this.lastInteraction != null) { // Avoir des interactions complètes
-            this.lastInteraction.setSecondObservation(input);
+            if(input instanceof SpecificObservation)
+                this.lastInteraction.setIdObserver(((SpecificObservation) input).getId());
+            this.lastInteraction.setSecondObservation(input.getData());
             this.lastInteraction.setReward(reward);
             this.informations.setDt(time-this.lastInteraction.getTime());
             this.lastInteraction.setDt(time-this.lastInteraction.getTime());

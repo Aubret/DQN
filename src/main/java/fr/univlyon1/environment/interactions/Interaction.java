@@ -22,6 +22,7 @@ public class Interaction <A> implements Replayable<A>{
     protected double gamma ;
     protected int id ;
     protected long idObserver ;
+    protected long idSecondObserver ;
 
 
     public Interaction(A action, INDArray observation){
@@ -48,6 +49,7 @@ public class Interaction <A> implements Replayable<A>{
         i.setIdObserver(this.getIdObserver());
         i.setTime(this.time);
         i.setDt(this.dt);
+        i.setIdSecondObserver(this.idSecondObserver);
         return i ;
     }
 

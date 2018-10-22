@@ -6,9 +6,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 public interface Algorithm<A> {
     INDArray behave(INDArray input);
-    void step(INDArray input, A action,Double time);
     void step(Observation observation, A action, Double time);
-    void evaluate(INDArray input, Double reward, Double time);
+    void evaluate(Observation input, Double reward, Double time);
     void epoch();
     void learn();
     Informations getInformation();
