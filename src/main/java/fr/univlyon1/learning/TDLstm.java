@@ -3,6 +3,7 @@ package fr.univlyon1.learning;
 import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
+import fr.univlyon1.memory.OneVehicleSequentialExperienceReplay;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.Mlp;
@@ -76,14 +77,17 @@ public class TDLstm<A> extends TD<A> {
         if(this.lastInteraction != null) {
             INDArray act = (INDArray)this.learning.getActionSpace().mapActionToNumber(this.lastInteraction.getAction());
             //INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
-
             Stack<Replayable<A>> lastInteractions = this.experienceReplay.lastInteraction() ;
             Interaction<A> inter = (Interaction<A>)lastInteractions.pop();
+            if(this.experienceReplay instanceof OneVehicleSequentialExperienceReplay)
+                this.observationApproximator.clear();
+
             while(!lastInteractions.isEmpty()){
                 this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
                 inter = (Interaction<A>)lastInteractions.pop();
             }
             INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+
             //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);

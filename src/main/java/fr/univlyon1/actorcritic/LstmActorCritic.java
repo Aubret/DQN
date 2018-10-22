@@ -1,6 +1,7 @@
 package fr.univlyon1.actorcritic;
 
 import fr.univlyon1.actorcritic.policy.Egreedy;
+import fr.univlyon1.actorcritic.policy.NoisyGreedy;
 import fr.univlyon1.actorcritic.policy.ParameterNoise;
 import fr.univlyon1.actorcritic.policy.Policy;
 import fr.univlyon1.agents.AgentDRL;
@@ -75,7 +76,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.policy = new DoublePolicy<A>(mixtePolicy2,new Egreedy<A>(0.2,seed,actionSpace,this.getPolicyApproximator()));*/
         //this.policy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
         Policy mixtePolicy = new ParameterNoise<A>(conf.getNoisyGreedyStd(),this.seed,this.actionSpace, this.getPolicyApproximator(),conf.getStepEpsilon());
-        this.policy = new Egreedy<A>(conf.getMinEpsilon(),this.seed,this.actionSpace,mixtePolicy);
+        this.policy = new NoisyGreedy(conf.getNoisyGreedyStd(),conf.getNoisyGreedyMean(),seed,mixtePolicy);
+        //this.policy = new Egreedy<A>(conf.getMinEpsilon(),this.seed,this.actionSpace,mixtePolicy);
         //this.policy = new Egreedy<A>(conf.getMinEpsilon(),this.seed,this.actionSpace,this.getPolicyApproximator());
 
     }
@@ -89,7 +91,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
         this.td.evaluate(input, this.reward,time); //Evaluation
-        if(AgentDRL.getCount() > 500) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             if(AgentDRL.getCount()%this.learn_step== 0) {

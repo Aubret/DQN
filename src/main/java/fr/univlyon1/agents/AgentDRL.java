@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,8 +28,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class AgentDRL<A> implements AgentRL<A> {
     protected static int count = 0 ;
-    protected static String filename = "a6_rewards63";
+    //protected static String filename = "a6_rewards63";
+    //protected static String filename = "simple_onrampNoAction";
+    protected static String filename = "simple_onramp_1500-700";
     protected static boolean writeFile = true;
+    protected PrintWriter rewardResults ;
+    protected PrintWriter rewardLearningResults ;
 
 
     protected Double previousTime ;
@@ -36,7 +41,6 @@ public class AgentDRL<A> implements AgentRL<A> {
 
     protected ActionSpace<A> actionSpace ;
     protected Learning<A> learning;
-    protected PrintWriter rewardResults ;
     protected double totalReward = 0 ;
     protected boolean print =true ;
     protected Configuration configuration ;
@@ -101,8 +105,9 @@ public class AgentDRL<A> implements AgentRL<A> {
                 //FileWriter fw = new FileWriter("sim/arthur/continuous_rewards_baseline.csv");
                 File fw = new File("sim/arthur/results/"+filename+".csv");
                 //FileWriter fw = new FileWriter("sim/arthur/results/a6_baseline.csv");
-
+                File fw2 = new File("sim/arthur/results/"+filename+"_reward.csv");
                 this.rewardResults = new PrintWriter(fw);
+                this.rewardLearningResults = new PrintWriter(fw2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -200,8 +205,10 @@ public class AgentDRL<A> implements AgentRL<A> {
                     }
 
                     this.rewardResults.println(count +";"+evaluation.get(0)+str+inputs);
-                    //------------Inputs-----------------------
 
+                    for(Map.Entry<Double,Double> ite : rewardTime.entrySet()){
+                        this.rewardLearningResults.println(ite.getKey()+";"+ite.getValue());
+                    }
 
                 }else {
                     this.rewardResults.println(count + ";" + evaluation);
@@ -237,8 +244,10 @@ public class AgentDRL<A> implements AgentRL<A> {
         System.out.println("Last action : "+this.action);
         TimeUnit t = TimeUnit.SECONDS ;
         System.out.println("Time : "+t.convert(System.currentTimeMillis() - time,TimeUnit.SECONDS));
-        if(this.print)
+        if(this.print) {
             this.rewardResults.close();
+            this.rewardLearningResults.close();
+        }
     }
 
     public static int getCount() {
