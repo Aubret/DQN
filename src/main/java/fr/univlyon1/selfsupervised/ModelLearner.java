@@ -40,8 +40,8 @@ public class ModelLearner<A> implements PomdpLearner<A> {
         this.observationSpace = observationSpace ;
         this.supervisedConfiguration = supervisedConfiguration ;
         this.seed = seed;
-        //this.learner =new LstmMlpLearner<A>(commonApproximator,supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
-        this.learner =new MultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
+        this.learner =new LstmMlpLearner<A>(commonApproximator,supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
+        //this.learner =new MultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
         //this.learner =new GradientMultipleLearner<A>(commonApproximator,ep,notifications,supervisedConfiguration,configuration,actionSpace,observationSpace,seed);
         //this.learner =new MlpLearner<A>(supervisedConfiguration,ep,notifications,configuration,actionSpace,observationSpace,seed);
     }
@@ -49,11 +49,11 @@ public class ModelLearner<A> implements PomdpLearner<A> {
 
     @Override
     public void step() {
-        if(AgentDRL.getCount() > 2000 && AgentDRL.getCount()%learn==0){
+        /*if(AgentDRL.getCount() > 2000 && AgentDRL.getCount()%learn==0){
             for(int i = 0; i < this.iterations ; i++){
                 this.learner.learn();
             }
-        }
+        }*/
     }
 
     @Override

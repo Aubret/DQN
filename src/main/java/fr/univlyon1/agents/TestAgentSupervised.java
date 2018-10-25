@@ -46,7 +46,7 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             //String f = "resources/learning/ddpg.xml";
             //String f = "resources/learning/justhour_ddpg.xml";
-            String f = "resources/learning/lstmDiff.xml";
+            String f = "resources/learning/lstm.xml";
             this.configuration = (Configuration)unmarshaller.unmarshal( new File(f));
         }catch(Exception e){
             e.printStackTrace();
@@ -83,7 +83,7 @@ public class TestAgentSupervised<A> implements AgentRL<A> {
         lstm.setLossFunction(new LossError());
         lstm.setHiddenActivation(Activation.TANH);
         lstm.setLastActivation(Activation.TANH);
-        lstm.setExportModel("resources/models/lstm0-3-7");
+        lstm.setExportModel("resources/models/lstm");
         lstm.setName("Lstm");
         //this.observationApproximator.setL2(0.001);
         lstm.init() ;

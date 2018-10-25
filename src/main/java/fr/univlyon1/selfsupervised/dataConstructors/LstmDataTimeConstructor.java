@@ -13,6 +13,10 @@ import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 
 import java.util.ArrayList;
 
+/**
+ * Le nombre d'interaction avant celle que l'on souhaite prédire est dynamique
+ * @param <A>
+ */
 public class LstmDataTimeConstructor<A> extends LstmDataConstructor<A> {
     protected int scheduleSequence = 1000;
     protected int cpt = 1 ;

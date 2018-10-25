@@ -6,7 +6,7 @@ import fr.univlyon1.environment.interactions.Replayable;
 import java.util.ArrayList;
 import java.util.Stack;
 
-public class IdFilter<A>  {
+public class IdFilter<A> implements Filter<A>{
 
     /**
      * Changement d'ordre des éléments tout en enlevant les éléments les même ids de véhicule qui sont anciens.

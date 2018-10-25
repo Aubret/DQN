@@ -32,6 +32,9 @@ import java.util.SortedSet;
 
 @Getter
 @Setter
+/**
+ * Par défaut, on le on choisit l'interaction que l'on souhaiet définir par le temps jusqu'à la dernière
+ */
 public class LstmDataConstructor<A> extends DataConstructor<A>{
     protected SequentialExperienceReplay<A> timeEp;
     protected SpecificObservationReplay<A> labelEp;
@@ -180,8 +183,8 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
             id = spo.getId() ;
             cpt++ ;
         }
-        //System.out.println("found "+id+ " vs "+chosen.getIdObserver());
-        Double elapseTime = (spo.getOrderedNumber()-observations.get(observations.size()-1).getTime()-30.)/30.;
+        Double tNorm = configuration.getForwardTime()/2.;
+        Double elapseTime = (spo.getOrderedNumber()-last.getTime()-tNorm)/tNorm;
         //this.timeEp.setSequenceSize(this.sequenceSize);
         return this.dataBuilder.build(spo,chosen,elapseTime);
     }

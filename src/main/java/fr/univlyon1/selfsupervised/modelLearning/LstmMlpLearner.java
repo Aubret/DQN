@@ -13,6 +13,7 @@ import fr.univlyon1.networks.Mlp;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.selfsupervised.dataConstructors.LstmDataConstructor;
 import fr.univlyon1.selfsupervised.dataConstructors.LstmDataNumberConstructor;
+import fr.univlyon1.selfsupervised.dataConstructors.LstmDataSimpleConstructor;
 import fr.univlyon1.selfsupervised.dataTransfer.ModelBasedData;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -40,7 +41,8 @@ public class LstmMlpLearner<A> extends Learner<A> {
         assert(labelEp instanceof SpecificObservationReplay);
         this.lstm =(LSTM2D)lstm;
         //this.dataConstructors = new LstmDataConstructor<A>((SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration);
-        this.dataConstructors = new LstmDataNumberConstructor<A>(this.lstm,(SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration,supervisedConfiguration.getTimeDifficulty());
+        //this.dataConstructors = new LstmDataNumberConstructor<A>(this.lstm,(SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration,supervisedConfiguration.getTimeDifficulty());
+        this.dataConstructors = new LstmDataSimpleConstructor<A>(this.lstm,(SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration);
         //this.dataConstructors = new LstmDataTimeConstructor<A>(this.lstm,(SequentialExperienceReplay<A>) timeEp, (SpecificObservationReplay<A>) labelEp, configuration, actionSpace, observationSpace, supervisedConfiguration);
         this.schedule = 200 ;
         this.cpt= 0 ;
@@ -48,7 +50,7 @@ public class LstmMlpLearner<A> extends Learner<A> {
     }
 
     public void learn(){
-        ModelBasedData mbd = this.dataConstructors.construct();
+            ModelBasedData mbd = this.dataConstructors.construct();
         INDArray result =this.lstm.forwardLearn(mbd.getInputs(), Nd4j.zeros(1,this.lstm.numOutput()),mbd.getTotalbatchs(),mbd.getMask(),mbd.getMaskLabel());
         INDArray epsilon = (INDArray)this.regression.learn(Nd4j.concat(1,result,mbd.getAddings()),mbd.getLabels(),mbd.getTotalbatchs());
         INDArray epsilonObservation = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(0, this.lstm.numOutput()));

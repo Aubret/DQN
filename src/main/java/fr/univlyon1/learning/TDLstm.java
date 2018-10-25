@@ -28,7 +28,7 @@ public class TDLstm<A> extends TD<A> {
     protected SavesLearning savelearning ;
 
     protected StateApproximator observationApproximator ;
-    protected StateApproximator cloneObservationApproximator ;
+    protected StateApproximator behaveObservationApproximator ;
     protected StateApproximator targetObservationApproximator ;
     protected Approximator targetActorApproximator ;
     protected Approximator criticApproximator ;
@@ -51,7 +51,7 @@ public class TDLstm<A> extends TD<A> {
     protected int iterations ;
     protected int batchSize ;
 
-    public TDLstm(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize,Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator,StateApproximator cloneObservationApproximator) {
+    public TDLstm(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize,Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator) {
         super(gamma, learning);
         this.iterations = iterations ;
         this.batchSize = batchSize ;
@@ -67,7 +67,7 @@ public class TDLstm<A> extends TD<A> {
 
         this.targetObservationApproximator = observationApproximator.clone(false);
         this.observationApproximator = observationApproximator ;
-        this.cloneObservationApproximator = cloneObservationApproximator ;
+        this.behaveObservationApproximator = this.observationApproximator ;
         /*this.targetObservationApproximator = observationApproximator ;
         this.observationApproximator = this.targetObservationApproximator.clone(true);
         this.cloneObservationApproximator = cloneObservationApproximator ;*/
@@ -84,13 +84,13 @@ public class TDLstm<A> extends TD<A> {
             Stack<Replayable<A>> lastInteractions = this.experienceReplay.lastInteraction() ;
             Interaction<A> inter = (Interaction<A>)lastInteractions.pop();
             if(this.experienceReplay instanceof OneVehicleSequentialExperienceReplay)
-                this.observationApproximator.clear();
+                this.behaveObservationApproximator.clear();
 
             while(!lastInteractions.isEmpty()){
-                this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+                this.behaveObservationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
                 inter = (Interaction<A>)lastInteractions.pop();
             }
-            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+            INDArray actualState = this.behaveObservationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
 
             //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
@@ -116,13 +116,15 @@ public class TDLstm<A> extends TD<A> {
     @Override
     public void learn(){
         //Object state2 = this.cloneObservationApproximator.getMemory();
-        this.state = this.observationApproximator.getMemory();
+        if(!(this.experienceReplay instanceof OneVehicleSequentialExperienceReplay))
+            this.state = this.behaveObservationApproximator.getMemory();
         this.experienceReplay.setMinForward(this.learning.getConf().getForward()+1);
         if(this.replay)
             this.learn_replay();
         this.informations.setModified(true);
         this.experienceReplay.setMinForward(this.learning.getConf().getForward());
-        this.observationApproximator.setMemory(this.state);
+        if(!(this.experienceReplay instanceof OneVehicleSequentialExperienceReplay))
+            this.behaveObservationApproximator.setMemory(this.state);
         //this.cloneObservationApproximator.setMemory(state2);
     }
 

@@ -112,12 +112,14 @@ public class ContinuousActorCritic<A> implements Learning<A> {
         this.td.evaluate(observation, this.reward,time); //Evaluation
         if(AgentDRL.getCount() > 1000) { // Ne pas overfitter sur les premières données arrivées
             INDArray resultBehaviore = this.td.behave(input);//(INDArray)this.policy.getAction(input);
-            this.td.learn();
-            this.countStep++;
-            if (this.countStep == this.epoch) {
-                countStep = 0;
-                this.td.epoch();
-                //System.out.println("An epoch : "+ AgentDRL.getCount());
+            if(AgentDRL.getCount()%this.conf.getLearn()==0) {
+                this.td.learn();
+                this.countStep++;
+                if (this.countStep == this.epoch) {
+                    countStep = 0;
+                    this.td.epoch();
+                    //System.out.println("An epoch : "+ AgentDRL.getCount());
+                }
             }
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
         }else

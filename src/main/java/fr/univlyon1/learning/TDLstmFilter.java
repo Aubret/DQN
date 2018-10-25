@@ -14,10 +14,9 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import java.util.ArrayList;
 
 public class TDLstmFilter<A> extends TDLstm<A> {
-    public TDLstmFilter(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize, Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator, StateApproximator cloneObservationApproximator) {
-        super(gamma, learning, experienceReplay, iterations, batchSize, criticApproximator, cloneCriticApproximator, observationApproximator, cloneObservationApproximator);
+    public TDLstmFilter(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize, Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator) {
+        super(gamma, learning, experienceReplay, iterations, batchSize, criticApproximator, cloneCriticApproximator, observationApproximator);
     }
-
 
     /* Pas plus de 1 backward attention à casue de secondObservation2
 
@@ -137,19 +136,18 @@ public class TDLstmFilter<A> extends TDLstm<A> {
                         INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)};
                         inputs.put(indexs, Nd4j.concat(1, interact.getObservation(), action));
                         //secondObservations3.put(indexs,Nd4j.concat(1, interact.getSecondObservation(), action2));
-                        if(interact.getIdObserver() != observations.get(observations.size()-1).getIdSecondObserver()) {
-                            inputsTarget.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(cursorTarget)}, Nd4j.concat(1, interact.getObservation(), action));
-                            INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(cursorTarget)};
-                            masksTarget.put(indexMask, Nd4j.ones(1));
-                            cursorTarget-- ;
-                        }
-
                         //seconds observations for labelisation make observations 3
                         //secondObservations3.put(indexs,Nd4j.concat(1,interact.getSecondObservation(),action2));
-
                         //mask index
                         INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(temporal)};
                         masks.put(indexMask, Nd4j.ones(1));
+
+                        if(interact.getIdObserver() != observations.get(observations.size()-1).getIdSecondObserver()) {
+                            inputsTarget.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(cursorTarget)}, Nd4j.concat(1, interact.getObservation(), action));
+                            indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(cursorTarget)};
+                            masksTarget.put(indexMask, Nd4j.ones(1));
+                            cursorTarget-- ;
+                        }
                     }
                 }
             }
@@ -171,7 +169,7 @@ public class TDLstmFilter<A> extends TDLstm<A> {
             //INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));
             //INDArray labels = this.multistepLabelize(secondObservations3,rewards,secondObservations2,gammas, forwardInputs,totalBatchs,masks,maskLabel); // A faire après le forard learn pour avoir la bonne mémoire
             //INDArray labels = this.labelize(secondObservations,rewards,secondObservations2,gammas); // A faire après le forard learn pour avoir la bonne mémoire
-            INDArray labels = this.labelizeFullTarget(inputsTarget, secondObservations,rewards,secondObservations2,gammas,masks,maskLabel );
+            INDArray labels = this.labelizeFullTarget(inputsTarget, secondObservations,rewards,secondObservations2,gammas,masksTarget,maskLabel );
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);

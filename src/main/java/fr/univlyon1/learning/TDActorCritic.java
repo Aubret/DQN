@@ -57,6 +57,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
         int numColumns =sizeObservation+sizeAction;
         int numColumnsLabels = this.targetCriticApproximator.numOutput();
         //this.learning.getActionSpace().getSize();
+
         for(int j = 0;j<this.nbrIterations;j++) {
             INDArray observations = Nd4j.zeros(numRows, sizeObservation);
             INDArray inputs = Nd4j.zeros(numRows, numColumns);
@@ -154,7 +155,7 @@ public class TDActorCritic<A> extends TDBatch<A> {
     }
 
     public void epoch(){
-        double alpha = 0.01 ;
+        double alpha = 0.001 ;
         targetActorApproximator.getParams().muli(1.-alpha).addi(this.learning.getApproximator().getParams().mul(alpha));
         targetCriticApproximator.getParams().muli(1.-alpha).addi(this.criticApproximator.getParams().mul(alpha));
         this.epochOne = false;

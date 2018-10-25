@@ -26,7 +26,6 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
     protected double startTime ;
 
     protected int minForward ;
-    protected IdFilter<A> idFilter ;
 
     public SequentialExperienceReplay(int maxSize, ArrayList<String> file,int sequenceSize, int backpropSize,long seed,Integer forwardSize){
         super(maxSize,file);
@@ -35,7 +34,6 @@ public class SequentialExperienceReplay<A> extends ExperienceReplay<A>{
         this.backpropSize = backpropSize ;
         this.random = new Random(seed);
         this.minForward = forwardSize ;
-        this.idFilter = new IdFilter<A>();
     }
 
     @Override

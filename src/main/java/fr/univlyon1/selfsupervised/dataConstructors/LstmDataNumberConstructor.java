@@ -11,6 +11,11 @@ import fr.univlyon1.networks.LSTM;
 
 import java.util.ArrayList;
 
+
+/**
+ * Number représente le nombre d'interaction en arrièer avant celle que l'on souhaite prédire
+ * @param <A>
+ */
 public class LstmDataNumberConstructor<A> extends LstmDataConstructor<A> {
     public LstmDataNumberConstructor(LSTM lstm,SequentialExperienceReplay<A> timeEp, SpecificObservationReplay<A> labelEp, Configuration conf, ActionSpace<A> actionSpace, ObservationSpace observationSpace, SupervisedConfiguration conf2, int timeDifficulty) {
         super(lstm,timeEp, labelEp, conf, actionSpace, observationSpace, conf2);

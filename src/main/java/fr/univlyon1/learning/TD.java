@@ -53,7 +53,7 @@ public class TD<A> implements Algorithm<A> {
     public void evaluate(Observation input, Double reward, Double time) {
         if(this.lastInteraction != null) { // Avoir des interactions complètes
             if(input instanceof SpecificObservation)
-                this.lastInteraction.setIdObserver(((SpecificObservation) input).getId());
+                this.lastInteraction.setIdSecondObserver(((SpecificObservation) input).getId());
             this.lastInteraction.setSecondObservation(input.getData());
             this.lastInteraction.setReward(reward);
             this.informations.setDt(time-this.lastInteraction.getTime());

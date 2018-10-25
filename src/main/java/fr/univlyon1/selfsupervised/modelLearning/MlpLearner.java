@@ -30,6 +30,9 @@ public class MlpLearner<A> extends Learner<A>{
         super(supervisedConfiguration, configuration, actionSpace, observationSpace, seed);
         assert !(ep instanceof SequentialExperienceReplay)  : "mauvais experience replay" ;
         assert(spo instanceof SpecificObservationReplay);
+        if(ep instanceof SequentialExperienceReplay){
+            System.out.println("errroooor !!!!");
+        }
         this.ep = ep ;
         this.dataConstructor = new MlpDataConstructor<A>(ep,(SpecificObservationReplay<A>)spo,configuration,actionSpace,observationSpace,conf);
         this.initRegression();

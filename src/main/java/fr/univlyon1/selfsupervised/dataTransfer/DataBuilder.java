@@ -29,6 +29,11 @@ public class DataBuilder<A> {
             //this.numAddings = ldc.getObservationSpace().getShape()[0] + 1 + ldc.getActionSpace().getSize() ;
             this.numAddings = ldc.getObservationSpace().getShape()[0] + 1; ;
             this.numPredicts = 2 ;
+        }else if(name.equals("DataObservationNoAddings")){
+            this.type =4 ;
+            //this.numAddings = ldc.getObservationSpace().getShape()[0] + 1 + ldc.getActionSpace().getSize() ;
+            this.numAddings = 1; ;
+            this.numPredicts = 2 ;
         }
         this.ldc= ldc ;
     }
@@ -50,6 +55,8 @@ public class DataBuilder<A> {
             return new DataNothing<A>(observation,predictions,extratime,this.ldc);
         }else if(type==3){
             return new DataObservation<A>(observation,predictions,extratime,this.ldc);
+        }else if(type==4){
+            return new DataObservationNoAddings<A>(observation,extratime,this.ldc);
         }
 
         System.out.println("The data type is not available");

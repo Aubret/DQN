@@ -76,7 +76,8 @@ public class MlpDataConstructor<A> extends DataConstructor<A>{
             id = spo.getId() ;
             cpt++ ;
         }
-        Double elapseTime = (spo.getOrderedNumber()-observation.getTime()-30.)/30.;
+        Double tNorm = configuration.getForwardTime()/2.;
+        Double elapseTime = (spo.getOrderedNumber()-observation.getTime()-tNorm)/tNorm;
         return this.dataBuilder.build(spo,observation,elapseTime);
     }
 }

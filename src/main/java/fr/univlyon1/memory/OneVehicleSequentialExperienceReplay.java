@@ -2,6 +2,9 @@ package fr.univlyon1.memory;
 
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.environment.interactions.Replayable;
+import fr.univlyon1.memory.filters.Filter;
+import fr.univlyon1.memory.filters.IdFilter;
+import fr.univlyon1.memory.filters.NoFilter;
 import play.mvc.WebSocket;
 
 import java.util.ArrayList;
@@ -10,16 +13,20 @@ import java.util.Stack;
 public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienceReplay<A> {
 
     protected Stack<Replayable<A>> filteredInteractions ;
+    protected Filter<A> filter ;
+
 
     public OneVehicleSequentialExperienceReplay(int maxSize, ArrayList<String> file, int sequenceSize, int backpropSize, long seed, Integer forwardSize) {
         super(maxSize, file, sequenceSize, backpropSize, seed, forwardSize);
+        this.filter = new NoFilter<A>();
     }
 
     public boolean initChoose(){ // Toujours appeler avant les chooseInteraction
         if(!super.initChoose())
             return false ;
         ArrayList<Interaction<A>> interactions = constructInteractions() ;
-        this.filteredInteractions = this.idFilter.filter(interactions);
+        this.filteredInteractions = this.filter.filter(interactions);
+        this.forwardNumber = this.filteredInteractions.size();
         return true ;
     }
 
@@ -55,9 +62,8 @@ public class OneVehicleSequentialExperienceReplay<A> extends SequentialExperienc
             cursor -- ;
         }
         for(int i = cursor; i < this.interactions.size();i++){
-
             lasts.add(this.interactions.get(i));
         }
-        return this.idFilter.filter(lasts);
+        return this.filter.filter(lasts);
     }
 }

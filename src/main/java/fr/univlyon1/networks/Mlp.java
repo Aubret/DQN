@@ -88,8 +88,8 @@ public class Mlp implements Approximator{
         this.l2 = mlp.getL2();
         this.listener = listener ;
         this.epoch = mlp.getEpoch() ;
-        /*if(listener)
-            this.attachListener(this.model);*/
+        if(listener)
+            this.name = mlp.getName();
     }
 
     /**
