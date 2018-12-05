@@ -28,6 +28,7 @@ public class TDLstm<A> extends TD<A> {
     protected StateApproximator observationApproximator ;
     protected StateApproximator cloneObservationApproximator ;
     protected StateApproximator targetObservationApproximator ;
+
     protected Approximator targetActorApproximator ;
     protected Approximator criticApproximator ;
     protected Approximator targetCriticApproximator ;
@@ -63,12 +64,13 @@ public class TDLstm<A> extends TD<A> {
         this.cloneCriticApproximator = cloneCriticApproximator ; // Le clône permet de traiter deux fontions de pertes différentes.
 
 
-        this.targetObservationApproximator = observationApproximator.clone(false);
+        /*this.targetObservationApproximator = observationApproximator.clone(false);
         this.observationApproximator = observationApproximator ;
-        this.cloneObservationApproximator = cloneObservationApproximator ;
-        /*this.targetObservationApproximator = observationApproximator ;
-        this.observationApproximator = this.targetObservationApproximator.clone(true);
         this.cloneObservationApproximator = cloneObservationApproximator ;*/
+
+        this.targetObservationApproximator = observationApproximator ;
+        this.observationApproximator = this.targetObservationApproximator.clone(true);
+        this.cloneObservationApproximator = cloneObservationApproximator ;
 
     }
 
@@ -80,13 +82,13 @@ public class TDLstm<A> extends TD<A> {
             Stack<Replayable<A>> lastInteractions = this.experienceReplay.lastInteraction() ;
             Interaction<A> inter = (Interaction<A>)lastInteractions.pop();
             if(this.experienceReplay instanceof OneVehicleSequentialExperienceReplay)
-                this.observationApproximator.clear();
+                this.targetObservationApproximator.clear();
 
             while(!lastInteractions.isEmpty()){
-                this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+                this.targetObservationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
                 inter = (Interaction<A>)lastInteractions.pop();
             }
-            INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
+            INDArray actualState = this.targetObservationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
 
             //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
@@ -115,13 +117,13 @@ public class TDLstm<A> extends TD<A> {
     @Override
     public void learn(){
         //Object state2 = this.cloneObservationApproximator.getMemory();
-        this.state = this.observationApproximator.getMemory();
+        this.state = this.targetObservationApproximator.getMemory();
         this.experienceReplay.setMinForward(this.learning.getConf().getForward()+1);
         if(this.replay)
             this.learn_replay();
         this.informations.setModified(true);
         this.experienceReplay.setMinForward(this.learning.getConf().getForward());
-        this.observationApproximator.setMemory(this.state);
+        this.targetObservationApproximator.setMemory(this.state);
         //this.cloneObservationApproximator.setMemory(state2);
     }
 
@@ -301,7 +303,7 @@ public class TDLstm<A> extends TD<A> {
 
 
 
-
+    int cp = 0 ;
 
 
 
@@ -312,12 +314,16 @@ public class TDLstm<A> extends TD<A> {
         this.targetActorApproximator.getParams().muli(1. - alphaActor).addi(this.learning.getApproximator().getParams().mul(alphaActor));
         this.targetCriticApproximator.getParams().muli(1. - alphaCritic).addi(this.criticApproximator.getParams().mul(alphaCritic));
         this.targetObservationApproximator.getParams().muli(1. - alphaObserv).addi(this.observationApproximator.getParams().mul(alphaObserv));
-        //this.targetObservationApproximator.setParams(this.observationApproximator.getParams());
-        //this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
 
-        /*targetActorApproximator.setParams(this.learning.getApproximator().getParams());
-        targetCriticApproximator.setParams(this.criticApproximator.getParams());*/
+        /*if(cp %500 == 0) {
+            this.targetObservationApproximator.setParams(this.observationApproximator.getParams());
+            targetActorApproximator.setParams(this.learning.getApproximator().getParams());
+            targetCriticApproximator.setParams(this.criticApproximator.getParams());
+            System.out.println(this.targetObservationApproximator.getParams().getDouble(0));
 
-        //targetObservationApproximator.setParams(this.observationApproximator.getParams());
+        }*/
+
+
+        cp++ ;
     }
 }

@@ -100,6 +100,9 @@ public class LSTM2D extends LSTM {
                         .activation(this.lastActivation)
                         .build());*/
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
+        //builder.layer(cursor, new BatchNormalization.Builder().build());
+        //cursor++ ;
+
 
         //---
         /*int previousNode = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
