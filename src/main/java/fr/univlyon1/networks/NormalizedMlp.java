@@ -59,7 +59,7 @@ public class NormalizedMlp extends Mlp {
                 //.learningRate(learning_rate)
                 .biasInit(0.01)
                 //.gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .weightInit(WeightInit.XAVIER)
+                .weightInit(WeightInit.ZERO)
                 .minimize(minimize);
         //
         if(l2 != null) {

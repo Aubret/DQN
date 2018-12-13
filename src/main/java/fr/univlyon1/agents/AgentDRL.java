@@ -9,6 +9,7 @@ import fr.univlyon1.reward.NstepTime;
 import fr.univlyon1.reward.RewardSMDP;
 import fr.univlyon1.reward.RewardShaping;
 import fr.univlyon1.selfsupervised.PomdpLearner;
+import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -93,7 +94,6 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 43-44avec cheat
         // 50 sans cheat 0.5 learning rate
         // 55-56-57 sans cheat fonctionne bien du monis normalement
-
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ConstantActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
@@ -120,6 +120,7 @@ public class AgentDRL<A> implements AgentRL<A> {
     public A control(Double reward,Observation observation, Double time) {
         //System.out.println(observation+" ---> "+reward);
         count++ ;
+        System.out.println("ouaiiss");
         if(reward != null) {
             this.learning.putReward(reward);
         }

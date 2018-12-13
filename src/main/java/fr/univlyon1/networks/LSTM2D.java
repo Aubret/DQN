@@ -50,7 +50,7 @@ public class LSTM2D extends LSTM {
                 //.cacheMode(CacheMode.DEVICE)
                 //.l2(0.001)Mlp
                 .biasInit(0.1)
-                .weightInit(WeightInit.XAVIER)
+                .weightInit(WeightInit.ZERO)
                 .updater(this.updater);
         if(l2 != null) {
             b.l2(this.l2);

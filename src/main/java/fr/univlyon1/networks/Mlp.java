@@ -125,17 +125,16 @@ public class Mlp implements Approximator{
         if(this.updater ==null){
             this.updater = new Sgd(this.learning_rate);
         }
-
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(seed+1)
-                .trainingWorkspaceMode(WorkspaceMode.NONE)
-                .inferenceWorkspaceMode(WorkspaceMode.NONE)
+                //.trainingWorkspaceMode(WorkspaceMode.NONE)
+                //.inferenceWorkspaceMode(WorkspaceMode.NONE)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(this.updater)
                 //.learningRate(learning_rate)
                 .biasInit(0.01)
                 //.gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .weightInit(WeightInit.XAVIER)
+                .weightInit(WeightInit.XAVIER_UNIFORM)
                 .minimize(minimize);
                 //
         if(l2 != null) {
@@ -174,7 +173,6 @@ public class Mlp implements Approximator{
         node = this.numNodesPerLayer.size() > numLayers-1 ? this.numNodesPerLayer.get(numLayers-1) : numNodes ;
         Layer.Builder l = new DenseLayer.Builder()
                 .biasInit(0.1)
-                .weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(node)
                 .nOut(output)
                 .activation(this.lastActivation)
@@ -191,8 +189,8 @@ public class Mlp implements Approximator{
         this.multiLayerConfiguration = builder
                 .backprop(true).pretrain(false)
                 .build();
-
         this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);
+
         this.model.init();
         if(this.listener)
             this.attachListener(this.model);

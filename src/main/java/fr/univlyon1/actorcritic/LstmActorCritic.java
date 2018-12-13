@@ -47,8 +47,10 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
     public void init(){
         this.initActor();
+        System.out.println("firstinit");
         this.initCritic();
         this.initLstm();
+        System.out.println("fin init");
         this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
         //this.ep = new OneVehicleSequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
         this.td = new TDLstm2D<A>(conf.getGamma(),

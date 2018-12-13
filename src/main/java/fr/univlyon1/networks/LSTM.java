@@ -51,7 +51,7 @@ public class LSTM extends Mlp implements StateApproximator{
                 .trainingWorkspaceMode(WorkspaceMode.NONE)
                 .inferenceWorkspaceMode(WorkspaceMode.NONE)
                 //.l2(0.001)
-                .weightInit(WeightInit.XAVIER)
+                .weightInit(WeightInit.ZERO)
                 .updater(this.updater);
         if(l2 != null) {
             b.l2(this.l2);
