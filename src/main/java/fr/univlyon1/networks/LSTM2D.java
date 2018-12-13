@@ -49,7 +49,6 @@ public class LSTM2D extends LSTM {
                 .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
                 //.cacheMode(CacheMode.DEVICE)
                 //.l2(0.001)Mlp
-                .biasInit(0.1)
                 .weightInit(WeightInit.XAVIER)
                 .updater(this.updater);
         if(l2 != null) {
@@ -68,7 +67,7 @@ public class LSTM2D extends LSTM {
                 .activation(this.hiddenActivation)
                 //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
-                .forgetGateBiasInit(0.1)
+                .forgetGateBiasInit(1.)
                 //.weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(input).nOut(node)
                 .build()
@@ -84,7 +83,7 @@ public class LSTM2D extends LSTM {
                     .activation(this.hiddenActivation)
                     //.units(node)
                     .gateActivationFunction(Activation.SIGMOID)
-                    .forgetGateBiasInit(0.1)
+                    .forgetGateBiasInit(1.)
                     //.weightInit(WeightInit.XAVIER_UNIFORM)
                     .nIn(previousNode).nOut(node)
                     .build()
@@ -252,7 +251,7 @@ public class LSTM2D extends LSTM {
         LSTM2D m = new LSTM2D(this,listener);
         m.setHiddenActivation(Activation.TANH);
         m.init();
-        m.setParams(this.getParams());
+        m.setParams(this.getParams().dup());
         return m ;
     }
 }

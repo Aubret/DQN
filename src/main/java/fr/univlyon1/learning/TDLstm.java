@@ -51,8 +51,11 @@ public class TDLstm<A> extends TD<A> {
     protected int iterations ;
     protected int batchSize ;
 
+    protected int countEpoch ;
+
     public TDLstm(double gamma, Learning<A> learning, SequentialExperienceReplay<A> experienceReplay, int iterations, int batchSize,Approximator criticApproximator, Approximator cloneCriticApproximator, StateApproximator observationApproximator) {
         super(gamma, learning);
+        this.countEpoch = 0;
         this.iterations = iterations ;
         this.batchSize = batchSize ;
         this.experienceReplay = experienceReplay ;
@@ -67,7 +70,7 @@ public class TDLstm<A> extends TD<A> {
 
         this.targetObservationApproximator = observationApproximator.clone(false);
         this.observationApproximator = observationApproximator ;
-        this.behaveObservationApproximator = this.observationApproximator ;
+        this.behaveObservationApproximator = observationApproximator ;
         /*this.targetObservationApproximator = observationApproximator ;
         this.observationApproximator = this.targetObservationApproximator.clone(true);
         this.cloneObservationApproximator = cloneObservationApproximator ;*/
@@ -91,7 +94,6 @@ public class TDLstm<A> extends TD<A> {
                 inter = (Interaction<A>)lastInteractions.pop();
             }
             INDArray actualState = this.behaveObservationApproximator.getOneResult(Nd4j.concat(1,inter.getObservation(),(INDArray)this.learning.getActionSpace().mapActionToNumber(inter.getAction())));
-
             //INDArray actualState = this.observationApproximator.getOneResult(Nd4j.concat(1,this.lastInteraction.getObservation(),act));
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
@@ -402,6 +404,9 @@ public class TDLstm<A> extends TD<A> {
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
         res = res.muli(gammas);
         res.addi(rewards) ;
+        if(this.cpt_time%this.time == 0) {
+            System.out.println("Q-target : "+res.getDouble(0));
+        }
         return res ;
     }
 
@@ -432,18 +437,26 @@ public class TDLstm<A> extends TD<A> {
 
 
     public void epoch() {
-        double alphaActor = 0.01;
-        double alphaCritic = 0.01;
-        double alphaObserv = 0.01;
+        double alphaActor = 0.001;
+        double alphaCritic = 0.001;
+        double alphaObserv = 0.001;
+        /*double alphaActor = 1.;
+        double alphaCritic = 1.;
+        double alphaObserv = 1.;*/
         this.targetActorApproximator.getParams().muli(1. - alphaActor).addi(this.learning.getApproximator().getParams().mul(alphaActor));
         this.targetCriticApproximator.getParams().muli(1. - alphaCritic).addi(this.criticApproximator.getParams().mul(alphaCritic));
+
+        /*this.countEpoch++ ;
+        if(this.countEpoch%10000 == 0){
+            System.out.println("epoch observator");
+            this.targetObservationApproximator.setParams(this.observationApproximator.getParams());
+        }*/
+
         this.targetObservationApproximator.getParams().muli(1. - alphaObserv).addi(this.observationApproximator.getParams().mul(alphaObserv));
+
+
         //this.targetObservationApproximator.setParams(this.observationApproximator.getParams());
         //this.targetObservationApproximator.getParams().muli(1. - alpha).addi(this.observationApproximator.getParams().mul(alpha));
 
-        /*targetActorApproximator.setParams(this.learning.getApproximator().getParams());
-        targetCriticApproximator.setParams(this.criticApproximator.getParams());*/
-
-        //targetObservationApproximator.setParams(this.observationApproximator.getParams());
     }
 }

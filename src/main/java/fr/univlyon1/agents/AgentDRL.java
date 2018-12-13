@@ -94,10 +94,10 @@ public class AgentDRL<A> implements AgentRL<A> {
         // 50 sans cheat 0.5 learning rate
         // 55-56-57 sans cheat fonctionne bien du monis normalement
 
-        //this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ConstantActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);
-        this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
+        //this.learning = new ContinuousActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         this.rewardShaping = new NstepTime(this.configuration);
         this.learning.init();
         if(this.print) {

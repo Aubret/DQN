@@ -25,6 +25,7 @@ public class InteractionHistory<A> {
     }
 
     public void computeError(double error){
+        // C'est normalementla valeur absolue de la TD error, il fautenlever lecarré
         this.sumValues++ ;
         //error =1. / (1. + Math.exp(-5*error));
         //this.errorFactor = 0.99*this.errorFactor ;

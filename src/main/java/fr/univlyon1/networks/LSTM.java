@@ -225,7 +225,7 @@ public class LSTM extends Mlp implements StateApproximator{
         LSTM m = new LSTM(this,listener);
         m.setHiddenActivation( Activation.TANH);
         m.init();
-        m.setParams(this.getParams());
+        m.setParams(this.getParams().dup());
         return m ;
     }
 

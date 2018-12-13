@@ -318,6 +318,8 @@ public class Mlp implements Approximator{
     public void setParams(INDArray params) {
         if(params != this.model.params()) {
             this.model.setParams(params);
+        }else{
+            System.out.println("oye oye");
         }
     }
 
