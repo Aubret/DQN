@@ -16,7 +16,6 @@ import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.layers.FrozenLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.memory.enums.MirroringPolicy;
@@ -40,6 +39,12 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
         super(conf, params);
     }
 
+
+    public void setGradient(Gradient gradient){
+        this.gradient = gradient ;
+    }
+
+/*
     public void backpropEpsilon(INDArray epsilon){
         Pair pair = this.calcBackpropGradients(epsilon, false);
         this.gradient = pair == null?null:(Gradient)pair.getFirst();
@@ -204,6 +209,6 @@ public class EpsilonMultiLayerNetwork extends MultiLayerNetwork {
             }
 
         }
-    }
+    }*/
 
 }

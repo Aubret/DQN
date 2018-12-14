@@ -6,14 +6,17 @@ import fr.univlyon1.networks.lossFunctions.SaveScore;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
-import org.deeplearning4j.nn.conf.layers.BatchNormalization;
+import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.Layer;
 import org.deeplearning4j.nn.conf.layers.LossLayer;
+import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.nn.workspace.ArrayType;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.TrainingListener;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
@@ -25,6 +28,8 @@ import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import lombok.Getter;
 import lombok.Setter;
+import org.nd4j.linalg.primitives.Pair;
+import org.nd4j.linalg.workspace.WorkspaceMgr;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -127,8 +132,6 @@ public class Mlp implements Approximator{
         }
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(seed+1)
-                //.trainingWorkspaceMode(WorkspaceMode.NONE)
-                //.inferenceWorkspaceMode(WorkspaceMode.NONE)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(this.updater)
                 //.learningRate(learning_rate)
@@ -187,7 +190,6 @@ public class Mlp implements Approximator{
                         .build());
 
         this.multiLayerConfiguration = builder
-                .backprop(true).pretrain(false)
                 .build();
         this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);
 
@@ -220,6 +222,14 @@ public class Mlp implements Approximator{
         return this.input;
     }
 
+
+    protected void listen(){
+        for(TrainingListener it : this.model.getListeners()){
+            it.onGradientCalculation(this.model);
+            it.iterationDone(this.model, this.iterations,this.epoch );
+        }
+    }
+
     @Override
     public Object learn(INDArray input,INDArray labels,int number) {
         //System.out.println(this.model.getUpdater().getStateViewArray().getDouble(0));
@@ -229,32 +239,28 @@ public class Mlp implements Approximator{
         //this.model.setInputMiniBatchSize(number);
         //this.model.clear();
         this.model.setInput(input);
+        //labels = labels.leverageTo("WS_LAYER_ACT_2");
         this.model.setLabels(labels);
-        if(this.epsilon) {
-            this.model.backpropGradient(labels);
-        }else {
-            this.model.computeGradientAndScore();
-        }
+        Pair<Gradient, INDArray> pair ;
+        if(this.epsilon)
+            pair = model.backpropGradient(labels, null);
+        else
+            pair = this.model.calculateGradients(input,labels,null,null);
+        this.model.setGradient(pair.getFirst());
         //this.model.backpropGradient(Nd4j.create(new Double[]{this.model.getOutputLayer().activate()}))
         //System.out.println(grad.gradientForVariable());
         this.score = this.model.score() ;
-
         //System.out.println(this.model.acti);
-        this.model.getUpdater().update(this.model, this.model.gradient(), iterations,this.epoch,number);
+        this.model.getUpdater().update(this.model, pair.getFirst(), iterations,this.epoch,number, LayerWorkspaceMgr.noWorkspaces());
         //if(this.model.getOutputLayer() instanceof IOutputLayer)
          //   System.out.println(this.model.getOutputLayer().gradient().gradient() );
         if(this.minimize) {
-            this.model.params().subi(this.model.gradient().gradient());
+            this.model.params().subi(pair.getFirst().gradient());
         }else {
-            this.model.params().addi(this.model.gradient().gradient());
+            this.model.params().addi(pair.getFirst().gradient());
         }
 
-        for(IterationListener it : this.model.getListeners()){
-            if(it instanceof TrainingListener){
-                ((TrainingListener)it).onGradientCalculation(this.model);
-            }
-            it.iterationDone(this.model, iterations,this.epoch );
-        }
+        this.listen();
         this.iterations++ ;
         this.model.getLayerWiseConfigurations().setIterationCount(this.iterations);
 
@@ -265,11 +271,11 @@ public class Mlp implements Approximator{
             if(lossFunction instanceof SaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
-                this.scoreArray = lossfn.getLastScoreArray().detach();
+                this.scoreArray = lossfn.getLastScoreArray();
             }
         }
         //return this.model.getOutputLayer().com ;
-        return this.model.epsilon() ;
+        return pair.getSecond() ;
     }
 
     @Override
@@ -279,27 +285,24 @@ public class Mlp implements Approximator{
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         this.model.setLabels(labels);//Nd4j.create(new double[]{0}));
-        this.model.computeGradientAndScore();
+        //this.model.computeGradientAndScore();
+        Pair<Gradient, INDArray> pair = this.model.calculateGradients(input,labels,null,null);
+
         this.score = this.model.score();
         iterations++ ;
-        for(IterationListener it : this.model.getListeners()){
-            if(it instanceof TrainingListener){
-                ((TrainingListener)it).onGradientCalculation(this.model);
-            }
-            it.iterationDone(this.model, iterations,this.epoch );
-        }
-
+        this.model.setGradient(pair.getFirst());
+        this.listen();
         if(this.model.getOutputLayer() instanceof org.deeplearning4j.nn.layers.LossLayer){
             org.deeplearning4j.nn.layers.LossLayer l = (org.deeplearning4j.nn.layers.LossLayer)this.model.getOutputLayer() ;
             ILossFunction lossFunction = l.layerConf().getLossFn();
             if(lossFunction instanceof SaveScore){
                 SaveScore lossfn = (SaveScore)lossFunction ;
                 this.values = lossfn.getValues();
-                this.scoreArray = lossfn.getLastScoreArray().detach();
+                this.scoreArray = lossfn.getLastScoreArray();
             }
         }
 
-        return this.model.epsilon().detach() ;
+        return pair.getSecond() ;
     }
 
     @Override

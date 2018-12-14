@@ -9,8 +9,14 @@ import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
 import org.deeplearning4j.nn.gradient.DefaultGradient;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.layers.BaseLayer;
-import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.nn.workspace.ArrayType;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
+import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.broadcast.BroadcastAddOp;
+import org.nd4j.linalg.api.ops.impl.broadcast.BroadcastDivOp;
+import org.nd4j.linalg.api.ops.impl.broadcast.BroadcastMulOp;
+import org.nd4j.linalg.api.ops.impl.broadcast.BroadcastSubOp;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.conditions.ConditionEquals;
 import org.nd4j.linalg.indexing.conditions.EqualsCondition;
@@ -27,7 +33,7 @@ import java.util.List;
  **/
 public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
 
-    protected List<IterationListener> listeners = new ArrayList();
+    protected List<TrainingListener> listeners = new ArrayList();
     protected INDArray std;
     protected INDArray xMu;
     protected INDArray xHat;
@@ -36,12 +42,11 @@ public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
         super(conf);
     }
 
-    public INDArray preOutput(INDArray x) {
-        return this.preOutput(x, TrainingMode.TRAIN);
+    public INDArray preOutput(INDArray x, LayerWorkspaceMgr workspaceMgr) {
+        return this.preOutput(x, TrainingMode.TRAIN,workspaceMgr);
     }
 
-    @Override
-    public INDArray preOutput(INDArray x, TrainingMode training) {
+    public INDArray preOutput(INDArray x, TrainingMode training, LayerWorkspaceMgr workspaceMgr) {
         /*System.out.println("-------------------");
         System.out.println(x);*/
         LayerNormalizationConf layerConf = (LayerNormalizationConf) this.layerConf();
@@ -57,28 +62,31 @@ public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
                 throw new IllegalStateException("Layer normalization on activations of rank " + x.rank() + " not supported " + this.layerId());
         }
         this.std = Transforms.sqrt(var,true );
+        //this.std = Transforms.sqrt(workspaceMgr.dup(ArrayType.INPUT, var).addi((this.layerConf()).getEps()), false);
         this.xMu = x.subColumnVector(mean).leverageTo("LOOP_EXTERNAL");
         this.xHat = this.xMu.divColumnVector(this.std).leverageTo("LOOP_EXTERNAL");
+        /*this.xMu = workspaceMgr.createUninitialized(ArrayType.INPUT, x.shape(), x.ordering());
+        this.xMu = Nd4j.getExecutioner().execAndReturn(new BroadcastSubOp(x, mean, this.xMu, new int[]{1}));
 
+        this.xHat = workspaceMgr.createUninitialized(ArrayType.INPUT, x.shape(), x.ordering());
+        this.xHat = Nd4j.getExecutioner().execAndReturn(new BroadcastDivOp(this.xMu, this.std, this.xHat, new int[]{1}));*/
         INDArray gamma = this.getParam("gamma");//.add(1);
         //INDArray gamma = Nd4j.create(new double[]{1.,2.,3.,4.,5.});
         INDArray beta = this.getParam("beta");
 
         INDArray activations = this.xHat.mulRowVector(gamma).addiRowVector(beta);
-        /*System.out.println(mean);
-        System.out.println(this.std);
-        System.out.println(gamma);
-        System.out.println(beta);*/
-        //System.out.println(activations);
 
+        /*INDArray activations = workspaceMgr.createUninitialized(ArrayType.ACTIVATIONS, x.shape(), x.ordering());
+        activations = Nd4j.getExecutioner().execAndReturn(new BroadcastMulOp(this.xHat, gamma, activations, new int[]{1}));
+        activations = Nd4j.getExecutioner().execAndReturn(new BroadcastAddOp(activations, beta, activations, new int[]{1}));*/
 
 
         return activations ;
     }
 
     @Override
-    public Pair<Gradient, INDArray> backpropGradient(INDArray epsilon) {
-        int[] shape = epsilon.shape();
+    public Pair<Gradient, INDArray> backpropGradient(INDArray epsilon, LayerWorkspaceMgr workspaceMgr) {
+        long[] shape = this.getShape(epsilon);
         if(shape.length != 2 ){
             throw new IllegalStateException("bad input size, must be two, 4 is not implemented");
         }
@@ -126,18 +134,37 @@ public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
         return new Pair(retGradient1, nextEpsilon);
     }
 
+    public long[] getShape(INDArray x) {
+        if (x.rank() != 2 && x.rank() != 4) {
+            if (x.rank() == 3) {
+                long wDim = x.size(1);
+                long hdim = x.size(2);
+                if (x.size(0) > 1L && wDim * hdim == x.length()) {
+                    throw new IllegalArgumentException("Illegal input for batch size " + this.layerId());
+                } else {
+                    return new long[]{1L, wDim * hdim};
+                }
+            } else {
+                throw new IllegalStateException("Unable to process input of rank " + x.rank() + " " + this.layerId());
+            }
+        } else {
+            return new long[]{1L, x.size(1)};
+        }
+    }
+
     @Override
     public boolean isPretrainLayer() {
         return false;
     }
 
-    public void setListeners(IterationListener... listeners) {
+    public void setListeners(TrainingListener... listeners) {
         this.listeners = new ArrayList(Arrays.asList(listeners));
     }
 
-    public Collection<IterationListener> getListeners() {
+    public Collection<TrainingListener> getListeners() {
         return this.listeners;
     }
+
 
     public double calcL2(boolean backpropParamsOnly) {
         return 0.0D;
@@ -151,9 +178,11 @@ public class LayerNormalization extends BaseLayer<LayerNormalizationConf>{
         return Type.NORMALIZATION;
     }
 
-    public INDArray activate(boolean training) {
-        return this.preOutput(this.input, training?TrainingMode.TRAIN:TrainingMode.TEST);
+    public INDArray activate(boolean training, LayerWorkspaceMgr workspaceMgr) {
+        this.assertInputSet(false);
+        return this.preOutput(this.input, training ? TrainingMode.TRAIN : TrainingMode.TEST, workspaceMgr);
     }
+
 
     public void fit(INDArray data) {
     }

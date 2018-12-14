@@ -10,7 +10,6 @@ import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.ObservationsReplay.SpecificObservationReplay;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.LSTM;
-import fr.univlyon1.networks.LSTMMeanPooling;
 import fr.univlyon1.selfsupervised.dataTransfer.DataBuilder;
 import fr.univlyon1.selfsupervised.dataTransfer.DataList;
 import fr.univlyon1.selfsupervised.dataTransfer.DataTarget;
@@ -111,10 +110,7 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
         INDArray inputs = Nd4j.zeros(totalBatchs,size,forwardInputs);// On avait besoin de la taille maximale du forward
         INDArray masks = Nd4j.zeros(totalBatchs,forwardInputs);
         INDArray maskLabel  ;
-        if(this.lstm instanceof LSTMMeanPooling){
-            maskLabel = Nd4j.ones(totalBatchs,1);
-        }else
-            maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
+        maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
 
 
         INDArray labels = Nd4j.zeros(backward,labelisation.get(0).getLabels().size(1));
@@ -139,10 +135,10 @@ public class LstmDataConstructor<A> extends DataConstructor<A>{
                     cursorBackward++ ;
                 }
 
-                if(!(this.lstm instanceof LSTMMeanPooling) && temporal >= forwardInputs-numBackwards){//+1 ){//&& temporal < forwardInputs){
+                /*if(!(this.lstm instanceof LSTMMeanPooling) && temporal >= forwardInputs-numBackwards){//+1 ){//&& temporal < forwardInputs){
                     //System.out.println(totalBatchs*temporal + batch);
                     maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
-                }
+                }*/
 
                 //if(temporal <= forwardInputs) {
                     INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(temporal)};

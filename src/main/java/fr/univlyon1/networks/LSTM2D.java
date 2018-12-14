@@ -10,8 +10,8 @@ import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
+import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -45,12 +45,10 @@ public class LSTM2D extends LSTM {
         }
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(this.seed+1)
-                .trainingWorkspaceMode(WorkspaceMode.SEPARATE)
-                .inferenceWorkspaceMode(WorkspaceMode.SINGLE)
                 //.cacheMode(CacheMode.DEVICE)
                 //.l2(0.001)Mlp
                 .biasInit(0.1)
-                .weightInit(WeightInit.ZERO)
+                .weightInit(WeightInit.XAVIER)
                 .updater(this.updater);
         if(l2 != null) {
             b.l2(this.l2);
@@ -66,7 +64,6 @@ public class LSTM2D extends LSTM {
         //node = cursor+1 == this.numLayers ? output : node ;
         builder.layer(cursor, new org.deeplearning4j.nn.conf.layers.LSTM.Builder()
                 .activation(this.hiddenActivation)
-                //.units(node)
                 .gateActivationFunction(Activation.SIGMOID)
                 .forgetGateBiasInit(0.1)
                 //.weightInit(WeightInit.XAVIER_UNIFORM)
@@ -133,7 +130,6 @@ public class LSTM2D extends LSTM {
 
         this.multiLayerConfiguration = builder
                 .backpropType(BackpropType.Standard)
-                .backprop(true).pretrain(false)
                 .build();
 
         this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);
@@ -185,29 +181,22 @@ public class LSTM2D extends LSTM {
         }*/
         this.mask=mask;
         this.maskLabel = maskLabel ;
-        //System.out.println(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(0)).rnnGetTBPTTState());
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         this.model.setLayerMaskArrays(mask,maskLabel);
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(input, true, true);
 
-        for(IterationListener it : this.model.getListeners()){
-            if(it instanceof TrainingListener){
-                TrainingListener tl = (TrainingListener)it;
-                tl.onForwardPass(this.model, workspace);
-            }
+        for(TrainingListener it : this.model.getListeners()){
+            it.onForwardPass(this.model, workspace);
         }
         INDArray last = workspace.get(workspace.size()-1); // Dernière couche
-        //System.out.println("-----");
-        //System.out.println(last);
+
         return crop3dData(last,maskLabel);
     }
 
 
     public INDArray crop3dData(INDArray data,INDArray maskLabel){
-        //System.out.println(maskLabel);
-        //System.out.println(data);
-        INDArray linspace = Nd4j.linspace(1,data.shape()[0],data.shape()[0]);
+        INDArray linspace = Nd4j.linspace(1,data.shape()[0],data.shape()[0]).transpose();
         INDArray indicesAndZeros = maskLabel.mul(linspace);//.reshape(data.shape()[0]);
         this.indices = BooleanIndexing.chooseFrom(new INDArray[]{indicesAndZeros},Arrays.asList(0.0), Collections.emptyList(),new GreaterThan()).addi(-1);
         INDArray newData = data.get(this.indices);

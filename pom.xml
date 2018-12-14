@@ -9,8 +9,8 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <deeplearning4j.version>1.0.0-alpha</deeplearning4j.version>
-    <nd4j.version>1.0.0-alpha</nd4j.version>
+    <deeplearning4j.version>1.0.0-beta3</deeplearning4j.version>
+    <nd4j.version>1.0.0-beta3</nd4j.version>
 
   </properties>
 
@@ -60,11 +60,12 @@
       <artifactId>deeplearning4j-cuda-9.0</artifactId>
       <version>${nd4j.version}</version>
     </dependency>
-    <!--<dependency>
-      <groupId>org.nd4j</groupId>
-      <artifactId>nd4j-native-platform</artifactId>
-      <version>${nd4j.version}</version>
-    </dependency>-->
+
+      <!--<dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>nd4j-native-platform</artifactId>
+        <version>${nd4j.version}</version>
+      </dependency>-->
     <!-- https://mvnrepository.com/artifact/org.nd4j/nd4j-api -->
     <dependency>
       <groupId>org.nd4j</groupId>
@@ -76,6 +77,13 @@
       <artifactId>nd4j-common</artifactId>
       <version>${nd4j.version}</version>
     </dependency>
+      <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.4</version>
+          <scope>provided</scope>
+      </dependency>
 
   </dependencies>
   <build>

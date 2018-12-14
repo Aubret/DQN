@@ -10,7 +10,7 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.LayerValidation;
 import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
 import org.deeplearning4j.nn.layers.recurrent.LSTMHelpers;
-import org.deeplearning4j.optimize.api.IterationListener;
+import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.activations.impl.ActivationSigmoid;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -49,17 +49,19 @@ public class LSTMLayerConf extends AbstractLSTM {
 
     }
 
-    public Layer instantiate(NeuralNetConfiguration conf, Collection<IterationListener> iterationListeners, int layerIndex, INDArray layerParamsView, boolean initializeParams) {
-        LayerValidation.assertNInNOutSet("LSTM", this.getLayerName(), layerIndex, this.getNIn(), this.getNOut());
-        LSTMLayer ret = new LSTMLayer(conf);
-        ret.setListeners(iterationListeners);
-        ret.setIndex(layerIndex);
-        ret.setParamsViewArray(layerParamsView);
-        Map paramTable = this.initializer().init(conf, layerParamsView, initializeParams);
+    @Override
+    public Layer instantiate(NeuralNetConfiguration neuralNetConfiguration, Collection<TrainingListener> collection, int i, INDArray indArray, boolean b) {
+        LayerValidation.assertNInNOutSet("LSTM", this.getLayerName(), (long)i, this.getNIn(), this.getNOut());
+        LSTMLayer ret = new LSTMLayer(neuralNetConfiguration);
+        ret.setListeners(collection);
+        ret.setIndex(i);
+        ret.setParamsViewArray(indArray);
+        Map paramTable = this.initializer().init(neuralNetConfiguration, indArray, b);
         ret.setParamTable(paramTable);
-        ret.setConf(conf);
+        ret.setConf(neuralNetConfiguration);
         return ret;
     }
+
 
     public ParamInitializer initializer() {
         return LSTMLayerParamInitializer.getInstance();

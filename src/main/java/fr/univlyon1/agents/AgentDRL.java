@@ -52,6 +52,12 @@ public class AgentDRL<A> implements AgentRL<A> {
     protected long time ;
 
     public AgentDRL(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
+        org.nd4j.jita.conf.Configuration cudaconfig = CudaEnvironment.getInstance().getConfiguration();
+        cudaconfig.allowMultiGPU(false).allowCrossDeviceAccess(false);
+        //cudaconfig.useDevice(0);
+        System.out.println(cudaconfig.getAvailableDevices().toString());
+
+
         this.time = System.currentTimeMillis();
         //Nd4j.getMemoryManager().setAutoGcWindow(5000);
         //Nd4j.getMemoryManager().togglePeriodicGc(false);

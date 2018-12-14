@@ -9,10 +9,13 @@ import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.workspace.WorkspaceMgr;
+import org.nd4j.nativeblas.Nd4jCuda;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -44,7 +47,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
             ArrayList<Integer> backwardsNumber = new ArrayList<>(); // nombre de backward pour chaque batch
             int forward = 0 ; // Maximum de taille de séquence temporelle
             int backward = 0 ; // Total de données labellisées, donc total de backpropagation
-            while(backward <= numRows) {
+            while(backward < numRows) {
                 if (this.experienceReplay.initChoose()) {
                     // choix des interactions
                     Interaction<A> interaction = this.experienceReplay.chooseInteraction();
@@ -89,13 +92,8 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
 
             INDArray masks = Nd4j.zeros(totalBatchs,forwardInputs);
-            INDArray maskLabel ;
-            if(observationApproximator instanceof LSTMMeanPooling){
-                maskLabel = Nd4j.ones(totalBatchs,1);
-            }else
-                maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
+            INDArray maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
             int cursorBackward = 0 ;
-            //System.out.println(forward);
             for(int batch = 0 ; batch < total.size() ; batch++){ // Insertion des batchs
                 ArrayList<Interaction<A>> observations = total.get(batch);
                 int numberObservation = observations.size() ;//Nombre données temporelles
@@ -122,33 +120,21 @@ public class TDLstm2D<A> extends TDLstm<A> {
                         rewards.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeReward());
                         //gammas
                         gammas.put(new INDArrayIndex[]{NDArrayIndex.point(cursorBackward),NDArrayIndex.all()}, interact.computeGamma());
-                        //System.out.println(interact.computeGamma());
                         cursorBackward++ ;
                     }
 
                     //Seule la dernière donnée des inputs est labellisée
                     //if(temporal == forwardInputs-1){
                     if(temporal >= forwardInputs-numBackwards+1 && temporal < forwardInputs){
-                        //if(temporal == numberObservation-2){
-                        //Label du mask
-                        //maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(batch*forward + temporal),NDArrayIndex.all()},Nd4j.ones(1));
-                        if(!(observationApproximator instanceof LSTMMeanPooling))
-                            maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
+                        maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
                         //Labellisation des secondes observations
                         secondObservations.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all()/*, NDArrayIndex.point(temporal)*/},Nd4j.concat(1,interact.getSecondObservation(),action2));
-
-                        //secondObservations.
                     }
 
                     if(temporal < forwardInputs) {
-                    //if(temporal != numberObservation-1) {
-                        //inputs observations
                         INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all(), NDArrayIndex.point(temporal)};
                         inputs.put(indexs, Nd4j.concat(1, interact.getObservation(), action));
                         secondObservations3.put(indexs,Nd4j.concat(1, interact.getSecondObservation(), action2));
-
-                        //seconds observations for labelisation make observations 3
-                        //secondObservations3.put(indexs,Nd4j.concat(1,interact.getSecondObservation(),action2));
 
                         //mask index
                         INDArrayIndex[] indexMask = new INDArrayIndex[]{NDArrayIndex.point(batch),NDArrayIndex.point(temporal)};
@@ -157,19 +143,15 @@ public class TDLstm2D<A> extends TDLstm<A> {
                     cursorForward++ ;
                 }
             }
-            /*System.out.println("-----");
-            System.out.println(masks);
-            System.out.println(maskLabel);*/
             this.experienceReplay.setConstructedData(inputs); // save for self supervised learning
             // Apprentissage : besoin de l'état
-            INDArray targetState = this.targetObservationApproximator.forwardLearn(inputs,null,inputs.size(0),masks,maskLabel);
+            INDArray targetState = this.targetObservationApproximator.forwardLearn(inputs,null,(int)inputs.size(0),masks,maskLabel);
             INDArray state = this.observationApproximator.forwardLearn(inputs, null, totalBatchs,masks,maskLabel);
             INDArray state_label = Nd4j.concat(1,state,inputs2);
             INDArray targetState_label = Nd4j.concat(1,targetState,inputs2);
 
-            //System.out.println("--------");
 
-            int sizeObservation = state_label.size(1);
+            long sizeObservation = state_label.size(1);
             //Commencement de l'apprentissage, labellisation
             //this.targetObservationApproximator.setMaskLabel(maskLabel);
             //INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));
@@ -179,7 +161,6 @@ public class TDLstm2D<A> extends TDLstm<A> {
 
             //Apprentissage critic
             INDArray inputCritics = Nd4j.concat(1, state_label,actions);
-            //System.out.println(inputCritics);
             INDArray epsilon = this.learn_critic(inputCritics, labels, totalBatchs,sizeObservation);
             this.savelearning.add(this.criticApproximator.getScore());
             INDArray score = this.criticApproximator.getScoreArray();
@@ -203,7 +184,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
     }
 
 
-    protected INDArray learn_actor(INDArray observations, INDArray observationsCritic, int sizeObservation, int numColumns, int numRows){
+    protected INDArray learn_actor(INDArray observations, INDArray observationsCritic, long sizeObservation, int numColumns, int numRows){
         INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy networks
         this.informations.setEvaluatedInputs(observations);
         this.informations.setEvaluatedActions(action);
@@ -215,6 +196,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
         if(this.cpt_time%this.time == 0) {
             old = this.cloneCriticApproximator.getOneResult(inputAction);
         }
+
         INDArray eps = (INDArray) this.learning.getApproximator().learn(observations, epsilonAction, numRows); //Policy learning
         if(this.cpt_time%this.time == 0 ) {
             action = this.learning.getApproximator().getOneResult(observations); // L'action du policy network
@@ -223,8 +205,6 @@ public class TDLstm2D<A> extends TDLstm<A> {
             Number mean = intermediaire.meanNumber();
             cpt += mean.doubleValue();
             System.out.println(mean + " -- " + cpt);
-            System.out.println(observations.getRow(0));
-            System.out.println(observationsCritic.getRow(0));
         }
         return eps;
     }
@@ -294,8 +274,6 @@ public class TDLstm2D<A> extends TDLstm<A> {
     protected INDArray labelize(INDArray secondObservations , INDArray stateLabelT, INDArray rewards,INDArray secondObservations2,INDArray gammas){
         // Les états précédents sont dans la mémoire de l'approximateur
         this.targetObservationApproximator.clear(); // recheck le fonctionnement de la mémory
-
-        //System.out.println(((HiddenState)this.observationApproximator.getSecondMemory()).size());
         this.targetObservationApproximator.setMemory(this.observationApproximator.getSecondMemory());
 
         INDArray state = this.targetObservationApproximator.getOneResult(secondObservations);
@@ -323,9 +301,6 @@ public class TDLstm2D<A> extends TDLstm<A> {
         INDArray res = this.targetCriticApproximator.getOneResult(entryCriticTarget);
         res = res.muli(gammas);
         res.addi(rewards) ;
-        /*if(res.getDouble(0)==0.){
-            System.out.println("gammes : "+gammas.getDouble(0));
-        }*/
         return res ;
     }
 

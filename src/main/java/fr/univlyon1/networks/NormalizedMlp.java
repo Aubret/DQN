@@ -59,7 +59,7 @@ public class NormalizedMlp extends Mlp {
                 //.learningRate(learning_rate)
                 .biasInit(0.01)
                 //.gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .weightInit(WeightInit.ZERO)
+                .weightInit(WeightInit.XAVIER)
                 .minimize(minimize);
         //
         if(l2 != null) {
@@ -123,7 +123,6 @@ public class NormalizedMlp extends Mlp {
                     .build());
 
         this.multiLayerConfiguration = builder
-                .backprop(true).pretrain(false)
                 .build();
 
         this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);

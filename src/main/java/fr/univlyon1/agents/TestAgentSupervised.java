@@ -11,7 +11,6 @@ import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.LSTM2D;
-import fr.univlyon1.networks.LSTMMeanPooling;
 import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.selfsupervised.ModelLearner;
 import fr.univlyon1.selfsupervised.PomdpLearner;

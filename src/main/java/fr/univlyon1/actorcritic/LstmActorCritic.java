@@ -20,6 +20,7 @@ import fr.univlyon1.memory.prioritizedExperienceReplay.SequentialPrioritizedExpe
 import fr.univlyon1.networks.*;
 import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.networks.lossFunctions.LossIdentity;
+import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -47,10 +48,8 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
     public void init(){
         this.initActor();
-        System.out.println("firstinit");
         this.initCritic();
         this.initLstm();
-        System.out.println("fin init");
         this.ep = new SequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
         //this.ep = new OneVehicleSequentialExperienceReplay<A>(conf.getSizeExperienceReplay(),conf.getReadfile(),conf.getForwardTime(),conf.getBackpropTime(),this.seed,conf.getForward());
         this.td = new TDLstm2D<A>(conf.getGamma(),
@@ -94,7 +93,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         INDArray resultBehaviore;
         //if(AgentDRL.getCount() > 1000)
         this.td.evaluate(input, this.reward,time); //Evaluation
-        if(AgentDRL.getCount() > 2000) { // Ne pas overfitter sur les premières données arrivées
+        if(AgentDRL.getCount() > 500) { // Ne pas overfitter sur les premières données arrivées
             resultBehaviore = this.td.behave(input);
             actionBehaviore = this.actionSpace.mapNumberToAction(resultBehaviore);
             if(AgentDRL.getCount()%this.learn_step== 0) {
@@ -125,7 +124,7 @@ public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
         this.observationApproximator.setUpdater(new Adam(conf.getLearning_rateLstm()));
         this.observationApproximator.setEpsilon(false);
         this.observationApproximator.setMinimize(true);
-        this.observationApproximator.setLossFunction(new LossError());
+        this.observationApproximator.setLossFunction(new LossError()); //new LossMseSaveScore());
         this.observationApproximator.setHiddenActivation(Activation.TANH);
         this.observationApproximator.setLastActivation(Activation.TANH);
         //this.observationApproximator.setImportModel("resources/models/lstm0-3-7");

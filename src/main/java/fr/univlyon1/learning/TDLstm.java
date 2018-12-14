@@ -10,10 +10,14 @@ import fr.univlyon1.networks.Mlp;
 import fr.univlyon1.networks.StateApproximator;
 import lombok.Getter;
 import lombok.Setter;
+import org.deeplearning4j.nn.workspace.ArrayType;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
+import org.nd4j.jita.workspace.CudaWorkspaceManager;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.workspace.WorkspaceMgr;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -157,7 +161,7 @@ public class TDLstm<A> extends TD<A> {
                     //Préparation input
                     forwardsNumbers.add(this.experienceReplay.getForwardNumber());
                     forward = Math.max(forward,this.experienceReplay.getForwardNumber());
-                    int[] dimensions = new int[]{lastInteraction.getObservation().shape()[1], observations.size()};
+                    long[] dimensions = new long[]{lastInteraction.getObservation().shape()[1], observations.size()};
                     inputsArray.add(Nd4j.zeros(dimensions));
                     for (int j = 0; j < observations.size(); j++) { // Inserstion des observations temporelles
                         INDArrayIndex[] indexs = new INDArrayIndex[]{NDArrayIndex.all(), NDArrayIndex.point(j)};
@@ -190,7 +194,7 @@ public class TDLstm<A> extends TD<A> {
             // Apprentissage : besoin de l'état
             INDArray state = this.observationApproximator.forwardLearn(inputs, null, numRows,masks,maskLabel);
             INDArray state_label = Nd4j.concat(1,state,inputs);
-            int sizeObservation = state_label.size(1);
+            long sizeObservation = state_label.size(1);
 
 
             //state_label= state_label.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(state_label.size(2)-1));
@@ -218,7 +222,7 @@ public class TDLstm<A> extends TD<A> {
     protected void learn_observator(INDArray inputs, INDArray epsilonObservation, int numRows,INDArray action,INDArray inputs2,INDArray labels){
         this.observationApproximator.learn(inputs,epsilonObservation,numRows);
         if(this.cpt_time%this.time == 0){
-            INDArray firstval = ((Mlp) this.criticApproximator).getValues().detach();
+            INDArray firstval = ((Mlp) this.criticApproximator).getValues();
             INDArray s1 = firstval.sub(labels);
             Double val1 = s1.muli(s1).meanNumber().doubleValue();
 
@@ -237,17 +241,16 @@ public class TDLstm<A> extends TD<A> {
 
     }
 
-    protected INDArray learn_critic(INDArray inputs, INDArray labels, int numRows,int sizeObservation){
+    protected INDArray learn_critic(INDArray inputs, INDArray labels, int numRows,long sizeObservation){
 
-
-        //INDArray epsilonObsAct = (INDArray)this.criticApproximator.learn(inputs, labels, numRows); // Critic learning
         INDArray epsilon = (INDArray)this.criticApproximator.learn(inputs, labels, numRows);// Critic learning
         INDArray scores = this.criticApproximator.getScoreArray();
         this.experienceReplay.setError(scores);
 
         if(this.cpt_time%this.time == 0){
             System.out.println("-------------");
-            INDArray firstval = ((Mlp) this.criticApproximator).getValues().detach();
+            INDArray firstval = ((Mlp) this.criticApproximator).getValues();
+            //WorkspaceMgr.(ArrayType.ACTIVATIONS, firstval);
             INDArray s1 = firstval.sub(labels);
             Double val1 = s1.muli(s1).meanNumber().doubleValue();
             INDArray newVal = this.criticApproximator.getOneResult(inputs);
@@ -258,12 +261,10 @@ public class TDLstm<A> extends TD<A> {
             System.out.println(meanScore + " -- " +cumulScoreUp);
 
         }
-        //INDArray epsAct = INDArrayIndex.interval(sizeObservation, epsilonAction.size(1));
-
         return epsilon;
     }
 
-    protected INDArray learn_actor(INDArray observations, int sizeObservation, int numColumns, int numRows){
+    protected INDArray learn_actor(INDArray observations, long sizeObservation, int numColumns, int numRows){
         INDArray action = this.learning.getApproximator().getOneResult(observations); // L'action du policy networks
         this.informations.setEvaluatedInputs(observations);
         this.informations.setEvaluatedActions(action);
