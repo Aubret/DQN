@@ -9,13 +9,13 @@ import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.workspace.WorkspaceMgr;
-import org.nd4j.nativeblas.Nd4jCuda;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Setter
+@Slf4j
 public class TDLstm2D<A> extends TDLstm<A> {
     protected SavesLearning savelearning ;
 
@@ -204,7 +205,7 @@ public class TDLstm2D<A> extends TDLstm<A> {
             INDArray intermediaire = this.cloneCriticApproximator.getOneResult(inputAction).subi(old);//must be positive
             Number mean = intermediaire.meanNumber();
             cpt += mean.doubleValue();
-            System.out.println(mean + " -- " + cpt);
+            log.info(mean + " -- " + cpt);
         }
         return eps;
     }

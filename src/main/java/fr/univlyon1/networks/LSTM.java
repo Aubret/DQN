@@ -4,11 +4,15 @@ import fr.univlyon1.environment.states.HiddenState;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.gradient.Gradient;
+import org.deeplearning4j.nn.layers.LayerHelper;
+import org.deeplearning4j.nn.layers.recurrent.LSTMHelper;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.nn.workspace.ArrayType;
@@ -31,6 +35,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@Slf4j
 public class LSTM extends Mlp implements StateApproximator{
 
     protected INDArray mask;
@@ -52,9 +57,9 @@ public class LSTM extends Mlp implements StateApproximator{
         }
         NeuralNetConfiguration.Builder b = new NeuralNetConfiguration.Builder()
                 .seed(this.seed+1)
-                .trainingWorkspaceMode(WorkspaceMode.NONE)
-                .inferenceWorkspaceMode(WorkspaceMode.NONE)
                 //.l2(0.001)
+                .trainingWorkspaceMode(WorkspaceMode.ENABLED)
+                .inferenceWorkspaceMode(WorkspaceMode.ENABLED)
                 .weightInit(WeightInit.XAVIER)
                 .updater(this.updater);
         if(l2 != null) {
@@ -117,6 +122,7 @@ public class LSTM extends Mlp implements StateApproximator{
         }
         this.tmp = this.model.params().dup();
 
+
     }
 
 
@@ -156,6 +162,8 @@ public class LSTM extends Mlp implements StateApproximator{
         //System.out.println(((org.deeplearning4j.nn.layers.recurrent.GravesLSTM) this.model.getLayer(0)).rnnGetTBPTTState());
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
+
+
         List<INDArray> workspace = this.model.rnnActivateUsingStoredState(input, true, true);
 
         this.listen();

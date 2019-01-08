@@ -10,9 +10,7 @@ import fr.univlyon1.networks.Mlp;
 import fr.univlyon1.networks.StateApproximator;
 import lombok.Getter;
 import lombok.Setter;
-import org.deeplearning4j.nn.workspace.ArrayType;
-import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
-import org.nd4j.jita.workspace.CudaWorkspaceManager;
+import lombok.extern.slf4j.Slf4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.INDArrayIndex;
@@ -24,6 +22,7 @@ import java.util.Stack;
 
 @Getter
 @Setter
+@Slf4j
 public class TDLstm<A> extends TD<A> {
 
     /*
@@ -46,7 +45,7 @@ public class TDLstm<A> extends TD<A> {
     protected double cumulObservation= 0;
     protected double cumulOnlyObservation= 0;
 
-    protected int time =20;
+    protected int time =5;
     protected int cpt_time = 0 ;
     protected boolean t = true ;
 
@@ -98,7 +97,7 @@ public class TDLstm<A> extends TD<A> {
             INDArray state_observation = Nd4j.concat(1,actualState,input);
             return (INDArray)this.learning.getPolicy().getAction(state_observation,this.informations);
         }else{
-            System.out.println("behave pas bon ! faut au moins une action random");
+            log.warn("behave pas bon ! faut au moins une action random");
             return null ;
         }
 
@@ -234,8 +233,7 @@ public class TDLstm<A> extends TD<A> {
             double meanScore = val1-val2 ;
             cumulObservation+=meanScore ;
             //cumulOnlyObservation+=(val3-val2);
-            System.out.println(meanScore + " -- " +(cumulObservation-cumulScoreUp));
-            //System.out.println((val3-val2) + " -- " + cumulOnlyObservation);
+            log.info(meanScore + " -- " +(cumulObservation-cumulScoreUp));
 
         }
 
@@ -248,7 +246,7 @@ public class TDLstm<A> extends TD<A> {
         this.experienceReplay.setError(scores);
 
         if(this.cpt_time%this.time == 0){
-            System.out.println("-------------");
+            log.info("-------------");
             INDArray firstval = ((Mlp) this.criticApproximator).getValues();
             //WorkspaceMgr.(ArrayType.ACTIVATIONS, firstval);
             INDArray s1 = firstval.sub(labels);
@@ -258,7 +256,7 @@ public class TDLstm<A> extends TD<A> {
             Double val2 =s2.muli(s2).meanNumber().doubleValue();
             double meanScore = val1-val2 ;
             cumulScoreUp+=meanScore ;
-            System.out.println(meanScore + " -- " +cumulScoreUp);
+            log.info(meanScore + " -- " +cumulScoreUp);
 
         }
         return epsilon;
@@ -283,7 +281,7 @@ public class TDLstm<A> extends TD<A> {
             INDArray intermediaire = this.cloneCriticApproximator.getOneResult(inputAction).subi(old);//must be positive
             Number mean = intermediaire.meanNumber();
             cpt += mean.doubleValue();
-            System.out.println(mean + " -- " + cpt);
+            log.info(mean + " -- " + cpt);
         }
         return eps;
     }
@@ -320,7 +318,6 @@ public class TDLstm<A> extends TD<A> {
             this.targetObservationApproximator.setParams(this.observationApproximator.getParams());
             targetActorApproximator.setParams(this.learning.getApproximator().getParams());
             targetCriticApproximator.setParams(this.criticApproximator.getParams());
-            System.out.println(this.targetObservationApproximator.getParams().getDouble(0));
 
         }*/
 

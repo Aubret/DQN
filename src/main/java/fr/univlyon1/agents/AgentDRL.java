@@ -9,7 +9,7 @@ import fr.univlyon1.reward.NstepTime;
 import fr.univlyon1.reward.RewardSMDP;
 import fr.univlyon1.reward.RewardShaping;
 import fr.univlyon1.selfsupervised.PomdpLearner;
-import org.nd4j.jita.conf.CudaEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * Classe principale de l'agent
  * @param <A>
  */
+@Slf4j
 public class AgentDRL<A> implements AgentRL<A> {
     protected static int count = 0 ;
     //protected static String filename = "a6_rewards63";
@@ -52,10 +53,6 @@ public class AgentDRL<A> implements AgentRL<A> {
     protected long time ;
 
     public AgentDRL(ActionSpace<A> actionSpace, ObservationSpace observationSpace, long seed){
-        org.nd4j.jita.conf.Configuration cudaconfig = CudaEnvironment.getInstance().getConfiguration();
-        cudaconfig.allowMultiGPU(false).allowCrossDeviceAccess(false);
-        //cudaconfig.useDevice(0);
-        System.out.println(cudaconfig.getAvailableDevices().toString());
 
 
         this.time = System.currentTimeMillis();
@@ -126,7 +123,6 @@ public class AgentDRL<A> implements AgentRL<A> {
     public A control(Double reward,Observation observation, Double time) {
         //System.out.println(observation+" ---> "+reward);
         count++ ;
-        System.out.println("ouaiiss");
         if(reward != null) {
             this.learning.putReward(reward);
         }
@@ -168,7 +164,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         if(action instanceof ContinuousAction)
             ((ContinuousAction) action).unNormalize();
         if(count % 500== 0)
-            System.out.println(action);
+            log.info(action.toString());
         return action ;
     }
 
@@ -228,7 +224,7 @@ public class AgentDRL<A> implements AgentRL<A> {
         if(action instanceof ContinuousAction)
             ((ContinuousAction) action).unNormalize();
         if(count % 500== 0)
-            System.out.println(action);
+            log.info(action.toString());
         this.previousTime=time ;
         return action ;
     }
@@ -246,11 +242,11 @@ public class AgentDRL<A> implements AgentRL<A> {
         for(int i = 0 ; i < this.pomdpLearners.size(); i++){
             this.pomdpLearners.get(i).stop();
         }
-        System.out.println("Nombre de décisions : "+count);
-        System.out.println("Total reward : "+this.totalReward);
-        System.out.println("Last action : "+this.action);
+        log.info("Nombre de décisions : "+count);
+        log.info("Total reward : "+this.totalReward);
+        log.info("Last action : "+this.action);
         TimeUnit t = TimeUnit.SECONDS ;
-        System.out.println("Time : "+t.convert(System.currentTimeMillis() - time,TimeUnit.SECONDS));
+        log.info("Time : "+t.convert(System.currentTimeMillis() - time,TimeUnit.SECONDS));
         if(this.print) {
             this.rewardResults.close();
             this.rewardLearningResults.close();

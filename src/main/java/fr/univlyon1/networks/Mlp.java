@@ -3,6 +3,7 @@ package fr.univlyon1.networks;
 import fr.univlyon1.learning.Informations;
 import fr.univlyon1.networks.lossFunctions.LossMseSaveScore;
 import fr.univlyon1.networks.lossFunctions.SaveScore;
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
@@ -16,7 +17,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.nn.workspace.ArrayType;
 import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.optimize.api.TrainingListener;
-import org.deeplearning4j.parallelism.ParallelWrapper;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
+@Slf4j
 public class Mlp implements Approximator{
     protected EpsilonMultiLayerNetwork model ;
     protected INDArray tmp ;
@@ -136,6 +138,7 @@ public class Mlp implements Approximator{
                 .updater(this.updater)
                 //.learningRate(learning_rate)
                 .biasInit(0.01)
+                .cacheMode(CacheMode.DEVICE)
                 //.gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
                 .weightInit(WeightInit.XAVIER_UNIFORM)
                 .minimize(minimize);
@@ -337,8 +340,8 @@ public class Mlp implements Approximator{
 
     @Override
     public void stop() {
-        System.out.println(this.tmp);
-        System.out.println(this.model.params());
+        log.info(this.tmp.toString());
+        log.info(this.model.params().toString());
         if(this.exportModel != null){
             try {
                 ModelSerializer.writeModel(this.model,this.exportModel,false);
@@ -359,14 +362,19 @@ public class Mlp implements Approximator{
         StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
+        /*if(this instanceof LSTM){
+            PerformanceListener pl = new PerformanceListener.Builder().build();
+            mlp.addListeners(pl);
+        }*/
 
 
         //Then add the StatsListener to collect this information from the network, as it trains
-        StatsListener stat =new StatsListener(statsStorage) ;
+        StatsListener stat =new StatsListener(statsStorage,10) ;
         if(this.name != null){
             stat.setSessionID(this.name);
         }
-        mlp.setListeners(stat);
+
+        mlp.addListeners(stat);
     }
 
     public MultiLayerNetwork getModel() {

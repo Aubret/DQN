@@ -3,15 +3,17 @@ package fr.univlyon1.networks;
 import fr.univlyon1.environment.states.AllHiddenState;
 import fr.univlyon1.networks.layers.LSTMLayer;
 import fr.univlyon1.networks.layers.LSTMLayerConf;
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.RnnToFeedForwardPreProcessor;
+import org.deeplearning4j.nn.layers.LayerHelper;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.TrainingListener;
-import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -25,6 +27,7 @@ import org.nd4j.linalg.learning.config.Sgd;
 import java.io.IOException;
 import java.util.*;
 
+@Slf4j
 public class LSTM2D extends LSTM {
 
 
@@ -47,9 +50,10 @@ public class LSTM2D extends LSTM {
                 .seed(this.seed+1)
                 //.cacheMode(CacheMode.DEVICE)
                 //.l2(0.001)Mlp
+                .cacheMode(CacheMode.DEVICE)
                 .biasInit(0.1)
                 .weightInit(WeightInit.XAVIER)
-                .updater(this.updater);
+                .updater(this.updater);// It's Adam
         if(l2 != null) {
             b.l2(this.l2);
         }
@@ -63,8 +67,9 @@ public class LSTM2D extends LSTM {
         int node = this.numNodesPerLayer.size() >0 ? this.numNodesPerLayer.get(0) : numNodes ;
         //node = cursor+1 == this.numLayers ? output : node ;
         builder.layer(cursor, new org.deeplearning4j.nn.conf.layers.LSTM.Builder()
-                .activation(this.hiddenActivation)
-                .gateActivationFunction(Activation.SIGMOID)
+                //.activation(this.hiddenActivation)
+                .activation(Activation.TANH)
+                //.gateActivationFunction(Activation.SIGMOID)
                 .forgetGateBiasInit(0.1)
                 //.weightInit(WeightInit.XAVIER_UNIFORM)
                 .nIn(input).nOut(node)
@@ -72,7 +77,7 @@ public class LSTM2D extends LSTM {
         );
 
         cursor++;
-        for (int i = 1; i < numLayers; i++){
+        for (int i = 1; i < numLayers; i++){ // 2 Two layers only
             int previousNode = this.numNodesPerLayer.size() > i-1 ? this.numNodesPerLayer.get(i-1) : numNodes ;
             node = this.numNodesPerLayer.size() > i ? this.numNodesPerLayer.get(i) : numNodes ;
             //node = cursor+1 == this.numLayers ? output : node ;
@@ -97,6 +102,7 @@ public class LSTM2D extends LSTM {
                         .activation(this.lastActivation)
                         .build());*/
         builder.inputPreProcessor(cursor,new RnnToFeedForwardPreProcessor());
+
         //builder.layer(cursor, new BatchNormalization.Builder().build());
         //cursor++ ;
 
@@ -145,6 +151,7 @@ public class LSTM2D extends LSTM {
             }
         }
         this.tmp = this.model.params().dup();
+
     }
 
 
@@ -184,8 +191,9 @@ public class LSTM2D extends LSTM {
         this.model.setInputMiniBatchSize(number);
         this.model.setInput(input);
         this.model.setLayerMaskArrays(mask,maskLabel);
-        List<INDArray> workspace = this.model.rnnActivateUsingStoredState(input, true, true);
 
+        LayerHelper h = this.model.getLayer(0).getHelper();
+        List<INDArray> workspace = this.model.rnnActivateUsingStoredState(input, true, true);
         for(TrainingListener it : this.model.getListeners()){
             it.onForwardPass(this.model, workspace);
         }
