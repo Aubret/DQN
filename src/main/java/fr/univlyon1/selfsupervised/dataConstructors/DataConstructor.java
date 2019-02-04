@@ -17,6 +17,9 @@ import lombok.Setter;
 @Setter
 public abstract class DataConstructor<A> {
 
+    /**
+     * Preprocessor in order to get data
+     */
     protected Configuration configuration ;
     protected SupervisedConfiguration configuration2 ;
     protected int batchSize ;

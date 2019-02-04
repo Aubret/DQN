@@ -9,7 +9,6 @@ import fr.univlyon1.environment.space.SpecificObservation;
 import fr.univlyon1.memory.ExperienceReplay;
 import fr.univlyon1.memory.ObservationsReplay.SpecificObservationReplay;
 import fr.univlyon1.memory.SequentialExperienceReplay;
-import fr.univlyon1.networks.LSTMMeanPooling;
 import fr.univlyon1.selfsupervised.dataTransfer.DataTarget;
 import fr.univlyon1.selfsupervised.dataTransfer.ModelBasedData;
 import fr.univlyon1.selfsupervised.dataTransfer.MultipleModelBasedData;

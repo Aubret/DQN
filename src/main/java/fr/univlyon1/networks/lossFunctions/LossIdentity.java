@@ -26,6 +26,10 @@ import org.nd4j.shade.jackson.annotation.JsonIgnore;
 import org.nd4j.shade.jackson.databind.annotation.JsonDeserialize;
 import org.nd4j.shade.jackson.databind.annotation.JsonSerialize;
 
+
+/**
+ * Maximize the output of the network, not really a layer too
+ */
 public class LossIdentity implements ILossFunction,SaveScore{
     @JsonIgnore
     private INDArray lastScoreArray ;

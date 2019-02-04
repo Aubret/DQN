@@ -4,7 +4,6 @@ import fr.univlyon1.actorcritic.Learning;
 import fr.univlyon1.environment.interactions.Interaction;
 import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
-import fr.univlyon1.networks.LSTMMeanPooling;
 import fr.univlyon1.networks.StateApproximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -83,10 +82,8 @@ public class TDLstmFilter<A> extends TDLstm<A> {
             INDArray masksTarget = Nd4j.zeros(totalBatchs,forwardInputs);
 
             INDArray maskLabel ;
-            if(observationApproximator instanceof LSTMMeanPooling){
-                maskLabel = Nd4j.ones(totalBatchs,1);
-            }else
-                maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
+
+            maskLabel = Nd4j.zeros(totalBatchs*forwardInputs,1);
             int cursorBackward = 0 ;
             //System.out.println(forward);
             for(int batch = 0 ; batch < total.size() ; batch++){ // Insertion des batchs
@@ -122,8 +119,7 @@ public class TDLstmFilter<A> extends TDLstm<A> {
                         //if(temporal == numberObservation-2){
                         //Label du mask
                         //maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(batch*forward + temporal),NDArrayIndex.all()},Nd4j.ones(1));
-                        if(!(observationApproximator instanceof LSTMMeanPooling))
-                            maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
+                        maskLabel.put(new INDArrayIndex[]{NDArrayIndex.point(totalBatchs*temporal + batch),NDArrayIndex.all()},Nd4j.ones(1));
                         //Labellisation des secondes observations
                         secondObservations.put(new INDArrayIndex[]{NDArrayIndex.point(batch), NDArrayIndex.all()/*, NDArrayIndex.point(temporal)*/},Nd4j.concat(1,interact.getSecondObservation(),action2));
 
@@ -156,14 +152,14 @@ public class TDLstmFilter<A> extends TDLstm<A> {
             System.out.println(maskLabel);*/
             this.experienceReplay.setConstructedData(inputs); // save for self supervised learning
             // Apprentissage : besoin de l'état
-            INDArray targetState = this.targetObservationApproximator.forwardLearn(inputsTarget,null,inputs.size(0),masksTarget,maskLabel);
+            INDArray targetState = this.targetObservationApproximator.forwardLearn(inputsTarget,null,(int)inputs.size(0),masksTarget,maskLabel);
             INDArray state = this.observationApproximator.forwardLearn(inputs, null, totalBatchs,masks,maskLabel);
             INDArray state_label = Nd4j.concat(1,state,inputs2);
             //INDArray targetState_label = Nd4j.concat(1,targetState,inputs2);
 
             //System.out.println("--------");
 
-            int sizeObservation = state_label.size(1);
+            long sizeObservation = state_label.size(1);
             //Commencement de l'apprentissage, labellisation
             //this.targetObservationApproximator.setMaskLabel(maskLabel);
             //INDArray obs1 = inputs.get(NDArrayIndex.all(),NDArrayIndex.all(),NDArrayIndex.point(0));

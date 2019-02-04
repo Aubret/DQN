@@ -74,7 +74,7 @@ public class Configuration {
     int backpropTime = 10 ;
 
     @XmlElement(name="forward")
-    int forward = 2 ;
+    int forward = 1 ;
 
 
     //expererience replay

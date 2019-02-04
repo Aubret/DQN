@@ -9,6 +9,10 @@ import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+/**
+ * same as TD but with batch data extracted from replay buffer
+ * @param <A>
+ */
 public class TDBatch<A> extends TD<A> {
     protected ExperienceReplay<A> experienceReplay ;
     protected int batchSize ;
@@ -40,7 +44,7 @@ public class TDBatch<A> extends TD<A> {
         int numRows = Math.min(this.experienceReplay.getSize(),this.batchSize);
         if(numRows <1 )
             return ;
-        int numColumns = this.lastInteraction.getObservation().size(1);
+        long numColumns = this.lastInteraction.getObservation().size(1);
         int numColumnsLabels = this.approximator.numOutput();
         //this.learning.getActionSpace().getSize();
         for(int j = 0;j<this.nbrIterations;j++) {

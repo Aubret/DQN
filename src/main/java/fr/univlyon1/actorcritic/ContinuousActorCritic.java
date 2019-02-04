@@ -26,6 +26,9 @@ import org.nd4j.linalg.learning.config.RmsProp;
 
 @Getter
 @Setter
+/**
+ * Class used with two neural nets, one for the policy and one for the critic
+ */
 public class ContinuousActorCritic<A> implements Learning<A> {
     protected Configuration conf ;
     protected Mlp policyApproximator ;

@@ -10,6 +10,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 
+/**
+ * Adapt batch TD for actor critic type algorithm, must learn an actor and a critic
+ * @param <A>
+ */
 public class TDActorCritic<A> extends TDBatch<A> {
 
     protected Approximator targetActorApproximator ;

@@ -11,7 +11,6 @@ import fr.univlyon1.memory.SequentialExperienceReplay;
 import fr.univlyon1.networks.Approximator;
 import fr.univlyon1.networks.LSTM;
 import fr.univlyon1.networks.LSTM2D;
-import fr.univlyon1.networks.LSTMMeanPooling;
 import fr.univlyon1.networks.lossFunctions.LossError;
 import fr.univlyon1.selfsupervised.ModelLearner;
 import fr.univlyon1.selfsupervised.PomdpLearner;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /*
- Agent qui load un fichier et qui exerce le lstm dessus
+The agents load a file with preexecuted actions and learn with it
  */
 public class TestAgentSupervised<A> implements AgentRL<A> {
     private PomdpLearner<A> pomdpLearners;

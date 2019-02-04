@@ -10,6 +10,10 @@ import fr.univlyon1.environment.space.SpecificObservation;
 import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+/**
+ * Main class implement the classic TD algorithm
+ * @param <A>
+ */
 public class TD<A> implements Algorithm<A> {
     protected Interaction<A> lastInteraction;
     protected double gamma ;

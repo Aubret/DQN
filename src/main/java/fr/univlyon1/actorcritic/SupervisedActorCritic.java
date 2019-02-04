@@ -7,6 +7,10 @@ import fr.univlyon1.environment.space.Observation;
 import fr.univlyon1.environment.space.ObservationSpace;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+/**
+ * Learn only from a file with preexecuted actions
+ * @param <A>
+ */
 public class SupervisedActorCritic<A> extends ContinuousActorCritic<A> {
     public SupervisedActorCritic(ObservationSpace observationSpace, ActionSpace<A> actionSpace, Configuration conf, long seed) {
         super(observationSpace, actionSpace, conf, seed);

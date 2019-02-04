@@ -32,15 +32,15 @@ public class LSTMLayerParamInitializer implements ParamInitializer {
         return INSTANCE;
     }
 
-    public int numParams(NeuralNetConfiguration conf) {
+    public long numParams(NeuralNetConfiguration conf) {
         return this.numParams(conf.getLayer());
     }
 
-    public int numParams(Layer l) {
+    public long numParams(Layer l) {
         LSTMLayerConf layerConf = (LSTMLayerConf) l;
-        int nL = layerConf.getNOut();
-        int nLast = layerConf.getNIn();
-        int nParams = nLast * 4 * nL + nL * 4 * nL + 4 * nL;
+        long nL = layerConf.getNOut();
+        long nLast = layerConf.getNIn();
+        long nParams = nLast * 4 * nL + nL * 4 * nL + 4 * nL;
         return nParams;
     }
 
@@ -69,25 +69,25 @@ public class LSTMLayerParamInitializer implements ParamInitializer {
         LSTMLayerConf layerConf = (LSTMLayerConf)conf.getLayer();
         double forgetGateInit = layerConf.getForgetGateBiasInit();
         Distribution dist = Distributions.createDistribution(layerConf.getDist());
-        int nL = layerConf.getNOut();
-        int nLast = layerConf.getNIn();
+        long nL = layerConf.getNOut();
+        long nLast = layerConf.getNIn();
         conf.addVariable("W");
         conf.addVariable("RW");
         conf.addVariable("b");
-        int length = this.numParams(conf);
+        long length = this.numParams(conf);
         if(paramsView.length() != length) {
             throw new IllegalStateException("Expected params view of length " + length + ", got length " + paramsView.length());
         } else {
-            int nParamsIn = nLast * 4 * nL;
-            int nParamsRecurrent = nL * 4 * nL;
-            int nBias = 4 * nL;
+            long nParamsIn = nLast * 4 * nL;
+            long nParamsRecurrent = nL * 4 * nL;
+            long nBias = 4 * nL;
             INDArray inputWeightView = paramsView.get(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(0, nParamsIn)});
             INDArray recurrentWeightView = paramsView.get(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(nParamsIn, nParamsIn + nParamsRecurrent)});
             INDArray biasView = paramsView.get(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(nParamsIn + nParamsRecurrent, nParamsIn + nParamsRecurrent + nBias)});
             if(initializeParams) {
-                int fanOut = nLast + nL;
-                int[] inputWShape = new int[]{nLast, 4 * nL};
-                int[] recurrentWShape = new int[]{nL, 4 * nL};
+                long fanOut = nLast + nL;
+                long[] inputWShape = new long[]{nLast, 4 * nL};
+                long[] recurrentWShape = new long[]{nL, 4 * nL};
                 Distribution rwDist = dist;
                 WeightInit rwInit;
                 if(layerConf.getWeightInitRecurrent() != null) {
@@ -104,8 +104,8 @@ public class LSTMLayerParamInitializer implements ParamInitializer {
                 biasView.put(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(nL, 2 * nL)}, Nd4j.valueArrayOf(1, nL, forgetGateInit));
                 params.put("b", biasView);
             } else {
-                params.put("W", WeightInitUtil.reshapeWeights(new int[]{nLast, 4 * nL}, inputWeightView));
-                params.put("RW", WeightInitUtil.reshapeWeights(new int[]{nL, 4 * nL}, recurrentWeightView));
+                params.put("W", WeightInitUtil.reshapeWeights(new long[]{nLast, 4 * nL}, inputWeightView));
+                params.put("RW", WeightInitUtil.reshapeWeights(new long[]{nL, 4 * nL}, recurrentWeightView));
                 params.put("b", biasView);
             }
 
@@ -115,15 +115,15 @@ public class LSTMLayerParamInitializer implements ParamInitializer {
 
     public Map<String, INDArray> getGradientsFromFlattened(NeuralNetConfiguration conf, INDArray gradientView) {
         LSTMLayerConf layerConf = (LSTMLayerConf)conf.getLayer();
-        int nL = layerConf.getNOut();
-        int nLast = layerConf.getNIn();
-        int length = this.numParams(conf);
+        long nL = layerConf.getNOut();
+        long nLast = layerConf.getNIn();
+        long length = this.numParams(conf);
         if(gradientView.length() != length) {
             throw new IllegalStateException("Expected gradient view of length " + length + ", got length " + gradientView.length());
         } else {
-            int nParamsIn = nLast * 4 * nL;
-            int nParamsRecurrent = nL * 4 * nL;
-            int nBias = 4 * nL;
+            long nParamsIn = nLast * 4 * nL;
+            long nParamsRecurrent = nL * 4 * nL;
+            long nBias = 4 * nL;
             INDArray inputWeightGradView = gradientView.get(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(0, nParamsIn)}).reshape('f', nLast, 4 * nL);
             INDArray recurrentWeightGradView = gradientView.get(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(nParamsIn, nParamsIn + nParamsRecurrent)}).reshape('f', nL, 4 * nL);
             INDArray biasGradView = gradientView.get(new INDArrayIndex[]{NDArrayIndex.point(0), NDArrayIndex.interval(nParamsIn + nParamsRecurrent, nParamsIn + nParamsRecurrent + nBias)});

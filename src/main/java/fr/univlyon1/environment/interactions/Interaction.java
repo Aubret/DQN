@@ -7,6 +7,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Setter
 @Getter
+/**
+ * Contain an entire interaction.
+ */
 public class Interaction <A> implements Replayable<A>{
     protected static int count = 0 ;
     // time of first observation

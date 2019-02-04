@@ -6,6 +6,8 @@ import org.deeplearning4j.nn.conf.CacheMode;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.layers.recurrent.*;
+import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
+import org.nd4j.base.Preconditions;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -70,20 +72,20 @@ public class LSTMLayer extends BaseRecurrentLayer<LSTMLayerConf> {
         throw new UnsupportedOperationException("gradient() method for layerwise pretraining: not supported for LSTMs (pretraining not possible) " + this.layerId());
     }
 
-    public Pair<Gradient, INDArray> backpropGradient(INDArray epsilon) {
-        return this.backpropGradientHelper(epsilon, false, -1);
+    public Pair<Gradient, INDArray> backpropGradient(INDArray epsilon, LayerWorkspaceMgr workspaceMgr) {
+        return this.backpropGradientHelper(epsilon, false, -1, workspaceMgr);
     }
 
-    public Pair<Gradient, INDArray> tbpttBackpropGradient(INDArray epsilon, int tbpttBackwardLength) {
-        return this.backpropGradientHelper(epsilon, true, tbpttBackwardLength);
+    public Pair<Gradient, INDArray> tbpttBackpropGradient(INDArray epsilon, int tbpttBackwardLength, LayerWorkspaceMgr workspaceMgr) {
+        return this.backpropGradientHelper(epsilon, true, tbpttBackwardLength, workspaceMgr);
     }
 
-    private Pair<Gradient, INDArray> backpropGradientHelper(INDArray epsilon, boolean truncatedBPTT, int tbpttBackwardLength) {
-        INDArray inputWeights = this.getParamWithNoise("W", true);
-        INDArray recurrentWeights = this.getParamWithNoise("RW", true);
+    private Pair<Gradient, INDArray> backpropGradientHelper(INDArray epsilon, boolean truncatedBPTT, int tbpttBackwardLength, LayerWorkspaceMgr workspaceMgr) {
+        INDArray inputWeights = this.getParamWithNoise("W", true,workspaceMgr);
+        INDArray recurrentWeights = this.getParamWithNoise("RW", true,workspaceMgr);
         FwdPassReturn fwdPass;
         if(truncatedBPTT) {
-            fwdPass = this.activateHelper(true, (INDArray)this.stateMap.get("prevAct"), (INDArray)this.stateMap.get("prevMem"), true);
+            fwdPass = this.activateHelper(true, (INDArray)this.stateMap.get("prevAct"), (INDArray)this.stateMap.get("prevMem"), true,workspaceMgr);
             this.tBpttStateMap.put("prevAct", fwdPass.lastAct.leverageTo("LOOP_TBPTT"));
             this.tBpttStateMap.put("prevMem", fwdPass.lastMemCell.leverageTo("LOOP_TBPTT"));
         } else {
@@ -91,11 +93,11 @@ public class LSTMLayer extends BaseRecurrentLayer<LSTMLayerConf> {
             fwdPass=this.saved ;
         }
 
-        Pair p = LSTMHelpers.backpropGradientHelper(this.conf, ((LSTMLayerConf)this.layerConf()).getGateActivationFn(), this.input, recurrentWeights, inputWeights, epsilon, truncatedBPTT, tbpttBackwardLength, fwdPass, true, "W", "RW", "b", this.gradientViews, (INDArray)null, false, this.helper);
+        Pair p = LSTMHelpers.backpropGradientHelper(this.conf, ((LSTMLayerConf)this.layerConf()).getGateActivationFn(), this.input, recurrentWeights, inputWeights, epsilon, truncatedBPTT, tbpttBackwardLength, fwdPass, true, "W", "RW", "b", this.gradientViews, (INDArray)null, false, this.helper, workspaceMgr);
         this.weightNoiseParams.clear();
         return p;
     }
-
+    /*
     public INDArray preOutput(INDArray x) {
         return this.activate(x, true);
     }
@@ -103,27 +105,20 @@ public class LSTMLayer extends BaseRecurrentLayer<LSTMLayerConf> {
     public INDArray preOutput(INDArray x, boolean training) {
         return this.activate(x, training);
     }
-
-    public INDArray activate(INDArray input, boolean training) {
-        this.setInput(input);
-        return this.activateHelper(training, (INDArray)null, (INDArray)null, false).fwdPassOutput;
+    */
+    public INDArray activate(INDArray input, boolean training, LayerWorkspaceMgr workspaceMgr) {
+        this.setInput(input,workspaceMgr);
+        return this.activateHelper(training, (INDArray)null, (INDArray)null, false,workspaceMgr).fwdPassOutput;
     }
 
-    public INDArray activate(INDArray input) {
-        this.setInput(input);
-        return this.activateHelper(true, (INDArray)null, (INDArray)null, false).fwdPassOutput;
+    public INDArray activate(boolean training, LayerWorkspaceMgr workspaceMgr) {
+        return this.activateHelper(training, (INDArray)null, (INDArray)null, false,workspaceMgr).fwdPassOutput;
     }
 
-    public INDArray activate(boolean training) {
-        return this.activateHelper(training, (INDArray)null, (INDArray)null, false).fwdPassOutput;
-    }
-
-    public INDArray activate() {
-        return this.activateHelper(false, (INDArray)null, (INDArray)null, false).fwdPassOutput;
-    }
-
-    private FwdPassReturn activateHelper(boolean training, INDArray prevOutputActivations, INDArray prevMemCellState, boolean forBackprop) {
-        this.applyDropOutIfNecessary(training);
+    private FwdPassReturn activateHelper(boolean training, INDArray prevOutputActivations, INDArray prevMemCellState, boolean forBackprop, LayerWorkspaceMgr workspaceMgr) {
+        this.assertInputSet(false);
+        Preconditions.checkState(this.input.rank() == 3, "3D input expected to RNN layer expected, got " + this.input.rank());
+        this.applyDropOutIfNecessary(training, workspaceMgr);
         if(this.cacheMode == null) {
             this.cacheMode = CacheMode.NONE;
         }
@@ -133,10 +128,10 @@ public class LSTMLayer extends BaseRecurrentLayer<LSTMLayerConf> {
             this.cachedFwdPass = null;
             return recurrentWeights1;
         } else {
-            INDArray recurrentWeights = this.getParamWithNoise("RW", training);
-            INDArray inputWeights = this.getParamWithNoise("W", training);
-            INDArray biases = this.getParamWithNoise("b", training);
-            FwdPassReturn fwd = LSTMHelperLayer.activateHelper(this, this.conf, ((LSTMLayerConf)this.layerConf()).getGateActivationFn(), this.input, recurrentWeights, inputWeights, biases, training, prevOutputActivations, prevMemCellState, training && this.cacheMode != CacheMode.NONE || forBackprop, true, "W", this.maskArray, false, this.helper, forBackprop?this.cacheMode:CacheMode.NONE);
+            INDArray recurrentWeights = this.getParamWithNoise("RW", training, workspaceMgr);
+            INDArray inputWeights = this.getParamWithNoise("W", training, workspaceMgr);
+            INDArray biases = this.getParamWithNoise("b", training, workspaceMgr);
+            FwdPassReturn fwd = LSTMHelperLayer.activateHelper(this, this.conf, ((LSTMLayerConf)this.layerConf()).getGateActivationFn(), this.input, recurrentWeights, inputWeights, biases, training, prevOutputActivations, prevMemCellState, training && this.cacheMode != CacheMode.NONE || forBackprop, true, "W", this.maskArray, false, this.helper, forBackprop?this.cacheMode:CacheMode.NONE, workspaceMgr);
             if(training && this.cacheMode != CacheMode.NONE) {
                 this.cachedFwdPass = fwd;
             }
@@ -159,7 +154,7 @@ public class LSTMLayer extends BaseRecurrentLayer<LSTMLayerConf> {
     public Pair<INDArray, MaskState> feedForwardMaskArray(INDArray maskArray, MaskState currentMaskState, int minibatchSize) {
         return new Pair(maskArray, MaskState.Passthrough);
     }
-
+    /*
     public double calcL2(boolean backpropParamsOnly) {
         double l2Sum = 0.0D;
         Iterator var4 = this.paramTable().entrySet().iterator();
@@ -191,19 +186,19 @@ public class LSTMLayer extends BaseRecurrentLayer<LSTMLayerConf> {
 
         return l1Sum;
     }
-
-    public INDArray rnnTimeStep(INDArray input) {
-        this.setInput(input);
-        FwdPassReturn fwdPass = this.activateHelper(false, (INDArray)this.stateMap.get("prevAct"), (INDArray)this.stateMap.get("prevMem"), false);
+    */
+    public INDArray rnnTimeStep(INDArray input, LayerWorkspaceMgr workspaceMgr) {
+        this.setInput(input,workspaceMgr);
+        FwdPassReturn fwdPass = this.activateHelper(false, (INDArray)this.stateMap.get("prevAct"), (INDArray)this.stateMap.get("prevMem"), false, workspaceMgr);
         INDArray outAct = fwdPass.fwdPassOutput;
         this.stateMap.put("prevAct", fwdPass.lastAct.detach());
         this.stateMap.put("prevMem", fwdPass.lastMemCell.detach());
         return outAct;
     }
 
-    public INDArray rnnActivateUsingStoredState(INDArray input, boolean training, boolean storeLastForTBPTT) {
-        this.setInput(input);
-        FwdPassReturn fwdPass = this.activateHelper(training, (INDArray)this.tBpttStateMap.get("prevAct"), (INDArray)this.tBpttStateMap.get("prevMem"), true);
+    public INDArray rnnActivateUsingStoredState(INDArray input, boolean training, boolean storeLastForTBPTT, LayerWorkspaceMgr workspaceMgr) {
+        this.setInput(input, workspaceMgr);
+        FwdPassReturn fwdPass = this.activateHelper(training, (INDArray)this.tBpttStateMap.get("prevAct"), (INDArray)this.tBpttStateMap.get("prevMem"), true, workspaceMgr);
         INDArray outAct = fwdPass.fwdPassOutput;
         //this.cachedFwdPass = fwdPass ;
         this.saved = fwdPass ;

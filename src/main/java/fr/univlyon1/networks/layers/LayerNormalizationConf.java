@@ -2,17 +2,16 @@ package fr.univlyon1.networks.layers;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.ParamInitializer;
 import org.deeplearning4j.nn.conf.InputPreProcessor;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.BatchNormalization;
 import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
-import org.deeplearning4j.nn.conf.layers.Layer;
 import org.deeplearning4j.nn.conf.memory.LayerMemoryReport;
 import org.deeplearning4j.nn.conf.memory.MemoryReport;
 import org.deeplearning4j.nn.layers.BaseLayer;
-import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.api.TrainingListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.IActivation;
@@ -46,13 +45,15 @@ public class LayerNormalizationConf extends FeedForwardLayer {
         this.isLockGammaBeta = false;
     }
 
+
+
     @Override
-    public org.deeplearning4j.nn.api.Layer instantiate(NeuralNetConfiguration neuralNetConfiguration, Collection<IterationListener> iterationListeners, int layerIndex, INDArray layerParamsView, boolean initializeParams) {
+    public Layer instantiate(NeuralNetConfiguration neuralNetConfiguration, Collection<TrainingListener> collection, int i, INDArray indArray, boolean b) {
         LayerNormalization ret = new LayerNormalization(neuralNetConfiguration);
-        ret.setListeners(iterationListeners);
-        ret.setIndex(layerIndex);
-        ret.setParamsViewArray(layerParamsView);
-        Map paramTable = this.initializer().init(neuralNetConfiguration, layerParamsView, initializeParams);
+        ret.setListeners(collection);
+        ret.setIndex(i);
+        ret.setParamsViewArray(indArray);
+        Map paramTable = this.initializer().init(neuralNetConfiguration, indArray, b);
         ret.setParamTable(paramTable);
         ret.setConf(neuralNetConfiguration);
         return ret;
@@ -66,7 +67,7 @@ public class LayerNormalizationConf extends FeedForwardLayer {
     @Override
     public LayerMemoryReport getMemoryReport(InputType inputType) {
         InputType outputType = this.getOutputType(-1, inputType);
-        int numParams = this.initializer().numParams(this);
+        long numParams = this.initializer().numParams(this);
         int updaterStateSize = 0;
 
         String trainWorkFixed;
@@ -74,9 +75,9 @@ public class LayerNormalizationConf extends FeedForwardLayer {
             trainWorkFixed = (String) inferenceWorkingSize.next();
         }
 
-        int inferenceWorkingSize1 = 2 * inputType.arrayElementsPerExample();
-        int trainWorkFixed1 = 2 * this.nOut;
-        int trainWorkingSizePerExample = inferenceWorkingSize1 + outputType.arrayElementsPerExample() + 2 * this.nOut;
+        long inferenceWorkingSize1 = 2 * inputType.arrayElementsPerExample();
+        long trainWorkFixed1 = 2 * this.nOut;
+        long trainWorkingSizePerExample = inferenceWorkingSize1 + outputType.arrayElementsPerExample() + 2 * this.nOut;
         return (new org.deeplearning4j.nn.conf.memory.LayerMemoryReport.Builder(this.layerName, LayerNormalization.class, inputType, outputType)).standardMemory((long) numParams, (long) updaterStateSize).workingMemory(0L, 0L, (long) trainWorkFixed1, (long) trainWorkingSizePerExample).cacheMemory(MemoryReport.CACHE_MODE_ALL_ZEROS, MemoryReport.CACHE_MODE_ALL_ZEROS).build();
     }
 

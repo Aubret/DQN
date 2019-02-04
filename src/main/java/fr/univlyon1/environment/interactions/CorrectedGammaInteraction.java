@@ -2,6 +2,10 @@ package fr.univlyon1.environment.interactions;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+/**
+ * reward not biaised if we used a mean reward in the environement.
+ * @param <A>
+ */
 public class CorrectedGammaInteraction<A> extends Interaction<A> {
 
 

@@ -21,11 +21,11 @@ public class LayerNormalizationInitializer implements ParamInitializer {
     }
 
 
-    public int numParams(NeuralNetConfiguration neuralNetConfiguration) {
+    public long numParams(NeuralNetConfiguration neuralNetConfiguration) {
         return this.numParams(neuralNetConfiguration.getLayer());
     }
 
-    public int numParams(Layer l) {
+    public long numParams(Layer l) {
         LayerNormalizationConf layer = (LayerNormalizationConf) l;
         return 2 * layer.getNOut();
     }
@@ -54,7 +54,7 @@ public class LayerNormalizationInitializer implements ParamInitializer {
     public Map<String, INDArray> init(NeuralNetConfiguration conf, INDArray paramView, boolean initializeParams) {
         Map params = Collections.synchronizedMap(new LinkedHashMap());
         LayerNormalizationConf layer = (LayerNormalizationConf) conf.getLayer();
-        int nOut = layer.getNOut();
+        long nOut = layer.getNOut();
         int meanOffset = 0;
         INDArray globalMeanView;
         INDArray globalVarView;
@@ -90,7 +90,7 @@ public class LayerNormalizationInitializer implements ParamInitializer {
 
     public Map<String, INDArray> getGradientsFromFlattened(NeuralNetConfiguration conf, INDArray gradientView) {
         LayerNormalizationConf layer = (LayerNormalizationConf)conf.getLayer();
-        int nOut = layer.getNOut();
+        long nOut = layer.getNOut();
         LinkedHashMap out = new LinkedHashMap();
         int meanOffset = 0;
         if(!layer.isLockGammaBeta()) {

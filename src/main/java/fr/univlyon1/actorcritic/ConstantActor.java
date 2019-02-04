@@ -14,6 +14,10 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Random;
 
+/**
+ * Class used for testing, the policy always execute the same action
+ * @param <A>
+ */
 public class ConstantActor<A> implements Learning<A> {
     protected ActionSpace<A> actionSpace ;
     protected ObservationSpace observationSpace;
@@ -47,14 +51,14 @@ public class ConstantActor<A> implements Learning<A> {
 
     @Override
     public A getAction(Observation observation, Double time) {
-        /*Double interdist ;
-        if(observation.getData().getDouble(4) == 1.) {
+        Double interdist ;
+        if(observation.getData().getDouble(4) == -0.5) {
             interdist = -1. ;
         }else{
             interdist=1. ;
-        }*/
+        }
 
-        INDArray behaviore= Nd4j.create(new double[]{1.,1.,(this.random.nextDouble()-0.5)*2});
+        INDArray behaviore= Nd4j.create(new double[]{interdist,1.,(this.random.nextDouble()-0.5)*2});
         return this.actionSpace.mapNumberToAction(behaviore);
     }
 

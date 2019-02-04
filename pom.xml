@@ -9,8 +9,8 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <deeplearning4j.version>1.0.0-alpha</deeplearning4j.version>
-    <nd4j.version>1.0.0-alpha</nd4j.version>
+    <deeplearning4j.version>1.0.0-beta3</deeplearning4j.version>
+    <nd4j.version>1.0.0-beta3</nd4j.version>
 
   </properties>
 
@@ -45,23 +45,35 @@
       <artifactId>deeplearning4j-ui_2.11</artifactId>
       <version>${deeplearning4j.version}</version>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.nd4j</groupId>
       <artifactId>nd4j-native</artifactId>
       <version>${nd4j.version}</version>
-    </dependency>
+    </dependency>-->
     <!--<dependency>
       <groupId>org.nd4j</groupId>
-      <artifactId>nd4j-cuda-8.0</artifactId>
+      <artifactId>nd4j-cuda-10.0-platform</artifactId>
       <version>${nd4j.version}</version>
     </dependency>-->
-    <dependency>
-      <groupId>org.nd4j</groupId>
-      <artifactId>nd4j-native-platform</artifactId>
+    <!--<dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-cuda-10.0</artifactId>
       <version>${nd4j.version}</version>
-    </dependency>
+    </dependency>-->
+    <!--<dependency>
+      <groupId>org.bytedeco.javacpp-presets</groupId>
+      <artifactId>cuda</artifactId>
+      <version>10.0-7.3-1.4.3</version>
+      <classifier>linux-x86_64-redist</classifier>
+    </dependency>-->
+
+     <dependency>
+        <groupId>org.nd4j</groupId>
+        <artifactId>nd4j-native-platform</artifactId>
+        <version>${nd4j.version}</version>
+      </dependency>
     <!-- https://mvnrepository.com/artifact/org.nd4j/nd4j-api -->
-    <dependency>
+    <!--<dependency>
       <groupId>org.nd4j</groupId>
       <artifactId>nd4j-api</artifactId>
       <version>${nd4j.version}</version>
@@ -70,7 +82,14 @@
       <groupId>org.nd4j</groupId>
       <artifactId>nd4j-common</artifactId>
       <version>${nd4j.version}</version>
-    </dependency>
+    </dependency>-->
+      <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.4</version>
+          <scope>provided</scope>
+      </dependency>
 
   </dependencies>
   <build>

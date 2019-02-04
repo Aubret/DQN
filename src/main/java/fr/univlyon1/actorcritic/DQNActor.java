@@ -19,6 +19,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Getter
 @Setter
+/**
+ * Not maintained, be careful
+ */
 public class DQNActor<A> implements Learning<A> {
     private Configuration conf ;
     private Mlp mlp ;

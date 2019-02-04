@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * Agent qui sauvegarde les interactions dans un fichier
+ * Agent which save interactions into a file
  * @param <A>
  */
 public class SelfSupervisedAgentDRL<A> extends AgentDRL<A> {

@@ -14,6 +14,9 @@ import org.nd4j.linalg.learning.config.Sgd;
 
 @Getter
 @Setter
+/**
+ * Mlp which enable normalizing layer like layer normalization or batch normalization
+ */
 public class NormalizedMlp extends Mlp {
 
     protected boolean batchNormalization ;
@@ -123,7 +126,6 @@ public class NormalizedMlp extends Mlp {
                     .build());
 
         this.multiLayerConfiguration = builder
-                .backprop(true).pretrain(false)
                 .build();
 
         this.model = new EpsilonMultiLayerNetwork(this.multiLayerConfiguration);
