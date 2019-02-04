@@ -33,6 +33,10 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Class using 3 neural nets, one for memory, one for the policy and one for critic.
+ * @param <A>
+ */
 public class LstmActorCritic<A> extends ContinuousActorCritic<A> {
 
     protected LSTM observationApproximator ;

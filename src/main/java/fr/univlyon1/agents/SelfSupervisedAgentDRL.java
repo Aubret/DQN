@@ -11,6 +11,10 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.PrintWriter;
 
+/**
+ * Class used for self-supervised learning, no more used
+ * @param <A>
+ */
 public class SelfSupervisedAgentDRL<A> extends AgentDRL<A> {
 
     SupervisedConfiguration supervisedConfiguration ;

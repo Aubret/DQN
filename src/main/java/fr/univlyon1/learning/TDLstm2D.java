@@ -24,6 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @Setter
 @Slf4j
+/**
+ * LSTM with actor critic, but we send a whole trajectory into the lstm directly.
+ * We have to construct the paddings and assign labels to trajectories.
+ */
 public class TDLstm2D<A> extends TDLstm<A> {
     protected SavesLearning savelearning ;
 

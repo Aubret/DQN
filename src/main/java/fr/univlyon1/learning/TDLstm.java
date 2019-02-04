@@ -23,6 +23,10 @@ import java.util.Stack;
 @Getter
 @Setter
 @Slf4j
+/**
+ * TD algorithm with actor critic and a LSTM before the actor and the critic. The classes not common with TDLSTM2D are not maintained
+ * At the beginning, we sent one observation at a time into the lstm
+ */
 public class TDLstm<A> extends TD<A> {
 
     /*

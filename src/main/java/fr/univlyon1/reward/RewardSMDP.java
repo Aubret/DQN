@@ -5,6 +5,7 @@ import fr.univlyon1.configurations.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class RewardSMDP implements RewardShaping{
     protected double gamma ;
 

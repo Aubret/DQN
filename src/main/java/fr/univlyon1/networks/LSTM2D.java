@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.*;
 
 @Slf4j
+/**
+ * LSTM neural network which take as input 3D data, batch, sequence, inputvector.
+ */
 public class LSTM2D extends LSTM {
 
 

@@ -31,6 +31,9 @@ import java.util.SortedSet;
 
 @Getter
 @Setter
+/**
+ * Construct data for lstm to predict a value of the next observation
+ */
 public class LstmDataConstructor<A> extends DataConstructor<A>{
     protected SequentialExperienceReplay<A> timeEp;
     protected SpecificObservationReplay<A> labelEp;

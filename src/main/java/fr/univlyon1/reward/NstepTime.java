@@ -5,6 +5,9 @@ import fr.univlyon1.configurations.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Compute the reward as sum(lambda^dt * r)
+ */
 public class NstepTime implements RewardShaping {
     protected double gamma ;
     public NstepTime(Configuration conf){

@@ -3,6 +3,10 @@ package fr.univlyon1.environment.interactions;
 import org.apache.commons.math3.analysis.function.Sigmoid;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+/**
+ * adjust gamma according to the time of the next observations. Ok the environement do not send back a mean reward
+ * @param <A>
+ */
 public class GammaInteraction<A> extends Interaction<A> {
     public GammaInteraction(A action, INDArray observation, double gamma) {
         super(action, observation,gamma);

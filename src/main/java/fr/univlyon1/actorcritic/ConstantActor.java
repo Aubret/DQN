@@ -14,6 +14,10 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Random;
 
+/**
+ * Class used for testing, the policy always execute the same action
+ * @param <A>
+ */
 public class ConstantActor<A> implements Learning<A> {
     protected ActionSpace<A> actionSpace ;
     protected ObservationSpace observationSpace;

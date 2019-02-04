@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Classe principale de l'agent
+ * Main class of an agent
  * @param <A>
  */
 @Slf4j
@@ -72,31 +72,6 @@ public class AgentDRL<A> implements AgentRL<A> {
             e.printStackTrace();;
         }
 
-        //1-5 mémoire intiailisée
-        //6-10 sans mémoire
-        //11-13 sans heure
-        //14-15 une seule boucle électro magnétique
-        //16-19 Deux boucles électro-magnétiques
-        //20 - 22 SAns mémoire
-        //23 40% de connectés
-        //24 - 27 60Secondes seulement
-        //27-28 30 secondes
-        //29 - 30 60 secondes + 40% véhicules connectés
-        //31 60 secondes, 40% véhicules, 3 voies;
-        //32 100% véhicules 3v oies
-        // a6 2-6 lstm test2.xprj
-        //a6 7-12 correction vraie récompense moyenne
-        //a6 13 - 17 Vitesse minmale avec changement output lstm, marche tjrs pas très bien sur 17
-        // 18 on inaugure le nouveau experience replay priorisé sur test
-        //21 nouveau paramétrage fonctionne
-        //22 encore nouveau sur test3
-        // 23-29 tests sur graves
-        //30 - ?
-        //mon 2e modèle fonctionnel ? test3.xprj / 32 - 37
-        // 40 premier exemple d'adaptatio aux lanes avecc cheat seed59
-        // 43-44avec cheat
-        // 50 sans cheat 0.5 learning rate
-        // 55-56-57 sans cheat fonctionne bien du monis normalement
         this.learning = new LstmActorCritic<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new ConstantActor<A>(observationSpace,actionSpace,this.configuration,seed);
         //this.learning = new RandomActor<A>(observationSpace,actionSpace,this.configuration,seed);

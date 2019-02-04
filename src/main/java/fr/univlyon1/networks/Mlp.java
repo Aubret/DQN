@@ -38,6 +38,9 @@ import java.util.ArrayList;
 @Getter
 @Setter
 @Slf4j
+/**
+ * Simple MLP with dense layers
+ */
 public class Mlp implements Approximator{
     protected EpsilonMultiLayerNetwork model ;
     protected INDArray tmp ;

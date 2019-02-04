@@ -18,6 +18,9 @@ import org.tensorflow.framework.NodeDef;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * take as input the epsilon error and bakcpropagate it, act like there is not any loss layer
+ */
 public class LossError extends DifferentialFunction implements ILossFunction {
 
 

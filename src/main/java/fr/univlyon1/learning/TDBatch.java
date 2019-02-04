@@ -7,6 +7,10 @@ import fr.univlyon1.networks.Approximator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+/**
+ * same as TD but with batch data extracted from replay buffer
+ * @param <A>
+ */
 public class TDBatch<A> extends TD<A> {
     protected ExperienceReplay<A> experienceReplay ;
     protected int batchSize ;

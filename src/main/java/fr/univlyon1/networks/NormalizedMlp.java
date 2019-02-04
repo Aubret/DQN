@@ -14,6 +14,9 @@ import org.nd4j.linalg.learning.config.Sgd;
 
 @Getter
 @Setter
+/**
+ * Mlp which enable normalizing layer like layer normalization or batch normalization
+ */
 public class NormalizedMlp extends Mlp {
 
     protected boolean batchNormalization ;

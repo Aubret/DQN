@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
+/**
+ * Execute random actions
+ */
 public class RandomActor<A> implements Learning<A> {
     private long seed ;
     private ActionSpace<A> actionSpace ;

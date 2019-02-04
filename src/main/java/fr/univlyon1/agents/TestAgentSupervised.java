@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /*
- Agent qui load un fichier et qui exerce le lstm dessus
+The agents load a file with preexecuted actions and learn with it
  */
 public class TestAgentSupervised<A> implements AgentRL<A> {
     private PomdpLearner<A> pomdpLearners;
